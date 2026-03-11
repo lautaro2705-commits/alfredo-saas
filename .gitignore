@@ -1,0 +1,72 @@
+# ── Dependencies ──
+node_modules/
+__pycache__/
+*.pyc
+*.pyo
+.pnp.*
+.yarn/
+
+# ── Build output ──
+frontend/dist/
+frontend/build/
+*.egg-info/
+dist/
+build/
+
+# ── Environment & secrets ──
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# ── IDE / Editor ──
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ── Python ──
+*.egg
+*.whl
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+htmlcov/
+.coverage
+.coverage.*
+venv/
+.venv/
+env/
+
+# ── Docker ──
+docker-compose.override.yml
+
+# ── Logs ──
+*.log
+logs/
+
+# ── Database ──
+*.db
+*.sqlite3
+backup_data/
+
+# ── OS ──
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+
+# ── Claude / AI ──
+.claude/
+backend/.claude/
+
+# ── Misc ──
+*.bak
+*.tmp
+*.temp
+.cache/
