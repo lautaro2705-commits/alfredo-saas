@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, delete
+from sqlalchemy import select, delete, update
 from sqlalchemy.orm import selectinload, joinedload
 from typing import List, Optional
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from dateutil.relativedelta import relativedelta
 from app.core.database import get_db
 from app.core.security import get_current_user_with_tenant, require_role, TokenContext
@@ -20,6 +20,7 @@ from app.verticals.autos.schemas.operacion import (
     BoletoCompraVentaResponse
 )
 from app.verticals.autos.models.actividad import registrar_actividad, AccionActividad, EntidadActividad
+from app.core.soft_delete import soft_delete
 
 router = APIRouter(prefix="/autos/operaciones", tags=["autos-operaciones"])
 
@@ -36,7 +37,7 @@ async def listar_operaciones(
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
     """Listar operaciones con filtros"""
-    stmt = select(Operacion)
+    stmt = select(Operacion).where(Operacion.active())
 
     if estado:
         stmt = stmt.where(Operacion.estado == estado)
@@ -65,13 +66,13 @@ async def diagnostico_operaciones(
     """
     # Contar unidades vendidas
     result = await db.execute(
-        select(Unidad).where(Unidad.estado == EstadoUnidad.VENDIDO)
+        select(Unidad).where(Unidad.active(), Unidad.estado == EstadoUnidad.VENDIDO)
     )
     unidades_vendidas = result.scalars().all()
 
     # Contar operaciones completadas
     result = await db.execute(
-        select(Operacion).where(Operacion.estado == EstadoOperacion.COMPLETADA)
+        select(Operacion).where(Operacion.active(), Operacion.estado == EstadoOperacion.COMPLETADA)
     )
     operaciones_completadas = result.scalars().all()
 
@@ -111,20 +112,21 @@ async def recuperar_operaciones_faltantes(
     Solo admin.
     """
     # Verificar que el cliente existe
-    result = await db.execute(select(Cliente).where(Cliente.id == cliente_id_default))
+    result = await db.execute(select(Cliente).where(Cliente.active(), Cliente.id == cliente_id_default))
     cliente = result.scalar_one_or_none()
     if not cliente:
         raise HTTPException(status_code=404, detail="Cliente no encontrado")
 
     # Buscar unidades vendidas
     result = await db.execute(
-        select(Unidad).where(Unidad.estado == EstadoUnidad.VENDIDO)
+        select(Unidad).where(Unidad.active(), Unidad.estado == EstadoUnidad.VENDIDO)
     )
     unidades_vendidas = result.scalars().all()
 
     # Obtener IDs de unidades que ya tienen operacion
     result = await db.execute(
         select(Operacion).where(
+            Operacion.active(),
             Operacion.estado.in_([EstadoOperacion.COMPLETADA, EstadoOperacion.EN_PROCESO])
         )
     )
@@ -197,14 +199,14 @@ async def corregir_fechas_caja(
     """
     # Buscar movimientos de caja vinculados a operaciones
     result = await db.execute(
-        select(CajaDiaria).where(CajaDiaria.operacion_id.isnot(None))
+        select(CajaDiaria).where(CajaDiaria.active(), CajaDiaria.operacion_id.isnot(None))
     )
     movimientos = result.scalars().all()
 
     corregidos = []
 
     for mov in movimientos:
-        result = await db.execute(select(Operacion).where(Operacion.id == mov.operacion_id))
+        result = await db.execute(select(Operacion).where(Operacion.active(), Operacion.id == mov.operacion_id))
         operacion = result.scalar_one_or_none()
         if operacion and mov.fecha != operacion.fecha_operacion:
             fecha_anterior = mov.fecha
@@ -235,7 +237,7 @@ async def obtener_operacion(
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
     """Obtener detalle de una operacion"""
-    result = await db.execute(select(Operacion).where(Operacion.id == operacion_id))
+    result = await db.execute(select(Operacion).where(Operacion.active(), Operacion.id == operacion_id))
     operacion = result.scalar_one_or_none()
     if not operacion:
         raise HTTPException(status_code=404, detail="Operacion no encontrada")
@@ -253,7 +255,7 @@ async def crear_operacion(
     Puede incluir retoma (auto que entra como parte de pago).
     """
     # Verificar unidad
-    result = await db.execute(select(Unidad).where(Unidad.id == operacion.unidad_id))
+    result = await db.execute(select(Unidad).where(Unidad.active(), Unidad.id == operacion.unidad_id))
     unidad = result.scalar_one_or_none()
     if not unidad:
         raise HTTPException(status_code=404, detail="Unidad no encontrada")
@@ -261,7 +263,7 @@ async def crear_operacion(
         raise HTTPException(status_code=400, detail="La unidad ya fue vendida")
 
     # Verificar cliente
-    result = await db.execute(select(Cliente).where(Cliente.id == operacion.cliente_id))
+    result = await db.execute(select(Cliente).where(Cliente.active(), Cliente.id == operacion.cliente_id))
     cliente = result.scalar_one_or_none()
     if not cliente:
         raise HTTPException(status_code=404, detail="Cliente no encontrado")
@@ -334,7 +336,7 @@ async def actualizar_operacion(
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
     """Actualizar una operacion"""
-    result = await db.execute(select(Operacion).where(Operacion.id == operacion_id))
+    result = await db.execute(select(Operacion).where(Operacion.active(), Operacion.id == operacion_id))
     db_operacion = result.scalar_one_or_none()
     if not db_operacion:
         raise HTTPException(status_code=404, detail="Operacion no encontrada")
@@ -366,7 +368,7 @@ async def completar_operacion(
     """
     result = await db.execute(
         select(Operacion)
-        .where(Operacion.id == operacion_id)
+        .where(Operacion.active(), Operacion.id == operacion_id)
         .options(joinedload(Operacion.unidad_vendida))
     )
     operacion = result.scalar_one_or_none()
@@ -435,7 +437,7 @@ async def obtener_boleto_compraventa(
     """
     result = await db.execute(
         select(Operacion)
-        .where(Operacion.id == operacion_id)
+        .where(Operacion.active(), Operacion.id == operacion_id)
         .options(
             joinedload(Operacion.unidad_vendida),
             joinedload(Operacion.cliente)
@@ -502,7 +504,7 @@ async def marcar_boleto_impreso(
     """
     Marcar que el boleto fue impreso (para tracking).
     """
-    result = await db.execute(select(Operacion).where(Operacion.id == operacion_id))
+    result = await db.execute(select(Operacion).where(Operacion.active(), Operacion.id == operacion_id))
     operacion = result.scalar_one_or_none()
     if not operacion:
         raise HTTPException(status_code=404, detail="Operacion no encontrada")
@@ -530,7 +532,7 @@ async def cargar_datos_boleto(
     Cargar datos del boleto para operaciones ya completadas que no tienen km_entrega.
     Permite generar boletos para ventas antiguas.
     """
-    result = await db.execute(select(Operacion).where(Operacion.id == operacion_id))
+    result = await db.execute(select(Operacion).where(Operacion.active(), Operacion.id == operacion_id))
     operacion = result.scalar_one_or_none()
     if not operacion:
         raise HTTPException(status_code=404, detail="Operacion no encontrada")
@@ -563,7 +565,7 @@ async def cancelar_operacion(
     """Cancelar una operacion"""
     result = await db.execute(
         select(Operacion)
-        .where(Operacion.id == operacion_id)
+        .where(Operacion.active(), Operacion.id == operacion_id)
         .options(joinedload(Operacion.unidad_vendida))
     )
     operacion = result.scalar_one_or_none()
@@ -577,12 +579,12 @@ async def cancelar_operacion(
     unidad = operacion.unidad_vendida
     unidad.estado = EstadoUnidad.DISPONIBLE
 
-    # Si habia retoma, eliminar la unidad creada
+    # Si habia retoma, soft-delete la unidad creada
     if operacion.tiene_retoma and operacion.unidad_retoma_id:
         result = await db.execute(select(Unidad).where(Unidad.id == operacion.unidad_retoma_id))
         unidad_retoma = result.scalar_one_or_none()
         if unidad_retoma:
-            await db.delete(unidad_retoma)
+            await soft_delete(db, unidad_retoma, deleted_by=token.user_id, commit=False)
 
     operacion.estado = EstadoOperacion.CANCELADA
     if motivo:
@@ -630,12 +632,15 @@ async def eliminar_operacion(
             unidad.estado = EstadoUnidad.DISPONIBLE
             unidad.fecha_venta = None
 
-    # Eliminar movimientos de caja asociados
-    await db.execute(delete(CajaDiaria).where(CajaDiaria.operacion_id == operacion_id))
+    # Soft-delete movimientos de caja asociados
+    await db.execute(
+        update(CajaDiaria)
+        .where(CajaDiaria.operacion_id == operacion_id, CajaDiaria.deleted_at.is_(None))
+        .values(deleted_at=datetime.now(timezone.utc), deleted_by=token.user_id)
+    )
 
-    # Eliminar la operacion
-    await db.delete(operacion)
-    await db.commit()
+    # Soft-delete la operacion
+    await soft_delete(db, operacion, deleted_by=token.user_id)
 
     return {"mensaje": "Operacion eliminada y unidad devuelta a stock"}
 
@@ -650,7 +655,7 @@ async def actualizar_documentacion_operacion(
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
     """Actualizar estado de documentacion de una operacion en proceso"""
-    result = await db.execute(select(Operacion).where(Operacion.id == operacion_id))
+    result = await db.execute(select(Operacion).where(Operacion.active(), Operacion.id == operacion_id))
     operacion = result.scalar_one_or_none()
     if not operacion:
         raise HTTPException(status_code=404, detail="Operacion no encontrada")

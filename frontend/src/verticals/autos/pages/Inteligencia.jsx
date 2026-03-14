@@ -143,8 +143,8 @@ export default function Inteligencia() {
     return (
       <div className="text-center py-12">
         <AlertTriangle className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
-        <h2 className="text-xl font-semibold text-gray-900">Acceso Restringido</h2>
-        <p className="text-gray-500 mt-2">Solo administradores pueden ver este modulo.</p>
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Acceso Restringido</h2>
+        <p className="text-gray-500 dark:text-gray-400 mt-2">Solo administradores pueden ver este modulo.</p>
       </div>
     )
   }
@@ -154,8 +154,8 @@ export default function Inteligencia() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Inteligencia de Negocio</h1>
-          <p className="text-gray-500">Analisis de rentabilidad y costo de oportunidad</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Inteligencia de Negocio</h1>
+          <p className="text-gray-500 dark:text-gray-400">Analisis de rentabilidad y costo de oportunidad</p>
         </div>
         <button
           onClick={() => setShowConfig(!showConfig)}
@@ -168,13 +168,13 @@ export default function Inteligencia() {
 
       {/* Panel de Configuracion */}
       {showConfig && config && (
-        <div className="card bg-blue-50 border-blue-200">
+        <div className="card bg-blue-50 dark:bg-blue-950 border-blue-200">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold text-blue-900">Configuracion de Parametros</h3>
             {!editingConfig ? (
               <button
                 onClick={() => setEditingConfig(true)}
-                className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 font-medium"
               >
                 Editar
               </button>
@@ -202,7 +202,7 @@ export default function Inteligencia() {
           {editingConfig ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm text-blue-600 mb-1">
+                <label className="block text-sm text-blue-600 dark:text-blue-400 mb-1">
                   Tasa Costo Oportunidad (% anual)
                 </label>
                 <input
@@ -222,7 +222,7 @@ export default function Inteligencia() {
                 </p>
               </div>
               <div>
-                <label className="block text-sm text-blue-600 mb-1">
+                <label className="block text-sm text-blue-600 dark:text-blue-400 mb-1">
                   Dias para Alerta Re-precio
                 </label>
                 <input
@@ -241,7 +241,7 @@ export default function Inteligencia() {
                 </p>
               </div>
               <div>
-                <label className="block text-sm text-blue-600 mb-1">
+                <label className="block text-sm text-blue-600 dark:text-blue-400 mb-1">
                   Dias para Stock Inmovilizado
                 </label>
                 <input
@@ -263,15 +263,15 @@ export default function Inteligencia() {
           ) : (
             <div className="grid grid-cols-3 gap-4 text-sm">
               <div>
-                <p className="text-blue-600">Tasa Costo Oportunidad</p>
+                <p className="text-blue-600 dark:text-blue-400">Tasa Costo Oportunidad</p>
                 <p className="font-bold text-blue-900">{config.tasa_costo_oportunidad_anual}% anual</p>
               </div>
               <div>
-                <p className="text-blue-600">Alerta Re-precio</p>
+                <p className="text-blue-600 dark:text-blue-400">Alerta Re-precio</p>
                 <p className="font-bold text-blue-900">{config.dias_alerta_repricing} dias</p>
               </div>
               <div>
-                <p className="text-blue-600">Stock Inmovilizado</p>
+                <p className="text-blue-600 dark:text-blue-400">Stock Inmovilizado</p>
                 <p className="font-bold text-blue-900">{config.dias_stock_inmovilizado} dias</p>
               </div>
             </div>
@@ -288,35 +288,35 @@ export default function Inteligencia() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="card text-center">
             <BarChart3 className="w-8 h-8 text-primary-500 mx-auto mb-2" />
-            <p className="text-sm text-gray-500">Unidades en Stock</p>
-            <p className="text-2xl font-bold text-gray-900">{resumen.total_unidades_stock}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Unidades en Stock</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">{resumen.total_unidades_stock}</p>
           </div>
 
           <div className="card text-center">
             <DollarSign className="w-8 h-8 text-green-500 mx-auto mb-2" />
-            <p className="text-sm text-gray-500">Capital Inmovilizado</p>
-            <p className="text-xl font-bold text-gray-900">{formatCurrency(resumen.capital_inmovilizado)}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Capital Inmovilizado</p>
+            <p className="text-xl font-bold text-gray-900 dark:text-white">{formatCurrency(resumen.capital_inmovilizado)}</p>
           </div>
 
           <div className="card text-center">
             <TrendingDown className="w-8 h-8 text-red-500 mx-auto mb-2" />
-            <p className="text-sm text-gray-500">Costo Oportunidad/Mes</p>
-            <p className="text-xl font-bold text-red-600">{formatCurrency(resumen.costo_oportunidad_total_mensual)}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Costo Oportunidad/Mes</p>
+            <p className="text-xl font-bold text-red-600 dark:text-red-400">{formatCurrency(resumen.costo_oportunidad_total_mensual)}</p>
           </div>
 
           <div className="card text-center">
             <TrendingUp className="w-8 h-8 text-green-500 mx-auto mb-2" />
-            <p className="text-sm text-gray-500">ROI Ultimo Mes</p>
-            <p className="text-2xl font-bold text-green-600">{resumen.roi_promedio_ultimo_mes?.toFixed(1) || '-'}%</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">ROI Ultimo Mes</p>
+            <p className="text-2xl font-bold text-green-600 dark:text-green-400">{resumen.roi_promedio_ultimo_mes?.toFixed(1) || '-'}%</p>
           </div>
         </div>
       )}
 
       {/* Alertas */}
       {resumen && (resumen.unidades_requieren_repricing > 0 || resumen.unidades_stock_inmovilizado > 0) && (
-        <div className="card bg-yellow-50 border-yellow-200">
+        <div className="card bg-yellow-50 dark:bg-yellow-950 border-yellow-200">
           <div className="flex items-center gap-2 mb-3">
-            <AlertTriangle className="w-5 h-5 text-yellow-600" />
+            <AlertTriangle className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
             <h3 className="font-semibold text-yellow-900">Alertas</h3>
           </div>
           <div className="flex gap-6 text-sm">
@@ -341,7 +341,7 @@ export default function Inteligencia() {
             className="flex items-center justify-between cursor-pointer"
             onClick={() => setExpandedSection(expandedSection === 'repricing' ? '' : 'repricing')}
           >
-            <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
               <Clock className="w-5 h-5 text-orange-500" />
               Unidades para Re-precio ({alertasRepricing.length})
             </h2>
@@ -353,21 +353,21 @@ export default function Inteligencia() {
               {alertasRepricing.slice(0, 10).map((alerta) => (
                 <div
                   key={alerta.unidad_id}
-                  className="flex items-center justify-between p-3 bg-orange-50 rounded-lg"
+                  className="flex items-center justify-between p-3 bg-orange-50 dark:bg-orange-950 rounded-lg"
                 >
                   <div>
-                    <p className="font-medium text-gray-900">
+                    <p className="font-medium text-gray-900 dark:text-white">
                       {alerta.marca} {alerta.modelo} ({alerta.anio})
                     </p>
-                    <p className="text-sm text-gray-500">{alerta.dominio}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{alerta.dominio}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-orange-600 font-semibold">{alerta.dias_en_stock} dias</p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-orange-600 dark:text-orange-400 font-semibold">{alerta.dias_en_stock} dias</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
                       Publicado: {formatCurrency(alerta.precio_publicado)}
                     </p>
                     {alerta.precio_sugerido && (
-                      <p className="text-sm text-green-600">
+                      <p className="text-sm text-green-600 dark:text-green-400">
                         Sugerido: {formatCurrency(alerta.precio_sugerido)}
                       </p>
                     )}
@@ -385,7 +385,7 @@ export default function Inteligencia() {
           className="flex items-center justify-between cursor-pointer"
           onClick={() => setExpandedSection(expandedSection === 'costo' ? '' : 'costo')}
         >
-          <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
             <TrendingDown className="w-5 h-5 text-red-500" />
             Costo de Oportunidad por Unidad
           </h2>
@@ -414,16 +414,16 @@ export default function Inteligencia() {
                     {costoOportunidad?.slice(0, 15).map((item) => (
                       <tr key={item.unidad_id} className={clsx(
                         "border-b",
-                        item.requiere_repricing && "bg-red-50"
+                        item.requiere_repricing && "bg-red-50 dark:bg-red-950"
                       )}>
                         <td className="py-2">
                           <p className="font-medium">{item.marca} {item.modelo}</p>
-                          <p className="text-gray-500 text-xs">{item.dominio}</p>
+                          <p className="text-gray-500 dark:text-gray-400 text-xs">{item.dominio}</p>
                         </td>
                         <td className="text-right py-2">{item.dias_en_stock}</td>
                         <td className="text-right py-2">{formatCurrency(item.costo_total)}</td>
-                        <td className="text-right py-2 text-red-600">{formatCurrency(item.costo_oportunidad_diario)}</td>
-                        <td className="text-right py-2 font-semibold text-red-600">
+                        <td className="text-right py-2 text-red-600 dark:text-red-400">{formatCurrency(item.costo_oportunidad_diario)}</td>
+                        <td className="text-right py-2 font-semibold text-red-600 dark:text-red-400">
                           {formatCurrency(item.costo_oportunidad_acumulado)}
                         </td>
                       </tr>
@@ -443,7 +443,7 @@ export default function Inteligencia() {
             className="flex items-center justify-between cursor-pointer"
             onClick={() => setExpandedSection(expandedSection === 'roi' ? '' : 'roi')}
           >
-            <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
               <TrendingUp className="w-5 h-5 text-green-500" />
               ROI por Marca (Ultimo Ano)
             </h2>
@@ -469,10 +469,10 @@ export default function Inteligencia() {
                       <td className="py-2 font-medium">{item.marca}</td>
                       <td className="text-right py-2">{item.cantidad_vendidas}</td>
                       <td className="text-right py-2">{formatCurrency(item.precio_venta_promedio)}</td>
-                      <td className="text-right py-2 text-green-600">{formatCurrency(item.utilidad_promedio)}</td>
+                      <td className="text-right py-2 text-green-600 dark:text-green-400">{formatCurrency(item.utilidad_promedio)}</td>
                       <td className={clsx(
                         "text-right py-2 font-semibold",
-                        item.roi_promedio >= 15 ? "text-green-600" : item.roi_promedio >= 10 ? "text-yellow-600" : "text-red-600"
+                        item.roi_promedio >= 15 ? "text-green-600 dark:text-green-400" : item.roi_promedio >= 10 ? "text-yellow-600 dark:text-yellow-400" : "text-red-600 dark:text-red-400"
                       )}>
                         {item.roi_promedio.toFixed(1)}%
                       </td>
@@ -488,18 +488,18 @@ export default function Inteligencia() {
 
       {/* Top Performers */}
       {resumen && (resumen.marca_mas_rentable || resumen.modelo_mas_rentable) && (
-        <div className="card bg-green-50 border-green-200">
+        <div className="card bg-green-50 dark:bg-green-950 border-green-200">
           <h3 className="font-semibold text-green-900 mb-3">Top Performers (Ultimo Trimestre)</h3>
           <div className="grid grid-cols-2 gap-4">
             {resumen.marca_mas_rentable && (
               <div>
-                <p className="text-sm text-green-600">Marca mas Rentable</p>
+                <p className="text-sm text-green-600 dark:text-green-400">Marca mas Rentable</p>
                 <p className="font-bold text-green-900 text-lg">{resumen.marca_mas_rentable}</p>
               </div>
             )}
             {resumen.modelo_mas_rentable && (
               <div>
-                <p className="text-sm text-green-600">Modelo mas Rentable</p>
+                <p className="text-sm text-green-600 dark:text-green-400">Modelo mas Rentable</p>
                 <p className="font-bold text-green-900 text-lg">{resumen.modelo_mas_rentable}</p>
               </div>
             )}

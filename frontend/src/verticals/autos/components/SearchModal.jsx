@@ -73,7 +73,7 @@ export default function SearchModal({ isOpen, onClose }) {
 
       {/* Modal */}
       <div className="relative min-h-screen flex items-start justify-center pt-[15vh] px-4">
-        <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
+        <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
           {/* Search Input */}
           <div className="flex items-center gap-3 p-4 border-b">
             <Search className="w-5 h-5 text-gray-400" />
@@ -83,14 +83,14 @@ export default function SearchModal({ isOpen, onClose }) {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Buscar unidades, clientes, operaciones..."
-              className="flex-1 text-lg outline-none placeholder-gray-400"
+              className="flex-1 text-lg outline-none placeholder-gray-400 dark:placeholder-gray-500"
             />
             {query && (
-              <button onClick={() => setQuery('')} className="p-1 hover:bg-gray-100 rounded">
+              <button onClick={() => setQuery('')} className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded">
                 <X className="w-4 h-4 text-gray-400" />
               </button>
             )}
-            <kbd className="hidden sm:inline-flex px-2 py-1 text-xs bg-gray-100 text-gray-500 rounded">
+            <kbd className="hidden sm:inline-flex px-2 py-1 text-xs bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 rounded">
               ESC
             </kbd>
           </div>
@@ -99,19 +99,19 @@ export default function SearchModal({ isOpen, onClose }) {
           <div className="max-h-[60vh] overflow-y-auto">
             {isLoading && (
               <div className="flex items-center justify-center py-12">
-                <Loader2 className="w-6 h-6 animate-spin text-primary-600" />
+                <Loader2 className="w-6 h-6 animate-spin text-primary-600 dark:text-primary-400" />
               </div>
             )}
 
             {!isLoading && query.length < 2 && (
-              <div className="p-8 text-center text-gray-500">
+              <div className="p-8 text-center text-gray-500 dark:text-gray-400">
                 <Search className="w-12 h-12 mx-auto mb-3 text-gray-300" />
                 <p>Escribí al menos 2 caracteres para buscar</p>
               </div>
             )}
 
             {!isLoading && query.length >= 2 && data?.resultados?.length === 0 && (
-              <div className="p-8 text-center text-gray-500">
+              <div className="p-8 text-center text-gray-500 dark:text-gray-400">
                 <p>No se encontraron resultados para "{query}"</p>
               </div>
             )}
@@ -131,7 +131,7 @@ export default function SearchModal({ isOpen, onClose }) {
 
                   return (
                     <div key={tipo} className="mb-2">
-                      <p className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider bg-gray-50">
+                      <p className="px-4 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider bg-gray-50 dark:bg-gray-800">
                         {tipoLabels[tipo]}
                       </p>
                       {items.map((resultado) => {
@@ -144,15 +144,15 @@ export default function SearchModal({ isOpen, onClose }) {
                           >
                             <div className={clsx(
                               'p-2 rounded-lg',
-                              resultado.tipo === 'unidad' && 'bg-blue-100 text-blue-600',
-                              resultado.tipo === 'cliente' && 'bg-green-100 text-green-600',
-                              resultado.tipo === 'operacion' && 'bg-purple-100 text-purple-600'
+                              resultado.tipo === 'unidad' && 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400',
+                              resultado.tipo === 'cliente' && 'bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400',
+                              resultado.tipo === 'operacion' && 'bg-purple-100 text-purple-600 dark:text-purple-400'
                             )}>
                               <Icon className="w-4 h-4" />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="font-medium text-gray-900 truncate">{resultado.titulo}</p>
-                              <p className="text-sm text-gray-500 truncate">{resultado.subtitulo}</p>
+                              <p className="font-medium text-gray-900 dark:text-white truncate">{resultado.titulo}</p>
+                              <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{resultado.subtitulo}</p>
                             </div>
                           </button>
                         )
@@ -165,13 +165,13 @@ export default function SearchModal({ isOpen, onClose }) {
           </div>
 
           {/* Footer */}
-          <div className="px-4 py-3 border-t bg-gray-50 text-xs text-gray-500 flex items-center justify-between">
+          <div className="px-4 py-3 border-t bg-gray-50 dark:bg-gray-800 text-xs text-gray-500 dark:text-gray-400 flex items-center justify-between">
             <span>
-              <kbd className="px-1.5 py-0.5 bg-white border rounded text-xs mr-1">↵</kbd>
+              <kbd className="px-1.5 py-0.5 bg-white dark:bg-gray-800 border rounded text-xs mr-1">↵</kbd>
               para seleccionar
             </span>
             <span>
-              <kbd className="px-1.5 py-0.5 bg-white border rounded text-xs mr-1">ESC</kbd>
+              <kbd className="px-1.5 py-0.5 bg-white dark:bg-gray-800 border rounded text-xs mr-1">ESC</kbd>
               para cerrar
             </span>
           </div>

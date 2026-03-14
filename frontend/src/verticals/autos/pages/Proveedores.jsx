@@ -168,11 +168,11 @@ export default function Proveedores() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <Store className="w-7 h-7 text-primary-600" />
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+              <Store className="w-7 h-7 text-primary-600 dark:text-primary-400" />
               Proveedores
             </h1>
-            <p className="text-gray-500">Gestión de proveedores y servicios</p>
+            <p className="text-gray-500 dark:text-gray-400">Gestión de proveedores y servicios</p>
           </div>
           {proveedores?.length > 0 && <ExportButton onClick={handleExportar} />}
         </div>
@@ -186,16 +186,16 @@ export default function Proveedores() {
       {estadisticas && (
         <div className="grid grid-cols-3 gap-4">
           <div className="card text-center">
-            <p className="text-2xl font-bold text-primary-600">{estadisticas.total_proveedores}</p>
-            <p className="text-sm text-gray-500">Proveedores activos</p>
+            <p className="text-2xl font-bold text-primary-600 dark:text-primary-400">{estadisticas.total_proveedores}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Proveedores activos</p>
           </div>
           <div className="card text-center">
-            <p className="text-2xl font-bold text-green-600">{formatCurrency(estadisticas.total_gastado)}</p>
-            <p className="text-sm text-gray-500">Total gastado</p>
+            <p className="text-2xl font-bold text-green-600 dark:text-green-400">{formatCurrency(estadisticas.total_gastado)}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Total gastado</p>
           </div>
           <div className="card text-center">
-            <p className="text-2xl font-bold text-blue-600">{estadisticas.proveedor_mas_usado || '-'}</p>
-            <p className="text-sm text-gray-500">Más usado</p>
+            <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{estadisticas.proveedor_mas_usado || '-'}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Más usado</p>
           </div>
         </div>
       )}
@@ -235,14 +235,14 @@ export default function Proveedores() {
             <div key={prov.id} className="card">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center">
-                    <Store className="w-6 h-6 text-primary-600" />
+                  <div className="w-12 h-12 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center">
+                    <Store className="w-6 h-6 text-primary-600 dark:text-primary-400" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900">{prov.nombre}</h3>
-                    <div className="flex items-center gap-3 text-sm text-gray-500">
+                    <h3 className="font-semibold text-gray-900 dark:text-white">{prov.nombre}</h3>
+                    <div className="flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
                       {prov.tipo && (
-                        <span className="px-2 py-0.5 bg-gray-100 rounded text-xs">{prov.tipo}</span>
+                        <span className="px-2 py-0.5 bg-gray-100 dark:bg-gray-800 rounded text-xs">{prov.tipo}</span>
                       )}
                       {prov.telefono && (
                         <span className="flex items-center gap-1">
@@ -255,21 +255,21 @@ export default function Proveedores() {
 
                 <div className="flex items-center gap-4">
                   <div className="text-right hidden sm:block">
-                    <p className="text-sm font-semibold text-green-600">
+                    <p className="text-sm font-semibold text-green-600 dark:text-green-400">
                       {formatCurrency(prov.total_gastado)}
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
                       {prov.cantidad_trabajos || 0} trabajos
                     </p>
                   </div>
                   <div className="flex items-center gap-1">
-                    <button onClick={() => abrirEditar(prov)} className="p-2 text-gray-400 hover:text-primary-600 rounded-lg hover:bg-gray-50">
+                    <button onClick={() => abrirEditar(prov)} className="p-2 text-gray-400 hover:text-primary-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800">
                       <Edit3 className="w-4 h-4" />
                     </button>
-                    <button onClick={() => setExpandedId(expandedId === prov.id ? null : prov.id)} className="p-2 text-gray-400 hover:text-primary-600 rounded-lg hover:bg-gray-50">
+                    <button onClick={() => setExpandedId(expandedId === prov.id ? null : prov.id)} className="p-2 text-gray-400 hover:text-primary-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800">
                       {expandedId === prov.id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                     </button>
-                    <button onClick={() => { if (confirm('¿Desactivar este proveedor?')) eliminarMutation.mutate(prov.id) }} className="p-2 text-gray-400 hover:text-red-600 rounded-lg hover:bg-gray-50">
+                    <button onClick={() => { if (confirm('¿Desactivar este proveedor?')) eliminarMutation.mutate(prov.id) }} className="p-2 text-gray-400 hover:text-red-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800">
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
@@ -280,34 +280,34 @@ export default function Proveedores() {
               {expandedId === prov.id && (
                 <div className="mt-4 pt-4 border-t">
                   {prov.email && (
-                    <p className="text-sm text-gray-600 mb-1 flex items-center gap-1">
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-1 flex items-center gap-1">
                       <Mail className="w-3 h-3" /> {prov.email}
                     </p>
                   )}
                   {prov.direccion && (
-                    <p className="text-sm text-gray-600 mb-1 flex items-center gap-1">
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-1 flex items-center gap-1">
                       <MapPin className="w-3 h-3" /> {prov.direccion}
                     </p>
                   )}
                   {prov.cuit && (
-                    <p className="text-sm text-gray-600 mb-3">CUIT: {prov.cuit}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">CUIT: {prov.cuit}</p>
                   )}
                   {prov.notas && (
                     <p className="text-sm text-gray-500 italic mb-3">{prov.notas}</p>
                   )}
 
-                  <h4 className="text-sm font-semibold text-gray-700 mb-2">Últimos trabajos</h4>
+                  <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Últimos trabajos</h4>
                   {costosExpandido?.length ? (
                     <div className="space-y-2">
                       {costosExpandido.map(c => (
-                        <div key={c.id} className="flex items-center justify-between text-sm bg-gray-50 rounded-lg px-3 py-2">
+                        <div key={c.id} className="flex items-center justify-between text-sm bg-gray-50 dark:bg-gray-800 rounded-lg px-3 py-2">
                           <div>
                             <span className="font-medium">{c.descripcion}</span>
                             <span className="text-gray-400 ml-2">
                               {new Date(c.fecha).toLocaleDateString('es-AR')}
                             </span>
                           </div>
-                          <span className="font-semibold text-gray-700">{formatCurrency(c.monto)}</span>
+                          <span className="font-semibold text-gray-700 dark:text-gray-300">{formatCurrency(c.monto)}</span>
                         </div>
                       ))}
                     </div>

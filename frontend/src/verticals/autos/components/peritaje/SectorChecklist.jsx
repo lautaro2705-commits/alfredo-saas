@@ -15,8 +15,8 @@ const RATINGS = {
     label: 'Bueno',
     color: 'green',
     bgColor: 'bg-green-500',
-    bgColorLight: 'bg-green-100',
-    textColor: 'text-green-700',
+    bgColorLight: 'bg-green-100 dark:bg-green-900',
+    textColor: 'text-green-700 dark:text-green-400',
     borderColor: 'border-green-500',
     icon: CheckCircle,
     value: 100
@@ -25,8 +25,8 @@ const RATINGS = {
     label: 'Regular',
     color: 'yellow',
     bgColor: 'bg-yellow-500',
-    bgColorLight: 'bg-yellow-100',
-    textColor: 'text-yellow-700',
+    bgColorLight: 'bg-yellow-100 dark:bg-yellow-900',
+    textColor: 'text-yellow-700 dark:text-yellow-400',
     borderColor: 'border-yellow-500',
     icon: AlertCircle,
     value: 50
@@ -35,8 +35,8 @@ const RATINGS = {
     label: 'Malo',
     color: 'red',
     bgColor: 'bg-red-500',
-    bgColorLight: 'bg-red-100',
-    textColor: 'text-red-700',
+    bgColorLight: 'bg-red-100 dark:bg-red-900',
+    textColor: 'text-red-700 dark:text-red-400',
     borderColor: 'border-red-500',
     icon: XCircle,
     value: 0
@@ -45,8 +45,8 @@ const RATINGS = {
     label: 'N/A',
     color: 'gray',
     bgColor: 'bg-gray-400',
-    bgColorLight: 'bg-gray-100',
-    textColor: 'text-gray-600',
+    bgColorLight: 'bg-gray-100 dark:bg-gray-800',
+    textColor: 'text-gray-600 dark:text-gray-400',
     borderColor: 'border-gray-400',
     icon: MinusCircle,
     value: null
@@ -106,7 +106,7 @@ function RatingButtonCompact({ rating, selected, onSelect, disabled }) {
         'min-w-[44px] min-h-[44px]', // Touch target mínimo
         selected
           ? `${config.bgColor} text-white shadow-md`
-          : `bg-gray-100 ${config.textColor} hover:${config.bgColorLight}`,
+          : `bg-gray-100 dark:bg-gray-800 ${config.textColor} hover:${config.bgColorLight}`,
         disabled && 'opacity-50 cursor-not-allowed'
       )}
       title={config.label}
@@ -171,14 +171,14 @@ function ChecklistItem({
   return (
     <div className={clsx(
       'border rounded-xl overflow-hidden transition-all',
-      ratingConfig ? ratingConfig.borderColor : 'border-gray-200',
+      ratingConfig ? ratingConfig.borderColor : 'border-gray-200 dark:border-gray-700',
       item.urgente && 'ring-2 ring-red-500'
     )}>
       {/* Header del item con botones de rating visibles */}
       <div
         className={clsx(
           'p-3 flex flex-col gap-3',
-          ratingConfig ? ratingConfig.bgColorLight : 'bg-white'
+          ratingConfig ? ratingConfig.bgColorLight : 'bg-white dark:bg-gray-800'
         )}
       >
         {/* Nombre del item y botón expandir */}
@@ -190,11 +190,11 @@ function ChecklistItem({
             {item.urgente && (
               <AlertTriangle className="w-4 h-4 text-red-500 flex-shrink-0" />
             )}
-            <span className="font-medium text-gray-900 text-sm">{item.nombre_item}</span>
+            <span className="font-medium text-gray-900 dark:text-white text-sm">{item.nombre_item}</span>
           </div>
           <div className="flex items-center gap-2">
             {item.fotos?.length > 0 && (
-              <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+              <span className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-full">
                 {item.fotos.length} 📷
               </span>
             )}
@@ -237,10 +237,10 @@ function ChecklistItem({
 
       {/* Contenido expandido - observaciones y detalles */}
       {expanded && (
-        <div className="p-4 border-t border-gray-200 bg-gray-50 space-y-4">
+        <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 space-y-4">
           {/* Observaciones */}
           <div>
-            <label className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-1">
               <MessageSquare className="w-4 h-4" />
               Observaciones
             </label>
@@ -258,7 +258,7 @@ function ChecklistItem({
           {/* Costo estimado de reparación */}
           {(item.calificacion === 'regular' || item.calificacion === 'malo') && (
             <div>
-              <label className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-1">
                 <DollarSign className="w-4 h-4" />
                 Costo de reparación estimado
               </label>
@@ -293,9 +293,9 @@ function ChecklistItem({
                   }
                 }}
                 disabled={readOnly}
-                className="w-5 h-5 rounded border-gray-300 text-red-600 focus:ring-red-500"
+                className="w-5 h-5 rounded border-gray-300 dark:border-gray-600 text-red-600 dark:text-red-400 focus:ring-red-500"
               />
-              <span className="text-sm font-medium text-red-600 flex items-center gap-1">
+              <span className="text-sm font-medium text-red-600 dark:text-red-400 flex items-center gap-1">
                 <AlertTriangle className="w-4 h-4" />
                 Marcar como urgente
               </span>
@@ -306,7 +306,7 @@ function ChecklistItem({
           {!readOnly && (
             <button
               onClick={() => onPhotoClick?.(item)}
-              className="w-full flex items-center justify-center gap-2 py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-primary-500 hover:text-primary-600 transition-colors"
+              className="w-full flex items-center justify-center gap-2 py-2 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-400 hover:border-primary-500 hover:text-primary-600 transition-colors"
             >
               <Camera className="w-5 h-5" />
               Agregar foto a este item
@@ -316,7 +316,7 @@ function ChecklistItem({
           {/* Fotos del item */}
           {item.fotos?.length > 0 && (
             <div>
-              <label className="text-sm font-medium text-gray-700 mb-2 block">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                 Fotos ({item.fotos.length})
               </label>
               <div className="flex gap-2 overflow-x-auto pb-2">
@@ -398,12 +398,12 @@ export default function SectorChecklist({
   return (
     <div className="space-y-4">
       {/* Header del sector con estadísticas */}
-      <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-lg font-bold text-gray-900">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white">
             {sectorNames[sector] || sector}
           </h3>
-          <span className="text-sm text-gray-500">
+          <span className="text-sm text-gray-500 dark:text-gray-400">
             {stats.calificados} / {stats.total}
           </span>
         </div>
@@ -419,16 +419,16 @@ export default function SectorChecklist({
         {/* Mini estadísticas + Botón marcar todo bueno */}
         <div className="flex items-center justify-between">
           <div className="flex gap-3 text-xs">
-            <span className="flex items-center gap-1 text-green-600">
+            <span className="flex items-center gap-1 text-green-600 dark:text-green-400">
               <CheckCircle className="w-3 h-3" /> {stats.buenos}
             </span>
-            <span className="flex items-center gap-1 text-yellow-600">
+            <span className="flex items-center gap-1 text-yellow-600 dark:text-yellow-400">
               <AlertCircle className="w-3 h-3" /> {stats.regulares}
             </span>
-            <span className="flex items-center gap-1 text-red-600">
+            <span className="flex items-center gap-1 text-red-600 dark:text-red-400">
               <XCircle className="w-3 h-3" /> {stats.malos}
             </span>
-            <span className="flex items-center gap-1 text-gray-500">
+            <span className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
               <MinusCircle className="w-3 h-3" /> {stats.na}
             </span>
           </div>
@@ -438,7 +438,7 @@ export default function SectorChecklist({
             <button
               onClick={() => marcarTodosBuenoMutation.mutate()}
               disabled={marcarTodosBuenoMutation.isPending}
-              className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-green-700 bg-green-100 hover:bg-green-200 rounded-lg transition-colors disabled:opacity-50"
+              className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-green-700 dark:text-green-400 bg-green-100 dark:bg-green-900 hover:bg-green-200 rounded-lg transition-colors disabled:opacity-50"
             >
               <CheckCheck className="w-3.5 h-3.5" />
               {marcarTodosBuenoMutation.isPending ? 'Marcando...' : `Todo Bueno (${itemsSinCalificar})`}

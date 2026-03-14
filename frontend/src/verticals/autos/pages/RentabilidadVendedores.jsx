@@ -35,21 +35,21 @@ const LABELS_CATEGORIAS = {
 // Componente de tarjeta de estadística
 function StatCard({ title, value, icon: Icon, subtitle, trend, color = 'primary' }) {
   const colorClasses = {
-    primary: 'bg-primary-50 text-primary-600',
-    green: 'bg-green-50 text-green-600',
-    blue: 'bg-blue-50 text-blue-600',
-    yellow: 'bg-yellow-50 text-yellow-600',
-    purple: 'bg-purple-50 text-purple-600',
+    primary: 'bg-primary-50 dark:bg-primary-950 text-primary-600 dark:text-primary-400',
+    green: 'bg-green-50 dark:bg-green-950 text-green-600 dark:text-green-400',
+    blue: 'bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400',
+    yellow: 'bg-yellow-50 dark:bg-yellow-950 text-yellow-600 dark:text-yellow-400',
+    purple: 'bg-purple-50 dark:bg-purple-950 text-purple-600 dark:text-purple-400',
   }
 
   return (
     <div className="card">
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-sm text-gray-500">{title}</p>
-          <p className="text-2xl font-bold text-gray-900 mt-1">{value}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{title}</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{value}</p>
           {subtitle && (
-            <p className="text-xs text-gray-500 mt-1">{subtitle}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{subtitle}</p>
           )}
         </div>
         <div className={clsx('p-3 rounded-xl', colorClasses[color])}>
@@ -59,7 +59,7 @@ function StatCard({ title, value, icon: Icon, subtitle, trend, color = 'primary'
       {trend !== undefined && (
         <div className={clsx(
           'flex items-center gap-1 mt-2 text-sm',
-          trend >= 0 ? 'text-green-600' : 'text-red-600'
+          trend >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
         )}>
           {trend >= 0 ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
           <span>{Math.abs(trend).toFixed(1)}% vs período anterior</span>
@@ -72,8 +72,8 @@ function StatCard({ title, value, icon: Icon, subtitle, trend, color = 'primary'
 // Componente de fila expandible de vendedor
 function VendedorRow({ vendedor, rank, isExpanded, onToggle }) {
   const medalColors = {
-    1: 'bg-yellow-100 text-yellow-700 border-yellow-300',
-    2: 'bg-gray-100 text-gray-700 border-gray-300',
+    1: 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-400 border-yellow-300',
+    2: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600',
     3: 'bg-orange-100 text-orange-700 border-orange-300',
   }
 
@@ -81,8 +81,8 @@ function VendedorRow({ vendedor, rank, isExpanded, onToggle }) {
     <>
       <tr
         className={clsx(
-          'hover:bg-gray-50 cursor-pointer transition-colors',
-          isExpanded && 'bg-primary-50'
+          'hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors',
+          isExpanded && 'bg-primary-50 dark:bg-primary-950'
         )}
         onClick={onToggle}
       >
@@ -96,15 +96,15 @@ function VendedorRow({ vendedor, rank, isExpanded, onToggle }) {
                 {rank}
               </span>
             ) : (
-              <span className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-sm text-gray-500">
+              <span className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-sm text-gray-500 dark:text-gray-400">
                 {rank}
               </span>
             )}
-            <span className="font-medium text-gray-900">{vendedor.vendedor_nombre}</span>
+            <span className="font-medium text-gray-900 dark:text-white">{vendedor.vendedor_nombre}</span>
           </div>
         </td>
         <td className="px-4 py-3 text-center">
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800">
             {vendedor.cantidad_ventas}
           </span>
         </td>
@@ -114,7 +114,7 @@ function VendedorRow({ vendedor, rank, isExpanded, onToggle }) {
         <td className="px-4 py-3 text-right">
           <span className={clsx(
             'font-bold',
-            vendedor.total_utilidad >= 0 ? 'text-green-600' : 'text-red-600'
+            vendedor.total_utilidad >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
           )}>
             {formatCurrency(vendedor.total_utilidad)}
           </span>
@@ -122,14 +122,14 @@ function VendedorRow({ vendedor, rank, isExpanded, onToggle }) {
         <td className="px-4 py-3 text-center">
           <span className={clsx(
             'inline-flex items-center px-2 py-0.5 rounded text-xs font-medium',
-            vendedor.margen_promedio >= 15 ? 'bg-green-100 text-green-800' :
-            vendedor.margen_promedio >= 10 ? 'bg-yellow-100 text-yellow-800' :
-            'bg-red-100 text-red-800'
+            vendedor.margen_promedio >= 15 ? 'bg-green-100 dark:bg-green-900 text-green-800' :
+            vendedor.margen_promedio >= 10 ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800' :
+            'bg-red-100 dark:bg-red-900 text-red-800'
           )}>
             {vendedor.margen_promedio.toFixed(1)}%
           </span>
         </td>
-        <td className="px-4 py-3 text-right text-gray-600">
+        <td className="px-4 py-3 text-right text-gray-600 dark:text-gray-400">
           {formatCurrency(vendedor.comisiones_total)}
         </td>
         <td className="px-4 py-3 text-center">
@@ -144,13 +144,13 @@ function VendedorRow({ vendedor, rank, isExpanded, onToggle }) {
       {/* Detalle expandido */}
       {isExpanded && vendedor.operaciones.length > 0 && (
         <tr>
-          <td colSpan={7} className="px-4 py-3 bg-gray-50">
+          <td colSpan={7} className="px-4 py-3 bg-gray-50 dark:bg-gray-800">
             <div className="ml-10">
-              <p className="text-sm font-medium text-gray-700 mb-2">Detalle de operaciones:</p>
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Detalle de operaciones:</p>
               <div className="overflow-x-auto">
                 <table className="min-w-full text-sm">
                   <thead>
-                    <tr className="text-xs text-gray-500 uppercase">
+                    <tr className="text-xs text-gray-500 dark:text-gray-400 uppercase">
                       <th className="text-left py-2 pr-4">Fecha</th>
                       <th className="text-left py-2 pr-4">Unidad</th>
                       <th className="text-right py-2 pr-4">Precio Venta</th>
@@ -161,23 +161,23 @@ function VendedorRow({ vendedor, rank, isExpanded, onToggle }) {
                   </thead>
                   <tbody>
                     {vendedor.operaciones.map((op) => (
-                      <tr key={op.id} className="border-t border-gray-200">
-                        <td className="py-2 pr-4 text-gray-600">
+                      <tr key={op.id} className="border-t border-gray-200 dark:border-gray-700">
+                        <td className="py-2 pr-4 text-gray-600 dark:text-gray-400">
                           {new Date(op.fecha).toLocaleDateString('es-AR')}
                         </td>
                         <td className="py-2 pr-4">
                           <span className="font-medium">{op.unidad}</span>
-                          <span className="text-gray-500 ml-2">({op.dominio})</span>
+                          <span className="text-gray-500 dark:text-gray-400 ml-2">({op.dominio})</span>
                         </td>
                         <td className="py-2 pr-4 text-right">{formatCurrency(op.precio_venta)}</td>
-                        <td className="py-2 pr-4 text-right text-gray-500">{formatCurrency(op.costo_total)}</td>
+                        <td className="py-2 pr-4 text-right text-gray-500 dark:text-gray-400">{formatCurrency(op.costo_total)}</td>
                         <td className={clsx(
                           'py-2 pr-4 text-right font-medium',
-                          op.utilidad >= 0 ? 'text-green-600' : 'text-red-600'
+                          op.utilidad >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
                         )}>
                           {formatCurrency(op.utilidad)}
                         </td>
-                        <td className="py-2 text-right text-gray-600">{formatCurrency(op.comision)}</td>
+                        <td className="py-2 text-right text-gray-600 dark:text-gray-400">{formatCurrency(op.comision)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -190,7 +190,7 @@ function VendedorRow({ vendedor, rank, isExpanded, onToggle }) {
 
       {isExpanded && vendedor.operaciones.length === 0 && (
         <tr>
-          <td colSpan={7} className="px-4 py-3 bg-gray-50 text-center text-gray-500 text-sm">
+          <td colSpan={7} className="px-4 py-3 bg-gray-50 dark:bg-gray-800 text-center text-gray-500 dark:text-gray-400 text-sm">
             Sin operaciones en este período
           </td>
         </tr>
@@ -306,7 +306,7 @@ export default function RentabilidadVendedores() {
 
   if (error) {
     return (
-      <div className="p-4 bg-red-50 text-red-700 rounded-lg">
+      <div className="p-4 bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-400 rounded-lg">
         Error al cargar el reporte: {error.message}
       </div>
     )
@@ -318,8 +318,8 @@ export default function RentabilidadVendedores() {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div className="flex items-center gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Rentabilidad por Vendedor</h1>
-            <p className="text-gray-500 text-sm mt-1">Análisis de desempeño y utilidad por vendedor</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Rentabilidad por Vendedor</h1>
+            <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Análisis de desempeño y utilidad por vendedor</p>
           </div>
           {data && <ExportButton onClick={handleExportar} />}
         </div>
@@ -411,36 +411,36 @@ export default function RentabilidadVendedores() {
             <div className="card">
               <div className="flex items-center gap-3 mb-4">
                 <div className="p-2 bg-emerald-100 rounded-lg">
-                  <TrendingUp className="w-5 h-5 text-emerald-600" />
+                  <TrendingUp className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-semibold text-gray-900">Rentabilidad del Negocio</h2>
-                  <p className="text-sm text-gray-500">Utilidad bruta menos gastos operativos y comisiones</p>
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Rentabilidad del Negocio</h2>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Utilidad bruta menos gastos operativos y comisiones</p>
                 </div>
               </div>
 
               {/* P&L Breakdown */}
-              <div className="bg-gray-50 rounded-xl p-4 space-y-3">
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 space-y-3">
                 {/* Utilidad Bruta */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <DollarSign className="w-4 h-4 text-green-500" />
-                    <span className="text-sm font-medium text-gray-700">Utilidad Bruta de Ventas</span>
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Utilidad Bruta de Ventas</span>
                   </div>
-                  <span className="text-lg font-bold text-green-600">
+                  <span className="text-lg font-bold text-green-600 dark:text-green-400">
                     {formatCurrency(data.rentabilidad.utilidad_bruta)}
                   </span>
                 </div>
 
-                <div className="border-t border-gray-200" />
+                <div className="border-t border-gray-200 dark:border-gray-700" />
 
                 {/* Gastos Operativos */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Building2 className="w-4 h-4 text-red-400" />
-                    <span className="text-sm text-gray-600">Gastos Operativos</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Gastos Operativos</span>
                   </div>
-                  <span className="text-sm font-semibold text-red-600">
+                  <span className="text-sm font-semibold text-red-600 dark:text-red-400">
                     - {formatCurrency(data.rentabilidad.gastos_operativos)}
                   </span>
                 </div>
@@ -449,33 +449,33 @@ export default function RentabilidadVendedores() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Award className="w-4 h-4 text-red-400" />
-                    <span className="text-sm text-gray-600">Comisiones Vendedores</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Comisiones Vendedores</span>
                   </div>
-                  <span className="text-sm font-semibold text-red-600">
+                  <span className="text-sm font-semibold text-red-600 dark:text-red-400">
                     - {formatCurrency(data.rentabilidad.comisiones)}
                   </span>
                 </div>
 
-                <div className="border-t-2 border-gray-300" />
+                <div className="border-t-2 border-gray-300 dark:border-gray-600" />
 
                 {/* Rentabilidad Neta */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Equal className="w-4 h-4 text-gray-700" />
-                    <span className="text-base font-bold text-gray-900">RENTABILIDAD NETA</span>
+                    <Equal className="w-4 h-4 text-gray-700 dark:text-gray-300" />
+                    <span className="text-base font-bold text-gray-900 dark:text-white">RENTABILIDAD NETA</span>
                   </div>
                   <div className="text-right">
                     <span className={clsx(
                       'text-2xl font-bold',
-                      data.rentabilidad.rentabilidad_neta >= 0 ? 'text-green-600' : 'text-red-600'
+                      data.rentabilidad.rentabilidad_neta >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
                     )}>
                       {formatCurrency(data.rentabilidad.rentabilidad_neta)}
                     </span>
                     <span className={clsx(
                       'ml-2 text-sm font-medium px-2 py-0.5 rounded',
-                      data.rentabilidad.margen_neto >= 10 ? 'bg-green-100 text-green-700' :
-                      data.rentabilidad.margen_neto >= 5 ? 'bg-yellow-100 text-yellow-700' :
-                      'bg-red-100 text-red-700'
+                      data.rentabilidad.margen_neto >= 10 ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-400' :
+                      data.rentabilidad.margen_neto >= 5 ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-400' :
+                      'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-400'
                     )}>
                       {data.rentabilidad.margen_neto}%
                     </span>
@@ -491,16 +491,16 @@ export default function RentabilidadVendedores() {
               {/* Desglose de gastos operativos */}
               {data.rentabilidad.desglose_gastos?.length > 0 && (
                 <div className="mt-4">
-                  <p className="text-sm font-medium text-gray-700 mb-2">Desglose de gastos del período:</p>
+                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Desglose de gastos del período:</p>
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
                     {data.rentabilidad.desglose_gastos
                       .filter(g => g.origen === 'operativo')
                       .map((g) => (
-                        <div key={g.categoria} className="flex items-center justify-between bg-white border rounded-lg px-3 py-2">
-                          <span className="text-xs text-gray-600 truncate mr-2">
+                        <div key={g.categoria} className="flex items-center justify-between bg-white dark:bg-gray-800 border rounded-lg px-3 py-2">
+                          <span className="text-xs text-gray-600 dark:text-gray-400 truncate mr-2">
                             {LABELS_CATEGORIAS[g.categoria] || g.categoria}
                           </span>
-                          <span className="text-xs font-semibold text-red-600 whitespace-nowrap">
+                          <span className="text-xs font-semibold text-red-600 dark:text-red-400 whitespace-nowrap">
                             {formatCurrency(g.total)}
                           </span>
                         </div>
@@ -513,37 +513,37 @@ export default function RentabilidadVendedores() {
 
           {/* Tabla de vendedores */}
           <div className="card overflow-hidden">
-            <div className="px-4 py-3 border-b border-gray-200">
-              <h2 className="text-lg font-semibold text-gray-900">Ranking de Vendedores</h2>
-              <p className="text-sm text-gray-500">Ordenado por utilidad generada</p>
+            <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Ranking de Vendedores</h2>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Ordenado por utilidad generada</p>
             </div>
 
             <div className="overflow-x-auto">
               <table className="min-w-full">
-                <thead className="bg-gray-50 border-b border-gray-200">
+                <thead className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                       Vendedor
                     </th>
-                    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                       Ventas
                     </th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                       Total Facturado
                     </th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                       Utilidad
                     </th>
-                    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                       Margen
                     </th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                       Comisiones
                     </th>
                     <th className="px-4 py-3 w-10"></th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
+                <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                   {data.vendedores.map((vendedor, index) => (
                     <VendedorRow
                       key={vendedor.vendedor_id}
@@ -560,7 +560,7 @@ export default function RentabilidadVendedores() {
             </div>
 
             {data.vendedores.length === 0 && (
-              <div className="p-8 text-center text-gray-500">
+              <div className="p-8 text-center text-gray-500 dark:text-gray-400">
                 No hay datos de ventas para el período seleccionado
               </div>
             )}
@@ -578,7 +578,7 @@ export default function RentabilidadVendedores() {
                   <span className="text-sm font-medium text-green-800">Mayor Utilidad</span>
                 </div>
                 <p className="text-xl font-bold text-green-900">{data.vendedores[0]?.vendedor_nombre || '-'}</p>
-                <p className="text-2xl font-bold text-green-700 mt-1">
+                <p className="text-2xl font-bold text-green-700 dark:text-green-400 mt-1">
                   {formatCurrency(data.vendedores[0]?.total_utilidad || 0)}
                 </p>
               </div>
@@ -596,7 +596,7 @@ export default function RentabilidadVendedores() {
                   return (
                     <>
                       <p className="text-xl font-bold text-blue-900">{masVentas?.vendedor_nombre || '-'}</p>
-                      <p className="text-2xl font-bold text-blue-700 mt-1">
+                      <p className="text-2xl font-bold text-blue-700 dark:text-blue-400 mt-1">
                         {masVentas?.cantidad_ventas || 0} operaciones
                       </p>
                     </>

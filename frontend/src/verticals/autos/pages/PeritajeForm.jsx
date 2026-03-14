@@ -278,18 +278,18 @@ export default function PeritajeForm() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-24">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-800 pb-24">
       {/* Header fijo */}
-      <div className="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm">
+      <div className="sticky top-0 z-40 bg-white border-b border-gray-200 dark:border-gray-700 shadow-sm">
         <div className="px-4 py-3">
           <div className="flex items-center justify-between">
             <button
               onClick={() => navigate(-1)}
-              className="p-2 -ml-2 text-gray-600 hover:text-gray-900"
+              className="p-2 -ml-2 text-gray-600 dark:text-gray-400 hover:text-gray-900"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
-            <h1 className="text-lg font-semibold text-gray-900">
+            <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
               {isEditing ? 'Editar Peritaje' : 'Nuevo Peritaje'}
             </h1>
             <div className="w-9" /> {/* Spacer */}
@@ -311,7 +311,7 @@ export default function PeritajeForm() {
                   disabled={!isEditing && index > 0}
                   className={clsx(
                     'flex-1 flex flex-col items-center gap-1 py-2 rounded-lg transition-all',
-                    isActive && 'bg-primary-50',
+                    isActive && 'bg-primary-50 dark:bg-primary-950',
                     !isEditing && index > 0 && 'opacity-50'
                   )}
                 >
@@ -319,7 +319,7 @@ export default function PeritajeForm() {
                     'w-8 h-8 rounded-full flex items-center justify-center',
                     isActive ? 'bg-primary-600 text-white' :
                     isCompleted ? 'bg-green-500 text-white' :
-                    'bg-gray-200 text-gray-500'
+                    'bg-gray-200 text-gray-500 dark:text-gray-400'
                   )}>
                     {isCompleted && !isActive ? (
                       <Check className="w-4 h-4" />
@@ -329,7 +329,7 @@ export default function PeritajeForm() {
                   </div>
                   <span className={clsx(
                     'text-xs font-medium',
-                    isActive ? 'text-primary-700' : 'text-gray-500'
+                    isActive ? 'text-primary-700 dark:text-primary-400' : 'text-gray-500 dark:text-gray-400'
                   )}>
                     {step.label}
                   </span>
@@ -347,7 +347,7 @@ export default function PeritajeForm() {
           <form onSubmit={handleSubmit(onSubmitVehiculo)} className="space-y-4">
             {/* Búsqueda por patente - solo al crear */}
             {!isEditing && (
-              <div className="card bg-blue-50 border-blue-200">
+              <div className="card bg-blue-50 dark:bg-blue-950 border-blue-200">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-sm font-medium text-blue-900">
                     ¿El vehículo ya está en el sistema?
@@ -355,7 +355,7 @@ export default function PeritajeForm() {
                   <button
                     type="button"
                     onClick={() => setShowBusqueda(!showBusqueda)}
-                    className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                    className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 font-medium"
                   >
                     {showBusqueda ? 'Ocultar' : 'Buscar por patente'}
                   </button>
@@ -385,27 +385,27 @@ export default function PeritajeForm() {
                     </div>
 
                     {buscandoUnidades && (
-                      <div className="flex items-center gap-2 text-sm text-gray-500">
+                      <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-600"></div>
                         Buscando...
                       </div>
                     )}
 
                     {unidadesBusqueda.length > 0 && (
-                      <div className="bg-white rounded-lg border border-gray-200 divide-y divide-gray-100 max-h-48 overflow-y-auto">
+                      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 divide-y divide-gray-100 dark:divide-gray-800 max-h-48 overflow-y-auto">
                         {unidadesBusqueda.map((u) => (
                           <button
                             key={u.id}
                             type="button"
                             onClick={() => seleccionarUnidad(u)}
-                            className="w-full flex items-center gap-3 p-3 hover:bg-gray-50 text-left transition-colors"
+                            className="w-full flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-800 text-left transition-colors"
                           >
                             <Car className="w-5 h-5 text-gray-400 flex-shrink-0" />
                             <div className="flex-1 min-w-0">
-                              <p className="font-medium text-gray-900 truncate">
+                              <p className="font-medium text-gray-900 dark:text-white truncate">
                                 {u.marca} {u.modelo} {u.anio}
                               </p>
-                              <p className="text-sm text-gray-500">
+                              <p className="text-sm text-gray-500 dark:text-gray-400">
                                 {u.dominio} • {u.color || 'Sin color'}
                               </p>
                             </div>
@@ -415,7 +415,7 @@ export default function PeritajeForm() {
                     )}
 
                     {busquedaPatente.length >= 2 && !buscandoUnidades && unidadesBusqueda.length === 0 && (
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
                         No se encontraron vehículos con esa patente. Podés cargar los datos manualmente.
                       </p>
                     )}
@@ -425,7 +425,7 @@ export default function PeritajeForm() {
             )}
 
             <div className="card">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                 Datos del Vehículo
               </h2>
 
@@ -572,7 +572,7 @@ export default function PeritajeForm() {
                 setCurrentItemForPhoto(null)
                 setShowCamera(true)
               }}
-              className="w-full flex items-center justify-center gap-2 py-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-600 hover:border-primary-500 hover:text-primary-600 transition-colors"
+              className="w-full flex items-center justify-center gap-2 py-3 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl text-gray-600 dark:text-gray-400 hover:border-primary-500 hover:text-primary-600 transition-colors"
             >
               <Camera className="w-5 h-5" />
               Agregar foto general de {STEPS[currentStep].label}
@@ -611,21 +611,21 @@ export default function PeritajeForm() {
 
             {/* Info del vehículo */}
             <div className="card">
-              <h3 className="font-semibold text-gray-900 mb-3">Vehículo</h3>
+              <h3 className="font-semibold text-gray-900 dark:text-white mb-3">Vehículo</h3>
               <p className="text-lg font-medium">{peritaje.vehiculo_descripcion}</p>
               {peritaje.vehiculo_kilometraje && (
-                <p className="text-gray-500">{peritaje.vehiculo_kilometraje.toLocaleString()} km</p>
+                <p className="text-gray-500 dark:text-gray-400">{peritaje.vehiculo_kilometraje.toLocaleString()} km</p>
               )}
             </div>
 
             {/* Costo de reparaciones */}
             {peritaje.costo_reparaciones_estimado > 0 && (
-              <div className="card bg-red-50 border-red-200">
-                <div className="flex items-center gap-2 text-red-700">
+              <div className="card bg-red-50 dark:bg-red-950 border-red-200">
+                <div className="flex items-center gap-2 text-red-700 dark:text-red-400">
                   <AlertCircle className="w-5 h-5" />
                   <span className="font-medium">Reparaciones estimadas</span>
                 </div>
-                <p className="text-2xl font-bold text-red-700 mt-2">
+                <p className="text-2xl font-bold text-red-700 dark:text-red-400 mt-2">
                   ${peritaje.costo_reparaciones_estimado.toLocaleString()}
                 </p>
               </div>
@@ -634,8 +634,8 @@ export default function PeritajeForm() {
             {/* Progreso */}
             <div className="card">
               <div className="flex items-center justify-between mb-2">
-                <span className="font-medium text-gray-900">Progreso</span>
-                <span className="text-sm text-gray-500">
+                <span className="font-medium text-gray-900 dark:text-white">Progreso</span>
+                <span className="text-sm text-gray-500 dark:text-gray-400">
                   {peritaje.items_calificados} / {peritaje.items_total} items
                 </span>
               </div>
@@ -648,7 +648,7 @@ export default function PeritajeForm() {
                   style={{ width: `${peritaje.porcentaje_completado}%` }}
                 />
               </div>
-              <p className="text-sm text-gray-500 mt-2 text-center">
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 text-center">
                 {peritaje.porcentaje_completado}% completado
               </p>
             </div>
@@ -682,7 +682,7 @@ export default function PeritajeForm() {
 
       {/* Navegación inferior */}
       {isEditing && currentStep > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 flex gap-3 lg:pl-68">
+        <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-4 flex gap-3 lg:pl-68">
           <button
             onClick={prevStep}
             className="flex-1 btn btn-secondary flex items-center justify-center gap-2"

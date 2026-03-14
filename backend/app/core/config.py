@@ -58,6 +58,9 @@ class Settings(BaseSettings):
     AUTH_RATE_LIMIT_REQUESTS: int = 5
     AUTH_RATE_LIMIT_WINDOW: int = 60  # 5 per minute
 
+    # ── Scheduler ──
+    SCHEDULER_ENABLED: bool = True
+
     # ── CORS ──
     CORS_ORIGINS: str = "*"
 

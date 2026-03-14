@@ -45,11 +45,11 @@ const TIPO_LABELS = {
 }
 
 const TIPO_COLORS = {
-  llamada: 'bg-blue-100 text-blue-700',
+  llamada: 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-400',
   entrega: 'bg-purple-100 text-purple-700',
-  pago: 'bg-green-100 text-green-700',
-  documentacion: 'bg-yellow-100 text-yellow-700',
-  general: 'bg-gray-100 text-gray-700',
+  pago: 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-400',
+  documentacion: 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-400',
+  general: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300',
 }
 
 const PRIORIDAD_COLORS = {
@@ -59,9 +59,9 @@ const PRIORIDAD_COLORS = {
 }
 
 const PRIORIDAD_BADGE = {
-  alta: 'bg-red-100 text-red-700',
-  media: 'bg-yellow-100 text-yellow-700',
-  baja: 'bg-blue-100 text-blue-700',
+  alta: 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-400',
+  media: 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-400',
+  baja: 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-400',
 }
 
 export default function Agenda() {
@@ -235,11 +235,11 @@ export default function Agenda() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <CalendarCheck className="w-7 h-7 text-primary-600" />
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            <CalendarCheck className="w-7 h-7 text-primary-600 dark:text-primary-400" />
             Agenda
           </h1>
-          <p className="text-gray-500">Seguimientos y tareas pendientes</p>
+          <p className="text-gray-500 dark:text-gray-400">Seguimientos y tareas pendientes</p>
         </div>
         <button onClick={() => openModal()} className="btn btn-primary flex items-center gap-2">
           <Plus className="w-4 h-4" />
@@ -249,7 +249,7 @@ export default function Agenda() {
 
       {/* Resumen rápido */}
       {contPendientes > 0 && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center gap-3">
+        <div className="bg-red-50 dark:bg-red-950 border border-red-200 rounded-xl p-4 flex items-center gap-3">
           <AlertTriangle className="w-6 h-6 text-red-500 flex-shrink-0" />
           <div>
             <p className="font-medium text-red-800">
@@ -261,7 +261,7 @@ export default function Agenda() {
 
       {/* Filtros */}
       <div className="flex flex-wrap gap-3 items-center">
-        <div className="flex bg-gray-100 rounded-lg p-1">
+        <div className="flex bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
           {[
             { key: 'pendiente', label: 'Pendientes' },
             { key: 'completado', label: 'Completados' },
@@ -273,8 +273,8 @@ export default function Agenda() {
               className={clsx(
                 'px-4 py-1.5 rounded-md text-sm font-medium transition-all',
                 filtroEstado === f.key
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-700'
+                  ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700'
               )}
             >
               {f.label}
@@ -301,7 +301,7 @@ export default function Agenda() {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600" />
           </div>
         ) : seguimientos?.length === 0 ? (
-          <div className="card text-center py-12 text-gray-500">
+          <div className="card text-center py-12 text-gray-500 dark:text-gray-400">
             <CalendarCheck className="w-12 h-12 mx-auto mb-3 text-gray-300" />
             <p>No hay seguimientos {filtroEstado ? 'con este filtro' : ''}</p>
           </div>
@@ -326,14 +326,14 @@ export default function Agenda() {
                   {/* Icono tipo */}
                   <div className={clsx(
                     'p-2 rounded-lg flex-shrink-0',
-                    esCompletado ? 'bg-green-100' :
-                    esCancelado ? 'bg-gray-100' :
-                    TIPO_COLORS[seg.tipo]?.replace('text-', 'bg-').split(' ')[0] || 'bg-gray-100'
+                    esCompletado ? 'bg-green-100 dark:bg-green-900' :
+                    esCancelado ? 'bg-gray-100 dark:bg-gray-800' :
+                    TIPO_COLORS[seg.tipo]?.replace('text-', 'bg-').split(' ')[0] || 'bg-gray-100 dark:bg-gray-800'
                   )}>
                     {esCompletado ? (
-                      <CheckCircle className="w-5 h-5 text-green-600" />
+                      <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
                     ) : (
-                      <TipoIcon className={clsx('w-5 h-5', TIPO_COLORS[seg.tipo]?.split(' ')[1] || 'text-gray-600')} />
+                      <TipoIcon className={clsx('w-5 h-5', TIPO_COLORS[seg.tipo]?.split(' ')[1] || 'text-gray-600 dark:text-gray-400')} />
                     )}
                   </div>
 
@@ -343,12 +343,12 @@ export default function Agenda() {
                       <div>
                         <h3 className={clsx(
                           'font-semibold',
-                          esCompletado ? 'text-gray-500 line-through' : 'text-gray-900'
+                          esCompletado ? 'text-gray-500 dark:text-gray-400 line-through' : 'text-gray-900 dark:text-white'
                         )}>
                           {seg.titulo}
                         </h3>
                         {seg.descripcion && (
-                          <p className="text-sm text-gray-500 mt-0.5 line-clamp-2">{seg.descripcion}</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-2">{seg.descripcion}</p>
                         )}
                       </div>
 
@@ -370,10 +370,10 @@ export default function Agenda() {
                       {/* Fecha */}
                       <span className={clsx(
                         'flex items-center gap-1',
-                        esCompletado ? 'text-green-600' :
-                        status === 'vencido' ? 'text-red-600 font-medium' :
-                        status === 'hoy' ? 'text-yellow-600 font-medium' :
-                        'text-gray-500'
+                        esCompletado ? 'text-green-600 dark:text-green-400' :
+                        status === 'vencido' ? 'text-red-600 dark:text-red-400 font-medium' :
+                        status === 'hoy' ? 'text-yellow-600 dark:text-yellow-400 font-medium' :
+                        'text-gray-500 dark:text-gray-400'
                       )}>
                         <Calendar className="w-3.5 h-3.5" />
                         {status === 'vencido' && !esCompletado ? '⚠ ' : ''}
@@ -384,19 +384,19 @@ export default function Agenda() {
 
                       {/* Vinculaciones */}
                       {seg.cliente_nombre && (
-                        <span className="flex items-center gap-1 text-gray-500">
+                        <span className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
                           <User className="w-3.5 h-3.5" />
                           {seg.cliente_nombre}
                         </span>
                       )}
                       {seg.interesado_nombre && (
-                        <span className="flex items-center gap-1 text-gray-500">
+                        <span className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
                           <User className="w-3.5 h-3.5" />
                           {seg.interesado_nombre}
                         </span>
                       )}
                       {seg.unidad_info && (
-                        <span className="flex items-center gap-1 text-gray-500">
+                        <span className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
                           <Car className="w-3.5 h-3.5" />
                           {seg.unidad_info}
                         </span>
@@ -412,7 +412,7 @@ export default function Agenda() {
 
                     {/* Observaciones de cierre */}
                     {esCompletado && seg.observaciones_cierre && (
-                      <p className="text-sm text-green-700 mt-1 italic">✓ {seg.observaciones_cierre}</p>
+                      <p className="text-sm text-green-700 dark:text-green-400 mt-1 italic">✓ {seg.observaciones_cierre}</p>
                     )}
                   </div>
 
@@ -428,14 +428,14 @@ export default function Agenda() {
                       </button>
                       <button
                         onClick={() => openModal(seg)}
-                        className="p-2 text-gray-400 hover:bg-gray-100 rounded-lg"
+                        className="p-2 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
                         title="Editar"
                       >
                         <Edit2 className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => handleCancelar(seg)}
-                        className="p-2 text-gray-400 hover:bg-gray-100 rounded-lg"
+                        className="p-2 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
                         title="Cancelar"
                       >
                         <Ban className="w-4 h-4" />
@@ -462,8 +462,8 @@ export default function Agenda() {
       {modalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="fixed inset-0 bg-black/50" onClick={closeModal} />
-          <div className="relative bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-4 border-b bg-primary-50">
+          <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-4 border-b bg-primary-50 dark:bg-primary-950">
               <h2 className="text-lg font-semibold">
                 {editingId ? 'Editar Seguimiento' : 'Nuevo Seguimiento'}
               </h2>
@@ -535,7 +535,7 @@ export default function Agenda() {
 
               {/* Vincular a */}
               <div className="border-t pt-4">
-                <h3 className="font-medium text-gray-700 mb-3 text-sm">Vincular a (opcional)</h3>
+                <h3 className="font-medium text-gray-700 dark:text-gray-300 mb-3 text-sm">Vincular a (opcional)</h3>
                 <div className="space-y-3">
                   <div>
                     <label className="label text-xs">Cliente</label>

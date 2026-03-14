@@ -7,6 +7,7 @@ from app.core.database import get_db
 from app.core.security import get_current_user_with_tenant, require_role, TokenContext
 from app.verticals.autos.models.cheque import ChequeRecibido, ChequeEmitido, EstadoChequeRecibido, EstadoChequeEmitido
 from app.verticals.autos.models.caja_diaria import CajaDiaria, TipoMovimiento, CategoriaGasto
+from app.core.soft_delete import soft_delete
 from app.verticals.autos.schemas.cheque import (
     ChequeRecibidoCreate, ChequeRecibidoUpdate, ChequeRecibidoResponse,
     DepositarChequeRequest, EndosarChequeRequest, RechazarChequeRequest,
@@ -31,7 +32,7 @@ async def listar_cheques_recibidos(
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
     """Listar cheques recibidos con filtros"""
-    stmt = select(ChequeRecibido)
+    stmt = select(ChequeRecibido).where(ChequeRecibido.active())
 
     if estado:
         stmt = stmt.where(ChequeRecibido.estado == estado)
@@ -53,6 +54,7 @@ async def cheques_en_cartera(
     """Listar cheques actualmente en cartera"""
     result = await db.execute(
         select(ChequeRecibido).where(
+            ChequeRecibido.active(),
             ChequeRecibido.estado == EstadoChequeRecibido.EN_CARTERA
         ).order_by(ChequeRecibido.fecha_vencimiento)
     )
@@ -65,7 +67,7 @@ async def resumen_cartera(
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
     """Resumen de la cartera de cheques recibidos"""
-    result = await db.execute(select(ChequeRecibido))
+    result = await db.execute(select(ChequeRecibido).where(ChequeRecibido.active()))
     cheques = result.scalars().all()
 
     en_cartera = [c for c in cheques if c.estado == EstadoChequeRecibido.EN_CARTERA]
@@ -96,7 +98,7 @@ async def obtener_cheque_recibido(
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
     """Obtener detalle de un cheque recibido"""
-    result = await db.execute(select(ChequeRecibido).where(ChequeRecibido.id == cheque_id))
+    result = await db.execute(select(ChequeRecibido).where(ChequeRecibido.active(), ChequeRecibido.id == cheque_id))
     cheque = result.scalar_one_or_none()
     if not cheque:
         raise HTTPException(status_code=404, detail="Cheque no encontrado")
@@ -139,8 +141,7 @@ async def eliminar_cheque_recibido(
     if cheque.estado != EstadoChequeRecibido.EN_CARTERA:
         raise HTTPException(status_code=400, detail="Solo se pueden eliminar cheques en cartera")
 
-    await db.delete(cheque)
-    await db.commit()
+    await soft_delete(db, cheque, deleted_by=token.user_id)
     return {"mensaje": "Cheque eliminado correctamente"}
 
 
@@ -152,7 +153,7 @@ async def actualizar_cheque_recibido(
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
     """Actualizar datos de un cheque recibido"""
-    result = await db.execute(select(ChequeRecibido).where(ChequeRecibido.id == cheque_id))
+    result = await db.execute(select(ChequeRecibido).where(ChequeRecibido.active(), ChequeRecibido.id == cheque_id))
     db_cheque = result.scalar_one_or_none()
     if not db_cheque:
         raise HTTPException(status_code=404, detail="Cheque no encontrado")
@@ -177,7 +178,7 @@ async def depositar_cheque(
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
     """Marcar cheque como depositado en un banco"""
-    result = await db.execute(select(ChequeRecibido).where(ChequeRecibido.id == cheque_id))
+    result = await db.execute(select(ChequeRecibido).where(ChequeRecibido.active(), ChequeRecibido.id == cheque_id))
     cheque = result.scalar_one_or_none()
     if not cheque:
         raise HTTPException(status_code=404, detail="Cheque no encontrado")
@@ -204,7 +205,7 @@ async def cobrar_cheque(
     Marcar cheque como cobrado.
     Registra automáticamente el ingreso en caja.
     """
-    result = await db.execute(select(ChequeRecibido).where(ChequeRecibido.id == cheque_id))
+    result = await db.execute(select(ChequeRecibido).where(ChequeRecibido.active(), ChequeRecibido.id == cheque_id))
     cheque = result.scalar_one_or_none()
     if not cheque:
         raise HTTPException(status_code=404, detail="Cheque no encontrado")
@@ -243,7 +244,7 @@ async def endosar_cheque(
     Endosar cheque a un tercero.
     Se usa para pagar proveedores o comprar otros autos.
     """
-    result = await db.execute(select(ChequeRecibido).where(ChequeRecibido.id == cheque_id))
+    result = await db.execute(select(ChequeRecibido).where(ChequeRecibido.active(), ChequeRecibido.id == cheque_id))
     cheque = result.scalar_one_or_none()
     if not cheque:
         raise HTTPException(status_code=404, detail="Cheque no encontrado")
@@ -271,7 +272,7 @@ async def rechazar_cheque(
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
     """Marcar cheque como rechazado"""
-    result = await db.execute(select(ChequeRecibido).where(ChequeRecibido.id == cheque_id))
+    result = await db.execute(select(ChequeRecibido).where(ChequeRecibido.active(), ChequeRecibido.id == cheque_id))
     cheque = result.scalar_one_or_none()
     if not cheque:
         raise HTTPException(status_code=404, detail="Cheque no encontrado")
@@ -301,7 +302,7 @@ async def listar_cheques_emitidos(
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
     """Listar cheques emitidos con filtros"""
-    stmt = select(ChequeEmitido)
+    stmt = select(ChequeEmitido).where(ChequeEmitido.active())
 
     if estado:
         stmt = stmt.where(ChequeEmitido.estado == estado)
@@ -323,6 +324,7 @@ async def cheques_pendientes(
     """Listar cheques emitidos pendientes de débito"""
     result = await db.execute(
         select(ChequeEmitido).where(
+            ChequeEmitido.active(),
             ChequeEmitido.estado == EstadoChequeEmitido.PENDIENTE
         ).order_by(ChequeEmitido.fecha_pago)
     )
@@ -335,7 +337,7 @@ async def resumen_cheques_emitidos(
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
     """Resumen de cheques emitidos"""
-    result = await db.execute(select(ChequeEmitido))
+    result = await db.execute(select(ChequeEmitido).where(ChequeEmitido.active()))
     cheques = result.scalars().all()
 
     pendientes = [c for c in cheques if c.estado == EstadoChequeEmitido.PENDIENTE]
@@ -392,8 +394,7 @@ async def eliminar_cheque_emitido(
     if cheque.estado != EstadoChequeEmitido.PENDIENTE:
         raise HTTPException(status_code=400, detail="Solo se pueden eliminar cheques pendientes")
 
-    await db.delete(cheque)
-    await db.commit()
+    await soft_delete(db, cheque, deleted_by=token.user_id)
     return {"mensaje": "Cheque eliminado correctamente"}
 
 
@@ -408,7 +409,7 @@ async def marcar_cheque_pagado(
     Marcar cheque emitido como pagado (debitado).
     Registra automáticamente el egreso en caja.
     """
-    result = await db.execute(select(ChequeEmitido).where(ChequeEmitido.id == cheque_id))
+    result = await db.execute(select(ChequeEmitido).where(ChequeEmitido.active(), ChequeEmitido.id == cheque_id))
     cheque = result.scalar_one_or_none()
     if not cheque:
         raise HTTPException(status_code=404, detail="Cheque no encontrado")
@@ -444,7 +445,7 @@ async def anular_cheque(
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
     """Anular un cheque emitido"""
-    result = await db.execute(select(ChequeEmitido).where(ChequeEmitido.id == cheque_id))
+    result = await db.execute(select(ChequeEmitido).where(ChequeEmitido.active(), ChequeEmitido.id == cheque_id))
     cheque = result.scalar_one_or_none()
     if not cheque:
         raise HTTPException(status_code=404, detail="Cheque no encontrado")
@@ -478,6 +479,7 @@ async def calendario_vencimientos(
     # Cheques a cobrar
     result = await db.execute(
         select(ChequeRecibido).where(
+            ChequeRecibido.active(),
             ChequeRecibido.estado.in_([EstadoChequeRecibido.EN_CARTERA, EstadoChequeRecibido.DEPOSITADO]),
             ChequeRecibido.fecha_vencimiento <= fecha_limite,
             ChequeRecibido.fecha_vencimiento >= date.today()
@@ -488,6 +490,7 @@ async def calendario_vencimientos(
     # Cheques a pagar
     result = await db.execute(
         select(ChequeEmitido).where(
+            ChequeEmitido.active(),
             ChequeEmitido.estado == EstadoChequeEmitido.PENDIENTE,
             ChequeEmitido.fecha_pago <= fecha_limite,
             ChequeEmitido.fecha_pago >= date.today()
@@ -543,6 +546,7 @@ async def alertas_cheques(
     # Cheques recibidos por vencer
     result = await db.execute(
         select(ChequeRecibido).where(
+            ChequeRecibido.active(),
             ChequeRecibido.estado == EstadoChequeRecibido.EN_CARTERA,
             ChequeRecibido.fecha_vencimiento <= fecha_limite
         )
@@ -571,6 +575,7 @@ async def alertas_cheques(
     # Cheques emitidos por debitar
     result = await db.execute(
         select(ChequeEmitido).where(
+            ChequeEmitido.active(),
             ChequeEmitido.estado == EstadoChequeEmitido.PENDIENTE,
             ChequeEmitido.fecha_pago <= fecha_limite
         )

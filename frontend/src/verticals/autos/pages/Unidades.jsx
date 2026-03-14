@@ -122,8 +122,8 @@ export default function Unidades() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Stock de Unidades</h1>
-          <p className="text-gray-500">{unidadesFiltradas?.length || 0} unidades</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Stock de Unidades</h1>
+          <p className="text-gray-500 dark:text-gray-400">{unidadesFiltradas?.length || 0} unidades</p>
         </div>
         <div className="flex gap-2">
           <Link to="/vendidos" className="btn btn-secondary flex items-center gap-2">
@@ -156,30 +156,30 @@ export default function Unidades() {
             </div>
           ) : valorizacion ? (
             <div className="space-y-4">
-              <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-                <DollarSign className="w-5 h-5 text-primary-600" />
+              <h3 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                <DollarSign className="w-5 h-5 text-primary-600 dark:text-primary-400" />
                 Valorizacion del Stock
               </h3>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Stock Propio */}
-                <div className="bg-white rounded-lg p-4 border border-green-200">
+                <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-green-200">
                   <div className="flex items-center gap-2 mb-2">
-                    <Car className="w-5 h-5 text-green-600" />
+                    <Car className="w-5 h-5 text-green-600 dark:text-green-400" />
                     <h4 className="font-medium text-green-700">Stock Propio</h4>
                   </div>
-                  <p className="text-3xl font-bold text-green-600">
+                  <p className="text-3xl font-bold text-green-600 dark:text-green-400">
                     {formatCurrency(valorizacion.stock_propio.inversion_total)}
                   </p>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     {valorizacion.stock_propio.cantidad} unidades
                   </p>
-                  <div className="mt-2 pt-2 border-t border-gray-100 text-sm">
+                  <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-800 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-gray-500">Valor publicado:</span>
+                      <span className="text-gray-500 dark:text-gray-400">Valor publicado:</span>
                       <span className="font-medium">{formatCurrency(valorizacion.stock_propio.valor_publicado)}</span>
                     </div>
-                    <div className="flex justify-between text-green-600">
+                    <div className="flex justify-between text-green-600 dark:text-green-400">
                       <span>Utilidad potencial:</span>
                       <span className="font-medium">{formatCurrency(valorizacion.stock_propio.utilidad_potencial)}</span>
                     </div>
@@ -187,23 +187,23 @@ export default function Unidades() {
                 </div>
 
                 {/* Consignacion */}
-                <div className="bg-white rounded-lg p-4 border border-purple-200">
+                <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-purple-200">
                   <div className="flex items-center gap-2 mb-2">
-                    <Users className="w-5 h-5 text-purple-600" />
+                    <Users className="w-5 h-5 text-purple-600 dark:text-purple-400" />
                     <h4 className="font-medium text-purple-700">Consignacion</h4>
                   </div>
-                  <p className="text-3xl font-bold text-purple-600">
+                  <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">
                     {formatCurrency(valorizacion.stock_consignacion.valor_acordado)}
                   </p>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     {valorizacion.stock_consignacion.cantidad} unidades (no suma al stock)
                   </p>
-                  <div className="mt-2 pt-2 border-t border-gray-100 text-sm">
+                  <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-800 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-gray-500">Valor publicado:</span>
+                      <span className="text-gray-500 dark:text-gray-400">Valor publicado:</span>
                       <span className="font-medium">{formatCurrency(valorizacion.stock_consignacion.valor_publicado)}</span>
                     </div>
-                    <div className="flex justify-between text-purple-600">
+                    <div className="flex justify-between text-purple-600 dark:text-purple-400">
                       <span>Comision potencial:</span>
                       <span className="font-medium">{formatCurrency(valorizacion.stock_consignacion.comision_potencial)}</span>
                     </div>
@@ -211,22 +211,22 @@ export default function Unidades() {
                 </div>
 
                 {/* Resumen Total */}
-                <div className="bg-white rounded-lg p-4 border border-blue-200">
+                <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-blue-200">
                   <div className="flex items-center gap-2 mb-2">
-                    <DollarSign className="w-5 h-5 text-blue-600" />
+                    <DollarSign className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                     <h4 className="font-medium text-blue-700">Resumen</h4>
                   </div>
-                  <p className="text-3xl font-bold text-blue-600">
+                  <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">
                     {valorizacion.resumen_total.unidades_totales}
                   </p>
-                  <p className="text-sm text-gray-500">unidades en stock total</p>
-                  <div className="mt-2 pt-2 border-t border-gray-100 text-sm">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">unidades en stock total</p>
+                  <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-800 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-gray-500">Inversion propia:</span>
-                      <span className="font-medium text-green-600">{formatCurrency(valorizacion.resumen_total.inversion_propia)}</span>
+                      <span className="text-gray-500 dark:text-gray-400">Inversion propia:</span>
+                      <span className="font-medium text-green-600 dark:text-green-400">{formatCurrency(valorizacion.resumen_total.inversion_propia)}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-500">Valor total publicado:</span>
+                      <span className="text-gray-500 dark:text-gray-400">Valor total publicado:</span>
                       <span className="font-medium">{formatCurrency(valorizacion.resumen_total.valor_total_publicado)}</span>
                     </div>
                   </div>
@@ -279,9 +279,9 @@ export default function Unidades() {
               type="checkbox"
               checked={soloInmovilizados}
               onChange={(e) => setSoloInmovilizados(e.target.checked)}
-              className="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+              className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-primary-600 dark:text-primary-400 focus:ring-primary-500"
             />
-            <span className="text-sm text-gray-600">Inmovilizados</span>
+            <span className="text-sm text-gray-600 dark:text-gray-400">Inmovilizados</span>
           </label>
         </div>
       </div>
@@ -310,7 +310,7 @@ export default function Unidades() {
               key={unidad.id}
               to={`/unidades/${unidad.id}`}
               className={clsx(
-                'card hover:border-primary-300 transition-all relative',
+                'card hover:border-primary-300 dark:hover:border-primary-600 transition-all relative',
                 unidad.origen === 'consignacion' && 'border-l-4 border-l-purple-500'
               )}
             >
@@ -328,10 +328,10 @@ export default function Unidades() {
 
               <div className="flex items-start justify-between mb-3 pr-8">
                 <div>
-                  <h3 className="font-semibold text-gray-900">
+                  <h3 className="font-semibold text-gray-900 dark:text-white">
                     {unidad.marca} {unidad.modelo}
                   </h3>
-                  <p className="text-gray-500 text-sm">{unidad.anio}</p>
+                  <p className="text-gray-500 dark:text-gray-400 text-sm">{unidad.anio}</p>
                 </div>
                 <div className="flex flex-col gap-1 items-end">
                   <span className={clsx('badge', estadoColors[unidad.estado])}>
@@ -350,7 +350,7 @@ export default function Unidades() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 text-gray-600 text-sm mb-3">
+              <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 text-sm mb-3">
                 <Car className="w-4 h-4" />
                 <span className="font-mono">{unidad.dominio}</span>
                 {unidad.ubicacion && (
@@ -358,9 +358,9 @@ export default function Unidades() {
                 )}
               </div>
 
-              <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+              <div className="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-800">
                 <div className="flex items-center gap-4 text-sm">
-                  <div className="flex items-center gap-1 text-gray-500">
+                  <div className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
                     <Calendar className="w-4 h-4" />
                     <span>{unidad.dias_en_stock}d</span>
                   </div>
@@ -375,7 +375,7 @@ export default function Unidades() {
                 <div className="text-right">
                   <div className="flex items-center justify-end gap-2">
                     {unidad.precio_publicado ? (
-                      <p className="font-semibold text-green-600">
+                      <p className="font-semibold text-green-600 dark:text-green-400">
                         {formatCurrency(unidad.precio_publicado)}
                       </p>
                     ) : (

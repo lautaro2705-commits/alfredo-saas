@@ -20,17 +20,17 @@ import ScoreCard, { ScoreBadge } from '../components/peritaje/ScoreCard'
 
 // Configuración de estados
 const ESTADOS = {
-  borrador: { label: 'Borrador', color: 'bg-gray-100 text-gray-800', icon: Edit },
-  completado: { label: 'Completado', color: 'bg-blue-100 text-blue-800', icon: CheckCircle },
-  aprobado: { label: 'Aprobado', color: 'bg-green-100 text-green-800', icon: CheckCircle },
-  rechazado: { label: 'Rechazado', color: 'bg-red-100 text-red-800', icon: XCircle }
+  borrador: { label: 'Borrador', color: 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200', icon: Edit },
+  completado: { label: 'Completado', color: 'bg-blue-100 dark:bg-blue-900 text-blue-800', icon: CheckCircle },
+  aprobado: { label: 'Aprobado', color: 'bg-green-100 dark:bg-green-900 text-green-800', icon: CheckCircle },
+  rechazado: { label: 'Rechazado', color: 'bg-red-100 dark:bg-red-900 text-red-800', icon: XCircle }
 }
 
 const CALIFICACIONES = {
-  bueno: { label: 'Bueno', color: 'text-green-600', bgColor: 'bg-green-100' },
-  regular: { label: 'Regular', color: 'text-yellow-600', bgColor: 'bg-yellow-100' },
-  malo: { label: 'Malo', color: 'text-red-600', bgColor: 'bg-red-100' },
-  na: { label: 'N/A', color: 'text-gray-500', bgColor: 'bg-gray-100' }
+  bueno: { label: 'Bueno', color: 'text-green-600 dark:text-green-400', bgColor: 'bg-green-100 dark:bg-green-900' },
+  regular: { label: 'Regular', color: 'text-yellow-600 dark:text-yellow-400', bgColor: 'bg-yellow-100 dark:bg-yellow-900' },
+  malo: { label: 'Malo', color: 'text-red-600 dark:text-red-400', bgColor: 'bg-red-100 dark:bg-red-900' },
+  na: { label: 'N/A', color: 'text-gray-500 dark:text-gray-400', bgColor: 'bg-gray-100 dark:bg-gray-800' }
 }
 
 export default function PeritajeDetalle() {
@@ -92,7 +92,7 @@ export default function PeritajeDetalle() {
   if (error || !peritaje) {
     return (
       <div className="text-center py-12">
-        <p className="text-red-600">Error al cargar el peritaje</p>
+        <p className="text-red-600 dark:text-red-400">Error al cargar el peritaje</p>
         <Link to="/peritajes" className="btn btn-secondary mt-4">
           Volver a peritajes
         </Link>
@@ -109,7 +109,7 @@ export default function PeritajeDetalle() {
       <div className="flex items-center justify-between">
         <button
           onClick={() => navigate('/peritajes')}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
+          className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900"
         >
           <ArrowLeft className="w-5 h-5" />
           Volver
@@ -151,7 +151,7 @@ export default function PeritajeDetalle() {
                 {estado.label}
               </span>
             </div>
-            <h1 className="text-xl font-bold text-gray-900 mt-2">
+            <h1 className="text-xl font-bold text-gray-900 dark:text-white mt-2">
               {peritaje.vehiculo_descripcion}
             </h1>
           </div>
@@ -162,27 +162,27 @@ export default function PeritajeDetalle() {
         {/* Detalles del vehículo */}
         <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
           <div>
-            <span className="text-gray-500">Kilometraje</span>
+            <span className="text-gray-500 dark:text-gray-400">Kilometraje</span>
             <p className="font-medium">
               {peritaje.vehiculo_kilometraje?.toLocaleString() || '-'} km
             </p>
           </div>
           <div>
-            <span className="text-gray-500">Color</span>
+            <span className="text-gray-500 dark:text-gray-400">Color</span>
             <p className="font-medium">{peritaje.vehiculo_color || '-'}</p>
           </div>
           <div>
-            <span className="text-gray-500">Combustible</span>
+            <span className="text-gray-500 dark:text-gray-400">Combustible</span>
             <p className="font-medium capitalize">{peritaje.vehiculo_combustible || '-'}</p>
           </div>
           <div>
-            <span className="text-gray-500">Versión</span>
+            <span className="text-gray-500 dark:text-gray-400">Versión</span>
             <p className="font-medium">{peritaje.vehiculo_version || '-'}</p>
           </div>
         </div>
 
         {/* Metadata */}
-        <div className="mt-4 pt-4 border-t border-gray-200 flex flex-wrap items-center gap-4 text-sm text-gray-500">
+        <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
           <span className="flex items-center gap-1">
             <User className="w-4 h-4" />
             {peritaje.perito_nombre}
@@ -194,7 +194,7 @@ export default function PeritajeDetalle() {
           {peritaje.unidad_id && (
             <Link
               to={`/unidades/${peritaje.unidad_id}`}
-              className="flex items-center gap-1 text-primary-600 hover:text-primary-700"
+              className="flex items-center gap-1 text-primary-600 dark:text-primary-400 hover:text-primary-700"
             >
               <ExternalLink className="w-4 h-4" />
               Ver unidad
@@ -213,16 +213,16 @@ export default function PeritajeDetalle() {
 
       {/* Alerta de costo de reparaciones */}
       {peritaje.costo_reparaciones_estimado > 0 && (
-        <div className="card bg-red-50 border-red-200">
-          <div className="flex items-center gap-2 text-red-700">
+        <div className="card bg-red-50 dark:bg-red-950 border-red-200">
+          <div className="flex items-center gap-2 text-red-700 dark:text-red-400">
             <AlertTriangle className="w-5 h-5" />
             <span className="font-medium">Reparaciones estimadas</span>
           </div>
-          <p className="text-2xl font-bold text-red-700 mt-1">
+          <p className="text-2xl font-bold text-red-700 dark:text-red-400 mt-1">
             ${peritaje.costo_reparaciones_estimado.toLocaleString()}
           </p>
           {peritaje.ajuste_precio_sugerido !== 0 && (
-            <p className="text-sm text-red-600 mt-1">
+            <p className="text-sm text-red-600 dark:text-red-400 mt-1">
               Ajuste de precio sugerido: ${Math.abs(peritaje.ajuste_precio_sugerido).toLocaleString()}
             </p>
           )}
@@ -235,9 +235,9 @@ export default function PeritajeDetalle() {
         const isExpanded = expandedSector === sector
 
         const sectorConfig = {
-          mecanica: { label: 'Mecánica', icon: Wrench, color: 'text-blue-600' },
-          estetica: { label: 'Estética', icon: Paintbrush, color: 'text-purple-600' },
-          documentacion: { label: 'Documentación', icon: FileText, color: 'text-green-600' }
+          mecanica: { label: 'Mecánica', icon: Wrench, color: 'text-blue-600 dark:text-blue-400' },
+          estetica: { label: 'Estética', icon: Paintbrush, color: 'text-purple-600 dark:text-purple-400' },
+          documentacion: { label: 'Documentación', icon: FileText, color: 'text-green-600 dark:text-green-400' }
         }
 
         const config = sectorConfig[sector]
@@ -258,17 +258,17 @@ export default function PeritajeDetalle() {
             >
               <div className="flex items-center gap-3">
                 <SectorIcon className={clsx('w-5 h-5', config.color)} />
-                <span className="font-semibold text-gray-900">{config.label}</span>
-                <span className="text-sm text-gray-500">
+                <span className="font-semibold text-gray-900 dark:text-white">{config.label}</span>
+                <span className="text-sm text-gray-500 dark:text-gray-400">
                   ({items.length} items)
                 </span>
               </div>
 
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-2 text-xs">
-                  <span className="text-green-600">{stats.buenos} ✓</span>
-                  <span className="text-yellow-600">{stats.regulares} ⚠</span>
-                  <span className="text-red-600">{stats.malos} ✗</span>
+                  <span className="text-green-600 dark:text-green-400">{stats.buenos} ✓</span>
+                  <span className="text-yellow-600 dark:text-yellow-400">{stats.regulares} ⚠</span>
+                  <span className="text-red-600 dark:text-red-400">{stats.malos} ✗</span>
                 </div>
                 {isExpanded ? (
                   <ChevronUp className="w-5 h-5 text-gray-400" />
@@ -279,7 +279,7 @@ export default function PeritajeDetalle() {
             </button>
 
             {isExpanded && (
-              <div className="mt-4 pt-4 border-t border-gray-200 space-y-3">
+              <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 space-y-3">
                 {items.map((item) => {
                   const calif = CALIFICACIONES[item.calificacion] || CALIFICACIONES.na
 
@@ -288,7 +288,7 @@ export default function PeritajeDetalle() {
                       key={item.id}
                       className={clsx(
                         'p-3 rounded-lg border',
-                        item.urgente && 'border-red-300 bg-red-50'
+                        item.urgente && 'border-red-300 bg-red-50 dark:bg-red-950'
                       )}
                     >
                       <div className="flex items-start justify-between">
@@ -297,17 +297,17 @@ export default function PeritajeDetalle() {
                             {item.urgente && (
                               <AlertTriangle className="w-4 h-4 text-red-500" />
                             )}
-                            <span className="font-medium text-gray-900">
+                            <span className="font-medium text-gray-900 dark:text-white">
                               {item.nombre_item}
                             </span>
                           </div>
                           {item.observaciones && (
-                            <p className="text-sm text-gray-600 mt-1">
+                            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                               {item.observaciones}
                             </p>
                           )}
                           {item.costo_reparacion_estimado > 0 && (
-                            <p className="text-sm text-red-600 mt-1">
+                            <p className="text-sm text-red-600 dark:text-red-400 mt-1">
                               Costo estimado: ${item.costo_reparacion_estimado.toLocaleString()}
                             </p>
                           )}
@@ -352,7 +352,7 @@ export default function PeritajeDetalle() {
       {/* Galería de fotos */}
       {peritaje.fotos?.length > 0 && (
         <div className="card">
-          <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+          <h3 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
             <Camera className="w-5 h-5" />
             Fotos ({peritaje.fotos.length})
           </h3>
@@ -379,8 +379,8 @@ export default function PeritajeDetalle() {
       {/* Observaciones */}
       {peritaje.observaciones_generales && (
         <div className="card">
-          <h3 className="font-semibold text-gray-900 mb-2">Observaciones</h3>
-          <p className="text-gray-600 whitespace-pre-wrap">
+          <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Observaciones</h3>
+          <p className="text-gray-600 dark:text-gray-400 whitespace-pre-wrap">
             {peritaje.observaciones_generales}
           </p>
         </div>
@@ -388,8 +388,8 @@ export default function PeritajeDetalle() {
 
       {/* Acciones de admin */}
       {isAdmin && peritaje.estado === 'completado' && (
-        <div className="card bg-gray-50">
-          <h3 className="font-semibold text-gray-900 mb-3">Acciones de administrador</h3>
+        <div className="card bg-gray-50 dark:bg-gray-800">
+          <h3 className="font-semibold text-gray-900 dark:text-white mb-3">Acciones de administrador</h3>
           <div className="flex gap-3">
             <button
               onClick={() => setShowApprovalModal(true)}
@@ -432,8 +432,8 @@ export default function PeritajeDetalle() {
       {/* Modal de aprobación */}
       {showApprovalModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl max-w-md w-full p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          <div className="bg-white dark:bg-gray-800 rounded-xl max-w-md w-full p-6">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
               Aprobar peritaje
             </h3>
             <div className="mb-4">

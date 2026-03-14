@@ -3,7 +3,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.core.database import Base
-from app.verticals.autos.models.mixins import TenantMixin
+from app.verticals.autos.models.mixins import TenantMixin, SoftDeleteMixin
 import enum
 
 
@@ -35,7 +35,7 @@ class CategoriaGasto(str, enum.Enum):
     RETIRO_SOCIO = "retiro_socio"
 
 
-class CajaDiaria(TenantMixin, Base):
+class CajaDiaria(SoftDeleteMixin, TenantMixin, Base):
     """
     Movimientos de caja diaria (ingresos y egresos operativos).
     NO incluye costos directos de unidades (esos van en CostoDirecto).
@@ -73,7 +73,7 @@ class CajaDiaria(TenantMixin, Base):
     cierre = relationship("CierreCaja", back_populates="movimientos")
 
 
-class CierreCaja(TenantMixin, Base):
+class CierreCaja(SoftDeleteMixin, TenantMixin, Base):
     """
     Cierre mensual de caja para calcular utilidad neta.
     """

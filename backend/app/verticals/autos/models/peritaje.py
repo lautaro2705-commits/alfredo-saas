@@ -9,7 +9,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.core.database import Base
-from app.verticals.autos.models.mixins import TenantMixin
+from app.verticals.autos.models.mixins import TenantMixin, SoftDeleteMixin
 
 
 class EstadoPeritaje(str, enum.Enum):
@@ -43,7 +43,7 @@ class CalificacionItem(str, enum.Enum):
     NA = "na"
 
 
-class Peritaje(TenantMixin, Base):
+class Peritaje(SoftDeleteMixin, TenantMixin, Base):
     """
     Modelo principal de peritaje/inspección vehicular.
     Puede vincularse a una unidad existente o contener datos de un vehículo
@@ -104,8 +104,8 @@ class Peritaje(TenantMixin, Base):
     operacion = relationship("Operacion", backref="peritaje", foreign_keys=[operacion_id])
     perito = relationship("PlatformUser", foreign_keys=[perito_id], backref="peritajes_realizados")
     aprobado_por = relationship("PlatformUser", foreign_keys=[aprobado_por_id])
-    items = relationship("PeritajeItem", back_populates="peritaje", cascade="all, delete-orphan")
-    fotos = relationship("PeritajeFoto", back_populates="peritaje", cascade="all, delete-orphan")
+    items = relationship("PeritajeItem", back_populates="peritaje")
+    fotos = relationship("PeritajeFoto", back_populates="peritaje")
 
     @property
     def vehiculo_descripcion(self) -> str:
@@ -143,7 +143,7 @@ class Peritaje(TenantMixin, Base):
         return round((self.items_calificados / self.items_total) * 100, 1)
 
 
-class PeritajeItem(TenantMixin, Base):
+class PeritajeItem(SoftDeleteMixin, TenantMixin, Base):
     """
     Items individuales del checklist de peritaje.
     Cada item pertenece a un sector y tiene una calificación.
@@ -151,7 +151,7 @@ class PeritajeItem(TenantMixin, Base):
     __tablename__ = "peritaje_items"
 
     id = Column(Integer, primary_key=True, index=True)
-    peritaje_id = Column(Integer, ForeignKey("peritajes.id", ondelete="CASCADE"), nullable=False, index=True)
+    peritaje_id = Column(Integer, ForeignKey("peritajes.id", ondelete="RESTRICT"), nullable=False, index=True)
 
     # Identificación del item
     sector = Column(Enum(SectorPeritaje), nullable=False, index=True)
@@ -167,7 +167,7 @@ class PeritajeItem(TenantMixin, Base):
 
     # Relaciones
     peritaje = relationship("Peritaje", back_populates="items")
-    fotos = relationship("PeritajeFoto", back_populates="item", cascade="all, delete-orphan")
+    fotos = relationship("PeritajeFoto", back_populates="item")
 
     @property
     def valor_puntaje(self) -> int:
@@ -181,7 +181,7 @@ class PeritajeItem(TenantMixin, Base):
         return None  # NA no cuenta en el cálculo
 
 
-class PeritajeFoto(TenantMixin, Base):
+class PeritajeFoto(SoftDeleteMixin, TenantMixin, Base):
     """
     Fotos asociadas a un peritaje.
     Pueden estar vinculadas a un item específico o ser generales del sector.
@@ -190,7 +190,7 @@ class PeritajeFoto(TenantMixin, Base):
     __tablename__ = "peritaje_fotos"
 
     id = Column(Integer, primary_key=True, index=True)
-    peritaje_id = Column(Integer, ForeignKey("peritajes.id", ondelete="CASCADE"), nullable=False, index=True)
+    peritaje_id = Column(Integer, ForeignKey("peritajes.id", ondelete="RESTRICT"), nullable=False, index=True)
     peritaje_item_id = Column(Integer, ForeignKey("peritaje_items.id", ondelete="SET NULL"), nullable=True)
 
     # Clasificación

@@ -9,6 +9,7 @@ from app.verticals.autos.models.costo_directo import CostoDirecto, CategoriaCost
 from app.verticals.autos.models.unidad import Unidad
 from app.verticals.autos.schemas.costo_directo import CostoDirectoCreate, CostoDirectoUpdate, CostoDirectoResponse
 from app.verticals.autos.models.actividad import registrar_actividad, AccionActividad, EntidadActividad
+from app.core.soft_delete import soft_delete
 
 router = APIRouter(prefix="/autos/costos", tags=["autos-costos"])
 
@@ -25,7 +26,7 @@ async def listar_costos(
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
     """Listar costos directos con filtros"""
-    stmt = select(CostoDirecto)
+    stmt = select(CostoDirecto).where(CostoDirecto.active())
 
     if unidad_id:
         stmt = stmt.where(CostoDirecto.unidad_id == unidad_id)
@@ -57,7 +58,7 @@ async def obtener_costo(
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
     """Obtener detalle de un costo"""
-    result = await db.execute(select(CostoDirecto).where(CostoDirecto.id == costo_id))
+    result = await db.execute(select(CostoDirecto).where(CostoDirecto.active(), CostoDirecto.id == costo_id))
     costo = result.scalar_one_or_none()
     if not costo:
         raise HTTPException(status_code=404, detail="Costo no encontrado")
@@ -75,7 +76,7 @@ async def crear_costo(
     Ideal para que mecánicos/vendedores carguen gastos desde móvil.
     """
     # Verificar que existe la unidad
-    result = await db.execute(select(Unidad).where(Unidad.id == costo.unidad_id))
+    result = await db.execute(select(Unidad).where(Unidad.active(), Unidad.id == costo.unidad_id))
     unidad = result.scalar_one_or_none()
     if not unidad:
         raise HTTPException(status_code=404, detail="Unidad no encontrada")
@@ -110,7 +111,7 @@ async def crear_costo_rapido(
     Solo requiere el dominio (patente) del auto.
     """
     # Buscar unidad por dominio
-    result = await db.execute(select(Unidad).where(Unidad.dominio.ilike(dominio)))
+    result = await db.execute(select(Unidad).where(Unidad.active(), Unidad.dominio.ilike(dominio)))
     unidad = result.scalar_one_or_none()
     if not unidad:
         raise HTTPException(status_code=404, detail=f"No se encontró unidad con dominio {dominio}")
@@ -145,7 +146,7 @@ async def actualizar_costo(
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
     """Actualizar un costo"""
-    result = await db.execute(select(CostoDirecto).where(CostoDirecto.id == costo_id))
+    result = await db.execute(select(CostoDirecto).where(CostoDirecto.active(), CostoDirecto.id == costo_id))
     db_costo = result.scalar_one_or_none()
     if not db_costo:
         raise HTTPException(status_code=404, detail="Costo no encontrado")
@@ -171,8 +172,7 @@ async def eliminar_costo(
     if not db_costo:
         raise HTTPException(status_code=404, detail="Costo no encontrado")
 
-    await db.delete(db_costo)
-    await db.commit()
+    await soft_delete(db, db_costo, deleted_by=token.user_id)
     return {"mensaje": "Costo eliminado correctamente"}
 
 
@@ -188,7 +188,7 @@ async def resumen_por_categoria(
         CostoDirecto.categoria,
         func.sum(CostoDirecto.monto).label("total"),
         func.count(CostoDirecto.id).label("cantidad")
-    )
+    ).where(CostoDirecto.active())
 
     if fecha_desde:
         stmt = stmt.where(CostoDirecto.fecha >= fecha_desde)

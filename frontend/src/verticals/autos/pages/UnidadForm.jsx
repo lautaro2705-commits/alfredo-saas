@@ -94,10 +94,10 @@ export default function UnidadForm() {
     <div className="max-w-3xl mx-auto space-y-6 pb-20 lg:pb-0">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Link to="/unidades" className="p-2 hover:bg-gray-100 rounded-lg">
+        <Link to="/unidades" className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
           <ArrowLeft className="w-5 h-5" />
         </Link>
-        <h1 className="text-2xl font-bold text-gray-900">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
           {isEditing ? 'Editar Unidad' : 'Nueva Unidad'}
         </h1>
       </div>
@@ -105,7 +105,7 @@ export default function UnidadForm() {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Datos del vehículo */}
         <div className="card">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Datos del Vehículo</h2>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Datos del Vehículo</h2>
 
           {/* Botón de OCR del título - solo al crear nueva unidad */}
           {!isEditing && (
@@ -119,7 +119,7 @@ export default function UnidadForm() {
                 <FileText className="w-5 h-5" />
                 Escanear Título Automotor
               </button>
-              <p className="text-xs text-gray-500 text-center mt-2">
+              <p className="text-xs text-gray-500 dark:text-gray-400 text-center mt-2">
                 Sacale una foto al título para completar los datos automáticamente
               </p>
             </div>
@@ -257,7 +257,7 @@ export default function UnidadForm() {
 
         {/* Datos comerciales */}
         <div className="card">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Datos Comerciales</h2>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Datos Comerciales</h2>
 
           <div className="grid md:grid-cols-2 gap-4">
             {isAdmin && (

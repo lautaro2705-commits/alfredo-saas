@@ -7,6 +7,8 @@ import * as Sentry from '@sentry/react'
 import { AuthProvider } from '@/core/context/AuthContext'
 import ErrorBoundary from '@/verticals/autos/components/ErrorBoundary'
 import PWAUpdatePrompt from '@/core/components/PWAUpdatePrompt'
+import PWAInstallPrompt from '@/core/components/PWAInstallPrompt'
+import OfflineIndicator from '@/core/components/OfflineIndicator'
 import App from './App'
 import './index.css'
 
@@ -45,6 +47,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
             <App />
           </ErrorBoundary>
           <PWAUpdatePrompt />
+          <PWAInstallPrompt />
+          <OfflineIndicator />
           <Toaster
             position="top-center"
             gutter={8}

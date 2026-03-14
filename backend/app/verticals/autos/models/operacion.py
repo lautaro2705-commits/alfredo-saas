@@ -3,7 +3,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.core.database import Base
-from app.verticals.autos.models.mixins import TenantMixin
+from app.verticals.autos.models.mixins import TenantMixin, SoftDeleteMixin
 import enum
 
 
@@ -25,7 +25,7 @@ class FormaPago(str, enum.Enum):
     MIXTO = "mixto"  # Parte contado, parte financiado
 
 
-class Operacion(TenantMixin, Base):
+class Operacion(SoftDeleteMixin, TenantMixin, Base):
     """
     Operación de venta, con posibilidad de incluir retoma.
     """

@@ -64,7 +64,7 @@ export function DashboardSkeleton() {
         <div className="card-static space-y-3">
           <Skeleton className="h-5 w-32" />
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-gray-50">
+            <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-800">
               <Skeleton className="w-4 h-4 rounded mt-0.5" />
               <div className="flex-1 space-y-1">
                 <Skeleton className="h-3.5 w-3/4" />
@@ -76,7 +76,7 @@ export function DashboardSkeleton() {
         <div className="card-static space-y-3">
           <Skeleton className="h-5 w-28" />
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="p-3 rounded-lg bg-gray-50 space-y-2">
+            <div key={i} className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800 space-y-2">
               <div className="flex justify-between">
                 <Skeleton className="h-4 w-32" />
                 <Skeleton className="h-4 w-20" />
@@ -134,7 +134,7 @@ export function CardGridSkeleton({ count = 6 }) {
               <Skeleton className="h-3.5 w-4" />
               <Skeleton className="h-3.5 w-24" />
             </div>
-            <div className="flex justify-between pt-3 border-t border-gray-100">
+            <div className="flex justify-between pt-3 border-t border-gray-100 dark:border-gray-800">
               <Skeleton className="h-3.5 w-12" />
               <Skeleton className="h-4 w-24" />
             </div>
@@ -164,7 +164,7 @@ export function TableSkeleton({ rows = 5, cols = 4 }) {
 
       {/* Table */}
       <div className="card-static overflow-hidden p-0">
-        <div className="px-4 py-3 bg-gray-50 border-b">
+        <div className="px-4 py-3 bg-gray-50 dark:bg-gray-800 border-b">
           <div className="flex gap-4">
             {[...Array(cols)].map((_, i) => (
               <Skeleton key={i} className="h-3 w-20" />
@@ -172,7 +172,7 @@ export function TableSkeleton({ rows = 5, cols = 4 }) {
           </div>
         </div>
         {[...Array(rows)].map((_, i) => (
-          <div key={i} className="px-4 py-3.5 border-b border-gray-100 last:border-0">
+          <div key={i} className="px-4 py-3.5 border-b border-gray-100 dark:border-gray-800 last:border-0">
             <div className="flex items-center gap-4">
               {[...Array(cols)].map((_, j) => (
                 <Skeleton key={j} className={clsx('h-4', j === 0 ? 'w-32' : 'w-20')} />
@@ -191,7 +191,7 @@ export function PageSpinner() {
   return (
     <div className="flex items-center justify-center h-64">
       <div className="relative">
-        <div className="w-10 h-10 border-2 border-primary-200 rounded-full" />
+        <div className="w-10 h-10 border-2 border-primary-200 dark:border-primary-700 rounded-full" />
         <div className="absolute top-0 w-10 h-10 border-2 border-primary-600 border-t-transparent rounded-full animate-spin" />
       </div>
     </div>

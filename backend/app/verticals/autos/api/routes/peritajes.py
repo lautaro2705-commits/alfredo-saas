@@ -29,9 +29,10 @@ from app.verticals.autos.core.peritaje_config import (
     calcular_ajuste_precio, obtener_resumen_estado, obtener_recomendacion
 )
 from app.verticals.autos.services.cloudinary_service import (
-    upload_foto_peritaje, delete_foto, delete_fotos_peritaje,
+    upload_foto_peritaje,
     is_cloudinary_configured, configure_cloudinary
 )
+from app.core.soft_delete import soft_delete
 
 router = APIRouter(prefix="/autos/peritajes", tags=["autos-peritajes"])
 
@@ -204,7 +205,7 @@ async def listar_peritajes(
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
     """Lista todos los peritajes con filtros opcionales"""
-    stmt = select(Peritaje).options(selectinload(Peritaje.perito))
+    stmt = select(Peritaje).where(Peritaje.active()).options(selectinload(Peritaje.perito))
 
     if estado:
         stmt = stmt.where(Peritaje.estado == estado)
@@ -246,7 +247,7 @@ async def crear_peritaje(
     """
     # Si hay unidad_id, cargar datos del vehículo
     if peritaje_data.unidad_id:
-        result = await db.execute(select(Unidad).where(Unidad.id == peritaje_data.unidad_id))
+        result = await db.execute(select(Unidad).where(Unidad.active(), Unidad.id == peritaje_data.unidad_id))
         unidad = result.scalar_one_or_none()
         if not unidad:
             raise HTTPException(status_code=404, detail="Unidad no encontrada")
@@ -316,7 +317,7 @@ async def obtener_peritaje(
     """Obtiene un peritaje con todos sus detalles"""
     result = await db.execute(
         select(Peritaje)
-        .where(Peritaje.id == peritaje_id)
+        .where(Peritaje.active(), Peritaje.id == peritaje_id)
         .options(
             selectinload(Peritaje.items).selectinload(PeritajeItem.fotos),
             selectinload(Peritaje.fotos),
@@ -341,7 +342,7 @@ async def actualizar_peritaje(
     """Actualiza los datos de un peritaje (solo en estado borrador)"""
     result = await db.execute(
         select(Peritaje)
-        .where(Peritaje.id == peritaje_id)
+        .where(Peritaje.active(), Peritaje.id == peritaje_id)
         .options(
             selectinload(Peritaje.items).selectinload(PeritajeItem.fotos),
             selectinload(Peritaje.fotos),
@@ -389,12 +390,8 @@ async def eliminar_peritaje(
             detail="Solo administradores pueden eliminar peritajes completados"
         )
 
-    # Eliminar fotos de Cloudinary
-    if is_cloudinary_configured():
-        delete_fotos_peritaje(peritaje_id)
-
-    await db.delete(peritaje)
-    await db.commit()
+    # Soft delete — fotos de Cloudinary NO se eliminan
+    await soft_delete(db, peritaje, deleted_by=token.user_id)
 
     return {"message": "Peritaje eliminado correctamente", "success": True}
 
@@ -409,7 +406,7 @@ async def obtener_items_sector(
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
     """Obtiene los items de un sector específico"""
-    result = await db.execute(select(Peritaje).where(Peritaje.id == peritaje_id))
+    result = await db.execute(select(Peritaje).where(Peritaje.active(), Peritaje.id == peritaje_id))
     peritaje = result.scalar_one_or_none()
     if not peritaje:
         raise HTTPException(status_code=404, detail="Peritaje no encontrado")
@@ -417,6 +414,7 @@ async def obtener_items_sector(
     result = await db.execute(
         select(PeritajeItem)
         .where(
+            PeritajeItem.active(),
             PeritajeItem.peritaje_id == peritaje_id,
             PeritajeItem.sector == sector
         )
@@ -462,7 +460,7 @@ async def calificar_item(
     """Califica un item individual del checklist"""
     result = await db.execute(
         select(Peritaje)
-        .where(Peritaje.id == peritaje_id)
+        .where(Peritaje.active(), Peritaje.id == peritaje_id)
         .options(selectinload(Peritaje.items))
     )
     peritaje = result.scalar_one_or_none()
@@ -477,6 +475,7 @@ async def calificar_item(
 
     result = await db.execute(
         select(PeritajeItem).where(
+            PeritajeItem.active(),
             PeritajeItem.id == item_id,
             PeritajeItem.peritaje_id == peritaje_id
         )
@@ -522,7 +521,7 @@ async def calificar_items_batch(
     """Califica múltiples items de una vez (optimizado para mobile)"""
     result = await db.execute(
         select(Peritaje)
-        .where(Peritaje.id == peritaje_id)
+        .where(Peritaje.active(), Peritaje.id == peritaje_id)
         .options(selectinload(Peritaje.items))
     )
     peritaje = result.scalar_one_or_none()
@@ -539,6 +538,7 @@ async def calificar_items_batch(
     for item_data in items_data:
         result = await db.execute(
             select(PeritajeItem).where(
+                PeritajeItem.active(),
                 PeritajeItem.id == item_data.item_id,
                 PeritajeItem.peritaje_id == peritaje_id
             )
@@ -583,7 +583,7 @@ async def subir_foto(
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
     """Sube una foto al peritaje"""
-    result = await db.execute(select(Peritaje).where(Peritaje.id == peritaje_id))
+    result = await db.execute(select(Peritaje).where(Peritaje.active(), Peritaje.id == peritaje_id))
     peritaje = result.scalar_one_or_none()
     if not peritaje:
         raise HTTPException(status_code=404, detail="Peritaje no encontrado")
@@ -678,13 +678,8 @@ async def eliminar_foto(
             detail="No se pueden eliminar fotos de un peritaje aprobado o rechazado"
         )
 
-    # Eliminar de Cloudinary
-    if is_cloudinary_configured() and foto.public_id:
-        configure_cloudinary()
-        delete_foto(foto.public_id)
-
-    await db.delete(foto)
-    await db.commit()
+    # Soft delete — foto de Cloudinary NO se elimina
+    await soft_delete(db, foto, deleted_by=token.user_id)
 
     return {"message": "Foto eliminada correctamente", "success": True}
 
@@ -700,7 +695,7 @@ async def recalcular_puntaje(
     """Recalcula los puntajes del peritaje"""
     result = await db.execute(
         select(Peritaje)
-        .where(Peritaje.id == peritaje_id)
+        .where(Peritaje.active(), Peritaje.id == peritaje_id)
         .options(
             selectinload(Peritaje.items),
             selectinload(Peritaje.unidad)
@@ -757,7 +752,7 @@ async def completar_peritaje(
     """Marca el peritaje como completado"""
     result = await db.execute(
         select(Peritaje)
-        .where(Peritaje.id == peritaje_id)
+        .where(Peritaje.active(), Peritaje.id == peritaje_id)
         .options(
             selectinload(Peritaje.items).selectinload(PeritajeItem.fotos),
             selectinload(Peritaje.fotos),
@@ -835,7 +830,7 @@ async def aprobar_peritaje(
 
     result = await db.execute(
         select(Peritaje)
-        .where(Peritaje.id == peritaje_id)
+        .where(Peritaje.active(), Peritaje.id == peritaje_id)
         .options(
             selectinload(Peritaje.items).selectinload(PeritajeItem.fotos),
             selectinload(Peritaje.fotos),
@@ -890,7 +885,7 @@ async def obtener_puntaje_estado(
     """
     result = await db.execute(
         select(Peritaje)
-        .where(Peritaje.id == peritaje_id)
+        .where(Peritaje.active(), Peritaje.id == peritaje_id)
         .options(selectinload(Peritaje.items))
     )
     peritaje = result.scalar_one_or_none()
@@ -932,7 +927,7 @@ async def generar_pdf(
     """Genera un PDF del informe de peritaje"""
     result = await db.execute(
         select(Peritaje)
-        .where(Peritaje.id == peritaje_id)
+        .where(Peritaje.active(), Peritaje.id == peritaje_id)
         .options(
             selectinload(Peritaje.items).selectinload(PeritajeItem.fotos),
             selectinload(Peritaje.fotos),

@@ -202,7 +202,7 @@ export default function UnidadDetalle() {
   if (!unidad) {
     return (
       <div className="card text-center py-12">
-        <h3 className="text-lg font-medium text-gray-900">Unidad no encontrada</h3>
+        <h3 className="text-lg font-medium text-gray-900 dark:text-white">Unidad no encontrada</h3>
         <Link to="/unidades" className="btn btn-primary mt-4">Volver al stock</Link>
       </div>
     )
@@ -218,14 +218,14 @@ export default function UnidadDetalle() {
     <div className="space-y-6 pb-20 lg:pb-0">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Link to="/unidades" className="p-2 hover:bg-gray-100 rounded-lg">
+        <Link to="/unidades" className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <div className="flex-1">
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
             {unidad.marca} {unidad.modelo}
           </h1>
-          <p className="text-gray-500">{unidad.version || ''} • {unidad.anio}</p>
+          <p className="text-gray-500 dark:text-gray-400">{unidad.version || ''} • {unidad.anio}</p>
         </div>
         <span className={clsx('badge', estadoColors[unidad.estado])}>
           {unidad.estado.replace('_', ' ')}
@@ -233,9 +233,9 @@ export default function UnidadDetalle() {
         {unidad.mercadolibre_id && (
           <span className={clsx(
             'badge flex items-center gap-1',
-            unidad.mercadolibre_status === 'active' ? 'bg-yellow-100 text-yellow-800' :
-            unidad.mercadolibre_status === 'paused' ? 'bg-gray-100 text-gray-800' :
-            'bg-red-100 text-red-800'
+            unidad.mercadolibre_status === 'active' ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800' :
+            unidad.mercadolibre_status === 'paused' ? 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200' :
+            'bg-red-100 dark:bg-red-900 text-red-800'
           )}>
             🛒 {unidad.mercadolibre_status === 'active' ? 'Publicado' :
                 unidad.mercadolibre_status === 'paused' ? 'Pausado' : 'ML'}
@@ -255,7 +255,24 @@ export default function UnidadDetalle() {
               Crear Venta
             </Link>
             <button
-              onClick={() => setShareModalOpen(true)}
+              onClick={async () => {
+                // Native share on mobile (Chrome, Safari, Samsung)
+                if (navigator.share && unidad) {
+                  try {
+                    await navigator.share({
+                      title: `${unidad.marca} ${unidad.modelo} ${unidad.anio} - ${unidad.dominio}`,
+                      text: `${unidad.marca} ${unidad.modelo} ${unidad.anio}\n${unidad.kilometraje?.toLocaleString() || '0'} km\n$${unidad.precio_publicado?.toLocaleString() || 'Consultar'}`,
+                      url: window.location.href,
+                    })
+                    return
+                  } catch (err) {
+                    // User cancelled or share failed — fall through to modal
+                    if (err.name === 'AbortError') return
+                  }
+                }
+                // Fallback: clipboard-based share modal
+                setShareModalOpen(true)
+              }}
               className="btn btn-secondary flex items-center gap-2"
             >
               <Share2 className="w-4 h-4" />
@@ -352,8 +369,8 @@ export default function UnidadDetalle() {
               className={clsx(
                 'py-3 px-1 border-b-2 font-medium text-sm transition-colors whitespace-nowrap',
                 activeTab === tab
-                  ? 'border-primary-600 text-primary-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
+                  ? 'border-primary-600 text-primary-600 dark:text-primary-400'
+                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700'
               )}
             >
               {tab === 'info' && 'Información'}
@@ -370,61 +387,61 @@ export default function UnidadDetalle() {
       {activeTab === 'info' && (
         <div className="grid md:grid-cols-2 gap-6">
           <div className="card">
-            <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
               <Car className="w-5 h-5" />
               Datos del Vehículo
             </h3>
             <dl className="space-y-3">
               <div className="flex justify-between">
-                <dt className="text-gray-500">Dominio</dt>
+                <dt className="text-gray-500 dark:text-gray-400">Dominio</dt>
                 <dd className="font-mono font-medium">{unidad.dominio}</dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-gray-500">Chasis</dt>
+                <dt className="text-gray-500 dark:text-gray-400">Chasis</dt>
                 <dd className="font-mono text-sm">{unidad.numero_chasis || '-'}</dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-gray-500">Motor</dt>
+                <dt className="text-gray-500 dark:text-gray-400">Motor</dt>
                 <dd className="font-mono text-sm">{unidad.numero_motor || '-'}</dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-gray-500">Kilometraje</dt>
+                <dt className="text-gray-500 dark:text-gray-400">Kilometraje</dt>
                 <dd>{unidad.kilometraje ? `${unidad.kilometraje.toLocaleString()} km` : '-'}</dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-gray-500">Combustible</dt>
+                <dt className="text-gray-500 dark:text-gray-400">Combustible</dt>
                 <dd>{unidad.combustible || '-'}</dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-gray-500">Transmisión</dt>
+                <dt className="text-gray-500 dark:text-gray-400">Transmisión</dt>
                 <dd>{unidad.transmision || '-'}</dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-gray-500">Color</dt>
+                <dt className="text-gray-500 dark:text-gray-400">Color</dt>
                 <dd>{unidad.color || '-'}</dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-gray-500">Ubicación</dt>
+                <dt className="text-gray-500 dark:text-gray-400">Ubicación</dt>
                 <dd>{unidad.ubicacion || '-'}</dd>
               </div>
             </dl>
           </div>
 
           <div className="card">
-            <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
               <Calendar className="w-5 h-5" />
               Información Comercial
             </h3>
             <dl className="space-y-3">
               <div className="flex justify-between">
-                <dt className="text-gray-500">Fecha Ingreso</dt>
+                <dt className="text-gray-500 dark:text-gray-400">Fecha Ingreso</dt>
                 <dd>{format(new Date(unidad.fecha_ingreso), 'dd/MM/yyyy')}</dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-gray-500">Días en Stock</dt>
+                <dt className="text-gray-500 dark:text-gray-400">Días en Stock</dt>
                 <dd className={clsx(
                   'font-medium',
-                  unidad.stock_inmovilizado ? 'text-red-600' : 'text-gray-900'
+                  unidad.stock_inmovilizado ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white'
                 )}>
                   {unidad.dias_en_stock} días
                   {unidad.stock_inmovilizado && (
@@ -435,15 +452,15 @@ export default function UnidadDetalle() {
               {isAdmin && (
                 <>
                   <div className="flex justify-between">
-                    <dt className="text-gray-500">Precio Compra</dt>
+                    <dt className="text-gray-500 dark:text-gray-400">Precio Compra</dt>
                     <dd>{formatCurrency(unidad.precio_compra)}</dd>
                   </div>
                   <div className="flex justify-between">
-                    <dt className="text-gray-500">Gastos Transferencia</dt>
+                    <dt className="text-gray-500 dark:text-gray-400">Gastos Transferencia</dt>
                     <dd>{formatCurrency(unidad.gastos_transferencia)}</dd>
                   </div>
                   <div className="flex justify-between">
-                    <dt className="text-gray-500">Costos Directos</dt>
+                    <dt className="text-gray-500 dark:text-gray-400">Costos Directos</dt>
                     <dd>{formatCurrency(historialCostos?.total_costos)}</dd>
                   </div>
                   <div className="flex justify-between font-semibold border-t pt-3">
@@ -453,13 +470,13 @@ export default function UnidadDetalle() {
                 </>
               )}
               <div className="flex justify-between">
-                <dt className="text-gray-500">Precio Publicado</dt>
-                <dd className="font-semibold text-green-600">
+                <dt className="text-gray-500 dark:text-gray-400">Precio Publicado</dt>
+                <dd className="font-semibold text-green-600 dark:text-green-400">
                   {formatCurrency(unidad.precio_publicado)}
                 </dd>
               </div>
               {isAdmin && unidad.precio_publicado && (
-                <div className="flex justify-between text-green-600 font-medium">
+                <div className="flex justify-between text-green-600 dark:text-green-400 font-medium">
                   <dt>Margen Esperado</dt>
                   <dd>{formatCurrency(unidad.precio_publicado - unidad.costo_total)}</dd>
                 </div>
@@ -471,8 +488,8 @@ export default function UnidadDetalle() {
           {MOSTRAR_PRECIOS_MERCADO && isAdmin && (unidad.estado === 'disponible' || unidad.estado === 'reservado') && (
             <div className="card md:col-span-2 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5 text-blue-600" />
+                <h3 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                  <TrendingUp className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                   Precio de Mercado (Cordoba)
                 </h3>
                 <button
@@ -488,21 +505,21 @@ export default function UnidadDetalle() {
               {precioMercado ? (
                 <div className="space-y-4">
                   {precioMercado.error && !precioMercado.valor_mercado ? (
-                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-yellow-700 text-sm">
+                    <div className="bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 rounded-lg p-3 text-yellow-700 dark:text-yellow-400 text-sm">
                       <AlertTriangle className="w-4 h-4 inline mr-2" />
                       {precioMercado.error}
                     </div>
                   ) : (
                     <>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div className="bg-white rounded-lg p-3 text-center">
-                          <p className="text-xs text-gray-500 mb-1">Minimo</p>
-                          <p className="font-semibold text-gray-700">
+                        <div className="bg-white dark:bg-gray-800 rounded-lg p-3 text-center">
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Minimo</p>
+                          <p className="font-semibold text-gray-700 dark:text-gray-300">
                             {formatCurrency(precioMercado.valor_mercado_min)}
                           </p>
                         </div>
-                        <div className="bg-blue-100 rounded-lg p-3 text-center">
-                          <p className="text-xs text-blue-600 mb-1">Promedio</p>
+                        <div className="bg-blue-100 dark:bg-blue-900 rounded-lg p-3 text-center">
+                          <p className="text-xs text-blue-600 dark:text-blue-400 mb-1">Promedio</p>
                           <p className="text-xl font-bold text-blue-700">
                             {formatCurrency(precioMercado.valor_mercado)}
                           </p>
@@ -510,14 +527,14 @@ export default function UnidadDetalle() {
                             {precioMercado.cantidad_resultados} resultados
                           </p>
                         </div>
-                        <div className="bg-white rounded-lg p-3 text-center">
-                          <p className="text-xs text-gray-500 mb-1">Maximo</p>
-                          <p className="font-semibold text-gray-700">
+                        <div className="bg-white dark:bg-gray-800 rounded-lg p-3 text-center">
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Maximo</p>
+                          <p className="font-semibold text-gray-700 dark:text-gray-300">
                             {formatCurrency(precioMercado.valor_mercado_max)}
                           </p>
                         </div>
-                        <div className="bg-white rounded-lg p-3 text-center">
-                          <p className="text-xs text-gray-500 mb-1">Competitividad</p>
+                        <div className="bg-white dark:bg-gray-800 rounded-lg p-3 text-center">
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Competitividad</p>
                           <BadgeCompetitividad
                             competitividad={precioMercado.competitividad}
                             valorMercado={precioMercado.valor_mercado}
@@ -530,13 +547,13 @@ export default function UnidadDetalle() {
                       {precioMercado.diferencia_mercado !== null && precioMercado.diferencia_mercado !== undefined && (
                         <div className={clsx(
                           'rounded-lg p-3 text-center',
-                          precioMercado.diferencia_mercado <= 0 ? 'bg-green-50' : 'bg-red-50'
+                          precioMercado.diferencia_mercado <= 0 ? 'bg-green-50 dark:bg-green-950' : 'bg-red-50 dark:bg-red-950'
                         )}>
-                          <p className="text-sm text-gray-600">
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
                             Tu precio ({formatCurrency(unidad.precio_publicado)}) esta{' '}
                             <span className={clsx(
                               'font-bold',
-                              precioMercado.diferencia_mercado <= 0 ? 'text-green-600' : 'text-red-600'
+                              precioMercado.diferencia_mercado <= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
                             )}>
                               {formatCurrency(Math.abs(precioMercado.diferencia_mercado))}
                               {precioMercado.diferencia_mercado <= 0 ? ' por debajo' : ' por encima'}
@@ -560,7 +577,7 @@ export default function UnidadDetalle() {
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
                 </div>
               ) : (
-                <div className="text-center py-6 text-gray-500">
+                <div className="text-center py-6 text-gray-500 dark:text-gray-400">
                   <p>Haz clic en "Actualizar" para consultar el precio de mercado</p>
                 </div>
               )}
@@ -569,8 +586,8 @@ export default function UnidadDetalle() {
 
           {unidad.observaciones && (
             <div className="card md:col-span-2">
-              <h3 className="font-semibold text-gray-900 mb-2">Observaciones</h3>
-              <p className="text-gray-600 whitespace-pre-wrap">{unidad.observaciones}</p>
+              <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Observaciones</h3>
+              <p className="text-gray-600 dark:text-gray-400 whitespace-pre-wrap">{unidad.observaciones}</p>
             </div>
           )}
         </div>
@@ -580,12 +597,12 @@ export default function UnidadDetalle() {
       {activeTab === 'fotos' && (
         <div className="card">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+            <h3 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
               <Camera className="w-5 h-5" />
               Fotos del Vehículo
             </h3>
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-500">
+              <span className="text-sm text-gray-500 dark:text-gray-400">
                 {fotosData?.total || 0} / 12 fotos
               </span>
               {(fotosData?.total || 0) < 12 && (
@@ -629,7 +646,7 @@ export default function UnidadDetalle() {
               {fotosData.fotos.map((foto, index) => (
                 <div
                   key={index}
-                  className="relative group aspect-square bg-gray-100 rounded-lg overflow-hidden"
+                  className="relative group aspect-square bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden"
                 >
                   <img
                     src={foto.thumbnail || foto.url}
@@ -660,7 +677,7 @@ export default function UnidadDetalle() {
           ) : (
             <div className="text-center py-12">
               <Camera className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-500 mb-2">No hay fotos cargadas</p>
+              <p className="text-gray-500 dark:text-gray-400 mb-2">No hay fotos cargadas</p>
               <p className="text-sm text-gray-400 mb-4">
                 Subí fotos del vehículo para publicar en MercadoLibre
               </p>
@@ -681,7 +698,7 @@ export default function UnidadDetalle() {
 
           {/* Nota sobre MercadoLibre */}
           {fotosData?.total > 0 && (
-            <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-800">
+            <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 rounded-lg text-sm text-yellow-800">
               <span className="font-medium">💡 Tip:</span> MercadoLibre acepta hasta 12 fotos por publicación.
               La primera foto será la principal.
             </div>
@@ -697,7 +714,7 @@ export default function UnidadDetalle() {
         >
           <button
             onClick={() => setFotoExpandida(null)}
-            className="absolute top-4 right-4 p-2 bg-white/20 hover:bg-white/30 rounded-full text-white"
+            className="absolute top-4 right-4 p-2 bg-white dark:bg-gray-800/20 hover:bg-white/30 rounded-full text-white"
           >
             <X className="w-6 h-6" />
           </button>
@@ -713,7 +730,7 @@ export default function UnidadDetalle() {
       {activeTab === 'costos' && (
         <div className="card">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+            <h3 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
               <Wrench className="w-5 h-5" />
               Historial de Costos
             </h3>
@@ -728,32 +745,32 @@ export default function UnidadDetalle() {
 
           {isAdmin ? (
             <>
-              <div className="bg-gray-50 rounded-lg p-4 mb-4">
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 mb-4">
                 <div className="grid grid-cols-3 gap-4 text-center">
                   <div>
-                    <p className="text-sm text-gray-500">Adquisición</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Adquisición</p>
                     <p className="font-semibold">{formatCurrency(historialCostos?.costo_adquisicion)}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">Costos Directos</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Costos Directos</p>
                     <p className="font-semibold">{formatCurrency(historialCostos?.total_costos)}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">Total</p>
-                    <p className="font-semibold text-primary-600">{formatCurrency(historialCostos?.costo_total)}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Total</p>
+                    <p className="font-semibold text-primary-600 dark:text-primary-400">{formatCurrency(historialCostos?.costo_total)}</p>
                   </div>
                 </div>
               </div>
 
               {historialCostos?.costos?.length === 0 ? (
-                <p className="text-gray-500 text-center py-8">No hay costos registrados</p>
+                <p className="text-gray-500 dark:text-gray-400 text-center py-8">No hay costos registrados</p>
               ) : (
                 <div className="space-y-3">
                   {historialCostos?.costos?.map((costo) => (
-                    <div key={costo.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div key={costo.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                       <div>
-                        <p className="font-medium text-gray-900">{costo.descripcion}</p>
-                        <p className="text-sm text-gray-500">
+                        <p className="font-medium text-gray-900 dark:text-white">{costo.descripcion}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
                           {costo.categoria.replace('_', ' ')} • {costo.proveedor || 'Sin proveedor'}
                         </p>
                       </div>
@@ -769,7 +786,7 @@ export default function UnidadDetalle() {
               )}
             </>
           ) : (
-            <p className="text-gray-500 text-center py-8">
+            <p className="text-gray-500 dark:text-gray-400 text-center py-8">
               No tiene permisos para ver los costos
             </p>
           )}
@@ -779,7 +796,7 @@ export default function UnidadDetalle() {
       {activeTab === 'documentacion' && (
         <div className="card">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+            <h3 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
               <FileText className="w-5 h-5" />
               Checklist de Documentación
             </h3>
@@ -797,9 +814,9 @@ export default function UnidadDetalle() {
           </div>
 
           {documentacion?.items_pendientes?.length > 0 && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+            <div className="bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 rounded-lg p-4 mb-4">
               <p className="font-medium text-yellow-800 mb-2">Items pendientes:</p>
-              <ul className="list-disc list-inside text-yellow-700 text-sm space-y-1">
+              <ul className="list-disc list-inside text-yellow-700 dark:text-yellow-400 text-sm space-y-1">
                 {documentacion.items_pendientes.map((item, i) => (
                   <li key={i}>{item}</li>
                 ))}
@@ -820,8 +837,8 @@ export default function UnidadDetalle() {
               { label: 'Llave Original', value: documentacion?.llave_original },
               { label: 'Manual Usuario', value: documentacion?.manual_usuario },
             ].map((item) => (
-              <div key={item.label} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <span className="text-gray-700">{item.label}</span>
+              <div key={item.label} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <span className="text-gray-700 dark:text-gray-300">{item.label}</span>
                 {item.value ? (
                   <CheckCircle2 className="w-5 h-5 text-green-500" />
                 ) : (
@@ -832,12 +849,12 @@ export default function UnidadDetalle() {
           </div>
 
           {documentacion?.multas_monto_total > 0 && (
-            <div className="mt-4 p-3 bg-red-50 rounded-lg">
-              <p className="text-red-700">
+            <div className="mt-4 p-3 bg-red-50 dark:bg-red-950 rounded-lg">
+              <p className="text-red-700 dark:text-red-400">
                 <span className="font-medium">Multas pendientes:</span> {formatCurrency(documentacion.multas_monto_total)}
               </p>
               {documentacion.multas_detalle && (
-                <p className="text-red-600 text-sm mt-1">{documentacion.multas_detalle}</p>
+                <p className="text-red-600 dark:text-red-400 text-sm mt-1">{documentacion.multas_detalle}</p>
               )}
             </div>
           )}
@@ -848,17 +865,17 @@ export default function UnidadDetalle() {
       {activeTab === 'archivos' && (
         <div className="card">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+            <h3 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
               <Image className="w-5 h-5" />
               Legajo Digital
             </h3>
-            <span className="text-sm text-gray-500">
+            <span className="text-sm text-gray-500 dark:text-gray-400">
               {archivosUnidad?.total_archivos || 0} archivos
             </span>
           </div>
 
           {archivosUnidad?.documentos_faltantes?.length > 0 && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+            <div className="bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 rounded-lg p-4 mb-4">
               <p className="font-medium text-yellow-800 mb-2">Documentos faltantes:</p>
               <div className="flex flex-wrap gap-2">
                 {archivosUnidad.documentos_faltantes.map((doc) => (
@@ -874,17 +891,17 @@ export default function UnidadDetalle() {
             <div className="space-y-4">
               {Object.entries(archivosUnidad.por_tipo).map(([tipo, archivos]) => (
                 <div key={tipo} className="border rounded-lg p-3">
-                  <p className="font-medium text-gray-700 mb-2 capitalize">{tipo.replace('_', ' ')}</p>
+                  <p className="font-medium text-gray-700 dark:text-gray-300 mb-2 capitalize">{tipo.replace('_', ' ')}</p>
                   <div className="flex flex-wrap gap-2">
                     {archivos.map((archivo) => (
                       <div
                         key={archivo.id}
-                        className="flex items-center gap-2 bg-gray-50 rounded px-3 py-2 text-sm"
+                        className="flex items-center gap-2 bg-gray-50 dark:bg-gray-800 rounded px-3 py-2 text-sm"
                       >
                         {archivo.es_imagen ? (
                           <Image className="w-4 h-4 text-blue-500" />
                         ) : (
-                          <FileText className="w-4 h-4 text-gray-500" />
+                          <FileText className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                         )}
                         <span className="truncate max-w-[150px]">{archivo.nombre}</span>
                       </div>
@@ -896,7 +913,7 @@ export default function UnidadDetalle() {
           ) : (
             <div className="text-center py-8">
               <Upload className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-              <p className="text-gray-500">No hay archivos cargados</p>
+              <p className="text-gray-500 dark:text-gray-400">No hay archivos cargados</p>
               <p className="text-sm text-gray-400 mt-1">
                 Subi fotos y documentos desde la API
               </p>
@@ -909,7 +926,7 @@ export default function UnidadDetalle() {
       {shareModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="fixed inset-0 bg-black/50" onClick={() => setShareModalOpen(false)} />
-          <div className="relative bg-white rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+          <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between p-4 border-b">
               <h2 className="text-lg font-semibold flex items-center gap-2">
                 <Share2 className="w-5 h-5" />
@@ -917,7 +934,7 @@ export default function UnidadDetalle() {
               </h2>
               <button
                 onClick={() => setShareModalOpen(false)}
-                className="p-2 hover:bg-gray-100 rounded-lg"
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
               >
                 <XCircle className="w-5 h-5" />
               </button>
@@ -927,19 +944,19 @@ export default function UnidadDetalle() {
               {/* WhatsApp */}
               <div className="border rounded-lg p-4">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-medium text-gray-900">WhatsApp</h3>
+                  <h3 className="font-medium text-gray-900 dark:text-white">WhatsApp</h3>
                   <button
                     onClick={() => {
                       navigator.clipboard.writeText(fichaVenta?.whatsapp_texto || '')
                       toast.success('Texto copiado')
                     }}
-                    className="text-sm text-primary-600 flex items-center gap-1"
+                    className="text-sm text-primary-600 dark:text-primary-400 flex items-center gap-1"
                   >
                     <Copy className="w-4 h-4" />
                     Copiar
                   </button>
                 </div>
-                <pre className="text-sm text-gray-600 whitespace-pre-wrap bg-gray-50 p-3 rounded max-h-40 overflow-y-auto">
+                <pre className="text-sm text-gray-600 dark:text-gray-400 whitespace-pre-wrap bg-gray-50 dark:bg-gray-800 p-3 rounded max-h-40 overflow-y-auto">
                   {fichaVenta?.whatsapp_texto}
                 </pre>
               </div>
@@ -947,26 +964,26 @@ export default function UnidadDetalle() {
               {/* Instagram */}
               <div className="border rounded-lg p-4">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-medium text-gray-900">Instagram</h3>
+                  <h3 className="font-medium text-gray-900 dark:text-white">Instagram</h3>
                   <button
                     onClick={() => {
                       navigator.clipboard.writeText(fichaVenta?.instagram_caption || '')
                       toast.success('Caption copiado')
                     }}
-                    className="text-sm text-primary-600 flex items-center gap-1"
+                    className="text-sm text-primary-600 dark:text-primary-400 flex items-center gap-1"
                   >
                     <Copy className="w-4 h-4" />
                     Copiar
                   </button>
                 </div>
-                <pre className="text-sm text-gray-600 whitespace-pre-wrap bg-gray-50 p-3 rounded max-h-40 overflow-y-auto">
+                <pre className="text-sm text-gray-600 dark:text-gray-400 whitespace-pre-wrap bg-gray-50 dark:bg-gray-800 p-3 rounded max-h-40 overflow-y-auto">
                   {fichaVenta?.instagram_caption}
                 </pre>
               </div>
 
               {/* Ficha HTML */}
               <div className="border rounded-lg p-4">
-                <h3 className="font-medium text-gray-900 mb-3">Ficha de Venta</h3>
+                <h3 className="font-medium text-gray-900 dark:text-white mb-3">Ficha de Venta</h3>
                 <a
                   href={marketingAPI.fichaVentaHtml(id)}
                   target="_blank"

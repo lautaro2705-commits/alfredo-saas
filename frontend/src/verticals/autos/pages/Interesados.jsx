@@ -124,8 +124,8 @@ export default function Interesados() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Lista de Espera</h1>
-          <p className="text-gray-500">Clientes buscando autos que no tenemos</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Lista de Espera</h1>
+          <p className="text-gray-500 dark:text-gray-400">Clientes buscando autos que no tenemos</p>
         </div>
         <div className="flex gap-2">
           {notificaciones && notificaciones.length > 0 && (
@@ -151,18 +151,18 @@ export default function Interesados() {
         <div className="grid grid-cols-3 gap-4">
           <div className="card text-center">
             <Users className="w-8 h-8 text-primary-500 mx-auto mb-2" />
-            <p className="text-sm text-gray-500">Interesados Activos</p>
-            <p className="text-2xl font-bold text-gray-900">{estadisticas.interesados_activos}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Interesados Activos</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">{estadisticas.interesados_activos}</p>
           </div>
           <div className="card text-center">
             <Bell className="w-8 h-8 text-yellow-500 mx-auto mb-2" />
-            <p className="text-sm text-gray-500">Matches Pendientes</p>
-            <p className="text-2xl font-bold text-yellow-600">{estadisticas.notificaciones_pendientes}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Matches Pendientes</p>
+            <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{estadisticas.notificaciones_pendientes}</p>
           </div>
           <div className="card text-center">
             <Car className="w-8 h-8 text-green-500 mx-auto mb-2" />
-            <p className="text-sm text-gray-500">Marca Mas Buscada</p>
-            <p className="text-lg font-bold text-gray-900">
+            <p className="text-sm text-gray-500 dark:text-gray-400">Marca Mas Buscada</p>
+            <p className="text-lg font-bold text-gray-900 dark:text-white">
               {estadisticas.marcas_mas_buscadas?.[0]?.marca || '-'}
             </p>
           </div>
@@ -198,7 +198,7 @@ export default function Interesados() {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600" />
           </div>
         ) : interesados?.length === 0 ? (
-          <p className="text-gray-500 text-center py-8">No hay interesados registrados</p>
+          <p className="text-gray-500 dark:text-gray-400 text-center py-8">No hay interesados registrados</p>
         ) : (
           <div className="space-y-3">
             {interesados?.map((interesado) => (
@@ -206,20 +206,20 @@ export default function Interesados() {
                 key={interesado.id}
                 className={clsx(
                   "p-4 rounded-lg border",
-                  interesado.activo ? "bg-white border-gray-200" : "bg-gray-50 border-gray-100"
+                  interesado.activo ? "bg-white border-gray-200 dark:border-gray-700" : "bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-800"
                 )}
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <h3 className="font-semibold text-gray-900">{interesado.nombre_completo}</h3>
+                      <h3 className="font-semibold text-gray-900 dark:text-white">{interesado.nombre_completo}</h3>
                       {interesado.activo ? (
-                        <span className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded">Activo</span>
+                        <span className="bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-400 text-xs px-2 py-0.5 rounded">Activo</span>
                       ) : (
-                        <span className="bg-gray-100 text-gray-500 text-xs px-2 py-0.5 rounded">Inactivo</span>
+                        <span className="bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 text-xs px-2 py-0.5 rounded">Inactivo</span>
                       )}
                     </div>
-                    <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
+                    <div className="flex items-center gap-4 mt-1 text-sm text-gray-500 dark:text-gray-400">
                       <span className="flex items-center gap-1">
                         <Phone className="w-3 h-3" />
                         {interesado.telefono}
@@ -227,17 +227,17 @@ export default function Interesados() {
                     </div>
                     <div className="mt-2 flex flex-wrap gap-2">
                       {interesado.marca_buscada && (
-                        <span className="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded">
+                        <span className="bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-400 text-xs px-2 py-1 rounded">
                           {interesado.marca_buscada}
                         </span>
                       )}
                       {interesado.modelo_buscado && (
-                        <span className="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded">
+                        <span className="bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-400 text-xs px-2 py-1 rounded">
                           {interesado.modelo_buscado}
                         </span>
                       )}
                       {interesado.precio_maximo && (
-                        <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded">
+                        <span className="bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-400 text-xs px-2 py-1 rounded">
                           Max: {formatCurrency(interesado.precio_maximo)}
                         </span>
                       )}
@@ -265,8 +265,8 @@ export default function Interesados() {
       {modalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="fixed inset-0 bg-black/50" onClick={closeModal} />
-          <div className="relative bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-4 border-b bg-primary-50">
+          <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-4 border-b bg-primary-50 dark:bg-primary-950">
               <h2 className="text-lg font-semibold">Nuevo Interesado</h2>
               <button onClick={closeModal} className="p-2 hover:bg-white/50 rounded-lg">
                 <X className="w-5 h-5" />
@@ -312,7 +312,7 @@ export default function Interesados() {
               </div>
 
               <div className="border-t pt-4">
-                <h3 className="font-medium text-gray-900 mb-3">Que busca?</h3>
+                <h3 className="font-medium text-gray-900 dark:text-white mb-3">Que busca?</h3>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -393,10 +393,10 @@ export default function Interesados() {
       {notifModalOpen && notificaciones && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="fixed inset-0 bg-black/50" onClick={() => setNotifModalOpen(false)} />
-          <div className="relative bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[80vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-4 border-b bg-yellow-50">
+          <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-lg max-h-[80vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-4 border-b bg-yellow-50 dark:bg-yellow-950">
               <h2 className="text-lg font-semibold flex items-center gap-2">
-                <Bell className="w-5 h-5 text-yellow-600" />
+                <Bell className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
                 Matches Encontrados ({notificaciones.length})
               </h2>
               <button onClick={() => setNotifModalOpen(false)} className="p-2 hover:bg-white/50 rounded-lg">
@@ -406,14 +406,14 @@ export default function Interesados() {
 
             <div className="p-4 space-y-3">
               {notificaciones.map((notif) => (
-                <div key={notif.id} className="p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                <div key={notif.id} className="p-3 bg-yellow-50 dark:bg-yellow-950 rounded-lg border border-yellow-200">
                   <div className="flex justify-between items-start">
                     <div>
-                      <p className="font-medium text-gray-900">
+                      <p className="font-medium text-gray-900 dark:text-white">
                         {notif.unidad.marca} {notif.unidad.modelo} ({notif.unidad.anio})
                       </p>
-                      <p className="text-sm text-gray-500">{notif.unidad.dominio}</p>
-                      <p className="text-sm text-green-600 mt-1">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{notif.unidad.dominio}</p>
+                      <p className="text-sm text-green-600 dark:text-green-400 mt-1">
                         Precio: {formatCurrency(notif.unidad.precio_publicado)}
                       </p>
                     </div>
@@ -422,15 +422,15 @@ export default function Interesados() {
                     </span>
                   </div>
                   <div className="mt-2 pt-2 border-t border-yellow-300">
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
                       Para: <span className="font-medium">{notif.interesado.nombre_completo}</span>
                     </p>
-                    <p className="text-sm text-gray-500">{notif.interesado.telefono}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{notif.interesado.telefono}</p>
                   </div>
                   <div className="mt-2 flex justify-end">
                     <button
                       onClick={() => marcarLeidaMutation.mutate(notif.id)}
-                      className="text-sm text-primary-600 hover:underline"
+                      className="text-sm text-primary-600 dark:text-primary-400 hover:underline"
                     >
                       Marcar como leida
                     </button>

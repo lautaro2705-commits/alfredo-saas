@@ -41,6 +41,26 @@ export default defineConfig({
             purpose: 'maskable',
           },
         ],
+        shortcuts: [
+          {
+            name: 'Nueva Unidad',
+            short_name: 'Nueva',
+            url: '/unidades/nuevo',
+            icons: [{ src: 'pwa-192x192.png', sizes: '192x192' }],
+          },
+          {
+            name: 'Dashboard',
+            short_name: 'Inicio',
+            url: '/',
+            icons: [{ src: 'pwa-192x192.png', sizes: '192x192' }],
+          },
+          {
+            name: 'Registrar Gasto',
+            short_name: 'Gasto',
+            url: '/caja?accion=nuevo',
+            icons: [{ src: 'pwa-192x192.png', sizes: '192x192' }],
+          },
+        ],
       },
       workbox: {
         // Cache page navigations (SPA — all go to index.html)

@@ -3,7 +3,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.core.database import Base
-from app.verticals.autos.models.mixins import TenantMixin
+from app.verticals.autos.models.mixins import TenantMixin, SoftDeleteMixin
 import enum
 
 
@@ -24,7 +24,7 @@ class TipoDocumentoArchivo(str, enum.Enum):
     OTRO = "otro"
 
 
-class ArchivoUnidad(TenantMixin, Base):
+class ArchivoUnidad(SoftDeleteMixin, TenantMixin, Base):
     """Archivos y fotos adjuntos a una unidad (legajo digital)"""
     __tablename__ = "archivos_unidad"
 

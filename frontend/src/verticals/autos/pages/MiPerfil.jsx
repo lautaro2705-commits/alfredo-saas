@@ -144,8 +144,8 @@ export default function MiPerfil() {
     <div className="space-y-6 pb-20 lg:pb-0 max-w-2xl mx-auto">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Mi Perfil</h1>
-        <p className="text-gray-500">Informacion de tu cuenta y estadisticas</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Mi Perfil</h1>
+        <p className="text-gray-500 dark:text-gray-400">Informacion de tu cuenta y estadisticas</p>
       </div>
 
       {/* Info del perfil */}
@@ -153,19 +153,19 @@ export default function MiPerfil() {
         <div className="flex items-center gap-4 mb-6">
           <div className={clsx(
             "w-16 h-16 rounded-full flex items-center justify-center",
-            perfil?.rol === 'admin' ? "bg-purple-100" : "bg-blue-100"
+            perfil?.rol === 'admin' ? "bg-purple-100" : "bg-blue-100 dark:bg-blue-900"
           )}>
             {perfil?.rol === 'admin' ? (
-              <ShieldCheck className="w-8 h-8 text-purple-600" />
+              <ShieldCheck className="w-8 h-8 text-purple-600 dark:text-purple-400" />
             ) : (
-              <User className="w-8 h-8 text-blue-600" />
+              <User className="w-8 h-8 text-blue-600 dark:text-blue-400" />
             )}
           </div>
           <div>
-            <h2 className="text-xl font-bold text-gray-900">{perfil?.nombre_completo}</h2>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">{perfil?.nombre_completo}</h2>
             <span className={clsx(
               "text-sm px-3 py-1 rounded-full",
-              perfil?.rol === 'admin' ? "bg-purple-100 text-purple-700" : "bg-blue-100 text-blue-700"
+              perfil?.rol === 'admin' ? "bg-purple-100 text-purple-700" : "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-400"
             )}>
               {perfil?.rol === 'admin' ? 'Administrador' : 'Vendedor'}
             </span>
@@ -173,29 +173,29 @@ export default function MiPerfil() {
         </div>
 
         <div className="space-y-3">
-          <div className="flex items-center gap-3 text-gray-600">
+          <div className="flex items-center gap-3 text-gray-600 dark:text-gray-400">
             <User className="w-5 h-5 text-gray-400" />
             <span className="font-medium">Usuario:</span>
             <span>{perfil?.username}</span>
           </div>
-          <div className="flex items-center gap-3 text-gray-600">
+          <div className="flex items-center gap-3 text-gray-600 dark:text-gray-400">
             <Mail className="w-5 h-5 text-gray-400" />
             <span className="font-medium">Email:</span>
             <span>{perfil?.email}</span>
           </div>
           {perfil?.telefono && (
-            <div className="flex items-center gap-3 text-gray-600">
+            <div className="flex items-center gap-3 text-gray-600 dark:text-gray-400">
               <Phone className="w-5 h-5 text-gray-400" />
               <span className="font-medium">Telefono:</span>
               <span>{perfil?.telefono}</span>
             </div>
           )}
-          <div className="flex items-center gap-3 text-gray-600">
+          <div className="flex items-center gap-3 text-gray-600 dark:text-gray-400">
             <Calendar className="w-5 h-5 text-gray-400" />
             <span className="font-medium">Miembro desde:</span>
             <span>{formatDate(perfil?.created_at)}</span>
           </div>
-          <div className="flex items-center gap-3 text-gray-600">
+          <div className="flex items-center gap-3 text-gray-600 dark:text-gray-400">
             <Calendar className="w-5 h-5 text-gray-400" />
             <span className="font-medium">Ultimo acceso:</span>
             <span>{formatDate(perfil?.last_login)}</span>
@@ -206,24 +206,24 @@ export default function MiPerfil() {
       {/* Estadisticas del vendedor */}
       {perfil?.estadisticas && (
         <div className="card">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
             <BarChart3 className="w-5 h-5 text-primary-500" />
             Mis Estadisticas
           </h3>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="p-4 bg-blue-50 rounded-xl text-center">
+            <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-xl text-center">
               <TrendingUp className="w-8 h-8 text-blue-500 mx-auto mb-2" />
-              <p className="text-sm text-blue-600 mb-1">Ventas este mes</p>
+              <p className="text-sm text-blue-600 dark:text-blue-400 mb-1">Ventas este mes</p>
               <p className="text-3xl font-bold text-blue-900">{perfil.estadisticas.ventas_mes}</p>
-              <p className="text-sm text-blue-600 mt-1">{formatCurrency(perfil.estadisticas.monto_mes)}</p>
+              <p className="text-sm text-blue-600 dark:text-blue-400 mt-1">{formatCurrency(perfil.estadisticas.monto_mes)}</p>
             </div>
 
-            <div className="p-4 bg-green-50 rounded-xl text-center">
+            <div className="p-4 bg-green-50 dark:bg-green-950 rounded-xl text-center">
               <DollarSign className="w-8 h-8 text-green-500 mx-auto mb-2" />
-              <p className="text-sm text-green-600 mb-1">Ventas trimestre</p>
+              <p className="text-sm text-green-600 dark:text-green-400 mb-1">Ventas trimestre</p>
               <p className="text-3xl font-bold text-green-900">{perfil.estadisticas.ventas_trimestre}</p>
-              <p className="text-sm text-green-600 mt-1">{formatCurrency(perfil.estadisticas.monto_trimestre)}</p>
+              <p className="text-sm text-green-600 dark:text-green-400 mt-1">{formatCurrency(perfil.estadisticas.monto_trimestre)}</p>
             </div>
           </div>
         </div>
@@ -231,7 +231,7 @@ export default function MiPerfil() {
 
       {/* Integraciones - MercadoLibre */}
       <div className="card">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
           <span className="text-2xl">🛒</span>
           MercadoLibre
         </h3>
@@ -241,18 +241,18 @@ export default function MiPerfil() {
             <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
           </div>
         ) : !mlStatus?.configured ? (
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+          <div className="bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 rounded-lg p-4">
             <p className="text-yellow-800 text-sm">
               MercadoLibre no está configurado en el sistema. Contactá al administrador para habilitarlo.
             </p>
           </div>
         ) : mlStatus?.connected ? (
           <div className="space-y-4">
-            <div className="flex items-center gap-3 p-4 bg-green-50 rounded-lg border border-green-200">
+            <div className="flex items-center gap-3 p-4 bg-green-50 dark:bg-green-950 rounded-lg border border-green-200">
               <CheckCircle2 className="w-6 h-6 text-green-500 flex-shrink-0" />
               <div>
                 <p className="font-medium text-green-800">Cuenta conectada</p>
-                <p className="text-sm text-green-600">
+                <p className="text-sm text-green-600 dark:text-green-400">
                   Usuario: <span className="font-semibold">{mlStatus.ml_nickname || mlStatus.ml_user_id}</span>
                 </p>
               </div>
@@ -265,7 +265,7 @@ export default function MiPerfil() {
                 }
               }}
               disabled={disconnectMLMutation.isPending}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors"
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-red-300 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-50 transition-colors"
             >
               {disconnectMLMutation.isPending ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -277,7 +277,7 @@ export default function MiPerfil() {
           </div>
         ) : (
           <div className="space-y-4">
-            <p className="text-gray-600 text-sm">
+            <p className="text-gray-600 dark:text-gray-400 text-sm">
               Conectá tu cuenta de MercadoLibre para publicar vehículos directamente desde Alfredo.
             </p>
 
@@ -300,14 +300,14 @@ export default function MiPerfil() {
       {/* Cambiar contrasena */}
       <div className="card">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-            <Lock className="w-5 h-5 text-gray-500" />
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+            <Lock className="w-5 h-5 text-gray-500 dark:text-gray-400" />
             Seguridad
           </h3>
           {!showPasswordForm && (
             <button
               onClick={() => setShowPasswordForm(true)}
-              className="text-sm text-primary-600 hover:text-primary-700 font-medium"
+              className="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 font-medium"
             >
               Cambiar contrasena
             </button>
@@ -317,7 +317,7 @@ export default function MiPerfil() {
         {showPasswordForm ? (
           <form onSubmit={handleChangePassword} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Contrasena actual
               </label>
               <div className="relative">
@@ -339,7 +339,7 @@ export default function MiPerfil() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Nueva contrasena
               </label>
               <div className="relative">
@@ -362,7 +362,7 @@ export default function MiPerfil() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Confirmar nueva contrasena
               </label>
               <input
@@ -397,7 +397,7 @@ export default function MiPerfil() {
             </div>
           </form>
         ) : (
-          <p className="text-gray-500 text-sm">
+          <p className="text-gray-500 dark:text-gray-400 text-sm">
             Puedes cambiar tu contrasena en cualquier momento para mantener tu cuenta segura.
           </p>
         )}

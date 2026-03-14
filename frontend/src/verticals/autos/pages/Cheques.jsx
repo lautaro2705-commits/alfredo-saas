@@ -264,8 +264,8 @@ export default function Cheques() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Gestión de Cheques</h1>
-          <p className="text-gray-500">Cartera de cheques recibidos y emitidos</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Gestión de Cheques</h1>
+          <p className="text-gray-500 dark:text-gray-400">Cartera de cheques recibidos y emitidos</p>
         </div>
         <div className="flex gap-2">
           <button
@@ -287,7 +287,7 @@ export default function Cheques() {
 
       {/* Alertas */}
       {alertas?.length > 0 && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+        <div className="bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 rounded-lg p-4">
           <h3 className="font-medium text-yellow-800 flex items-center gap-2 mb-2">
             <AlertTriangle className="w-5 h-5" />
             Alertas de Vencimiento
@@ -296,7 +296,7 @@ export default function Cheques() {
             {alertas.slice(0, 5).map((alerta, i) => (
               <p key={i} className={clsx(
                 'text-sm',
-                alerta.prioridad === 'alta' ? 'text-red-700' : 'text-yellow-700'
+                alerta.prioridad === 'alta' ? 'text-red-700 dark:text-red-400' : 'text-yellow-700 dark:text-yellow-400'
               )}>
                 {alerta.mensaje} - {formatCurrency(alerta.monto)}
               </p>
@@ -309,31 +309,31 @@ export default function Cheques() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="card text-center">
           <TrendingUp className="w-8 h-8 text-green-500 mx-auto mb-2" />
-          <p className="text-sm text-gray-500">En Cartera</p>
-          <p className="text-xl font-bold text-green-600">
+          <p className="text-sm text-gray-500 dark:text-gray-400">En Cartera</p>
+          <p className="text-xl font-bold text-green-600 dark:text-green-400">
             {formatCurrency(resumenRecibidos?.total_en_cartera)}
           </p>
           <p className="text-xs text-gray-400">{resumenRecibidos?.cantidad_en_cartera} cheques</p>
         </div>
         <div className="card text-center">
           <TrendingDown className="w-8 h-8 text-red-500 mx-auto mb-2" />
-          <p className="text-sm text-gray-500">Pendientes Pago</p>
-          <p className="text-xl font-bold text-red-600">
+          <p className="text-sm text-gray-500 dark:text-gray-400">Pendientes Pago</p>
+          <p className="text-xl font-bold text-red-600 dark:text-red-400">
             {formatCurrency(resumenEmitidos?.total_pendientes)}
           </p>
           <p className="text-xs text-gray-400">{resumenEmitidos?.cantidad_pendientes} cheques</p>
         </div>
         <div className="card text-center">
           <CheckCircle className="w-8 h-8 text-blue-500 mx-auto mb-2" />
-          <p className="text-sm text-gray-500">Cobrados</p>
-          <p className="text-xl font-bold text-gray-700">
+          <p className="text-sm text-gray-500 dark:text-gray-400">Cobrados</p>
+          <p className="text-xl font-bold text-gray-700 dark:text-gray-300">
             {formatCurrency(resumenRecibidos?.total_depositados)}
           </p>
         </div>
         <div className="card text-center">
           <ArrowRightLeft className="w-8 h-8 text-purple-500 mx-auto mb-2" />
-          <p className="text-sm text-gray-500">Endosados</p>
-          <p className="text-xl font-bold text-purple-600">
+          <p className="text-sm text-gray-500 dark:text-gray-400">Endosados</p>
+          <p className="text-xl font-bold text-purple-600 dark:text-purple-400">
             {formatCurrency(resumenRecibidos?.total_endosados)}
           </p>
         </div>
@@ -353,8 +353,8 @@ export default function Cheques() {
               className={clsx(
                 'py-3 px-1 border-b-2 font-medium text-sm transition-colors',
                 activeTab === tab.id
-                  ? 'border-primary-600 text-primary-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
+                  ? 'border-primary-600 text-primary-600 dark:text-primary-400'
+                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700'
               )}
             >
               {tab.label}
@@ -366,13 +366,13 @@ export default function Cheques() {
       {/* Contenido del tab */}
       {activeTab === 'recibidos' && (
         <div className="card">
-          <h3 className="font-semibold text-gray-900 mb-4">Cheques en Cartera</h3>
+          <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Cheques en Cartera</h3>
           {loadingCartera ? (
             <div className="flex justify-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600" />
             </div>
           ) : chequesCartera?.length === 0 ? (
-            <p className="text-gray-500 text-center py-8">No hay cheques en cartera</p>
+            <p className="text-gray-500 dark:text-gray-400 text-center py-8">No hay cheques en cartera</p>
           ) : (
             <div className="space-y-3">
               {chequesCartera?.map((cheque) => (
@@ -380,9 +380,9 @@ export default function Cheques() {
                   key={cheque.id}
                   className={clsx(
                     'p-4 rounded-lg border',
-                    cheque.vencido ? 'border-red-300 bg-red-50' :
-                    cheque.dias_para_vencer <= 7 ? 'border-yellow-300 bg-yellow-50' :
-                    'border-gray-200 bg-gray-50'
+                    cheque.vencido ? 'border-red-300 bg-red-50 dark:bg-red-950' :
+                    cheque.dias_para_vencer <= 7 ? 'border-yellow-300 bg-yellow-50 dark:bg-yellow-950' :
+                    'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800'
                   )}
                 >
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -390,20 +390,20 @@ export default function Cheques() {
                       <div className="flex items-center gap-2 mb-1">
                         <span className="font-mono font-medium">#{cheque.numero_cheque}</span>
                         <span className="text-gray-500">•</span>
-                        <span className="text-gray-600">{cheque.banco}</span>
+                        <span className="text-gray-600 dark:text-gray-400">{cheque.banco}</span>
                       </div>
-                      <p className="text-sm text-gray-600">{cheque.emisor_nombre}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">{cheque.emisor_nombre}</p>
                       <p className="text-xs text-gray-400">
                         Vence: {format(new Date(cheque.fecha_vencimiento), 'dd/MM/yyyy')}
                         {cheque.dias_para_vencer >= 0 ? (
                           <span className="ml-2">({cheque.dias_para_vencer} días)</span>
                         ) : (
-                          <span className="ml-2 text-red-600 font-medium">VENCIDO</span>
+                          <span className="ml-2 text-red-600 dark:text-red-400 font-medium">VENCIDO</span>
                         )}
                       </p>
                     </div>
                     <div className="flex items-center gap-4">
-                      <p className="text-xl font-bold text-gray-900">
+                      <p className="text-xl font-bold text-gray-900 dark:text-white">
                         {formatCurrency(cheque.monto)}
                       </p>
                       <div className="flex gap-2">
@@ -444,13 +444,13 @@ export default function Cheques() {
 
       {activeTab === 'emitidos' && (
         <div className="card">
-          <h3 className="font-semibold text-gray-900 mb-4">Cheques Pendientes de Débito</h3>
+          <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Cheques Pendientes de Débito</h3>
           {loadingPendientes ? (
             <div className="flex justify-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600" />
             </div>
           ) : chequesPendientes?.length === 0 ? (
-            <p className="text-gray-500 text-center py-8">No hay cheques pendientes</p>
+            <p className="text-gray-500 dark:text-gray-400 text-center py-8">No hay cheques pendientes</p>
           ) : (
             <div className="space-y-3">
               {chequesPendientes?.map((cheque) => (
@@ -458,9 +458,9 @@ export default function Cheques() {
                   key={cheque.id}
                   className={clsx(
                     'p-4 rounded-lg border',
-                    cheque.dias_para_debito <= 3 ? 'border-red-300 bg-red-50' :
-                    cheque.dias_para_debito <= 7 ? 'border-yellow-300 bg-yellow-50' :
-                    'border-gray-200 bg-gray-50'
+                    cheque.dias_para_debito <= 3 ? 'border-red-300 bg-red-50 dark:bg-red-950' :
+                    cheque.dias_para_debito <= 7 ? 'border-yellow-300 bg-yellow-50 dark:bg-yellow-950' :
+                    'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800'
                   )}
                 >
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -468,16 +468,16 @@ export default function Cheques() {
                       <div className="flex items-center gap-2 mb-1">
                         <span className="font-mono font-medium">#{cheque.numero_cheque}</span>
                         <span className="text-gray-500">•</span>
-                        <span className="text-gray-600">{cheque.banco}</span>
+                        <span className="text-gray-600 dark:text-gray-400">{cheque.banco}</span>
                       </div>
-                      <p className="text-sm text-gray-600">A: {cheque.beneficiario}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">A: {cheque.beneficiario}</p>
                       <p className="text-xs text-gray-400">
                         Se debita: {format(new Date(cheque.fecha_pago), 'dd/MM/yyyy')}
                         <span className="ml-2">({cheque.dias_para_debito} días)</span>
                       </p>
                     </div>
                     <div className="flex items-center gap-4">
-                      <p className="text-xl font-bold text-red-600">
+                      <p className="text-xl font-bold text-red-600 dark:text-red-400">
                         -{formatCurrency(cheque.monto)}
                       </p>
                       <button
@@ -504,31 +504,31 @@ export default function Cheques() {
 
       {activeTab === 'calendario' && (
         <div className="card">
-          <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <h3 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
             <Calendar className="w-5 h-5" />
             Calendario de Vencimientos (Próximos 30 días)
           </h3>
 
           {calendario && (
             <>
-              <div className="grid md:grid-cols-3 gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
+              <div className="grid md:grid-cols-3 gap-4 mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                 <div className="text-center">
-                  <p className="text-sm text-gray-500">A Cobrar</p>
-                  <p className="text-2xl font-bold text-green-600">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">A Cobrar</p>
+                  <p className="text-2xl font-bold text-green-600 dark:text-green-400">
                     {formatCurrency(calendario.totales?.total_a_cobrar)}
                   </p>
                 </div>
                 <div className="text-center">
-                  <p className="text-sm text-gray-500">A Pagar</p>
-                  <p className="text-2xl font-bold text-red-600">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">A Pagar</p>
+                  <p className="text-2xl font-bold text-red-600 dark:text-red-400">
                     {formatCurrency(calendario.totales?.total_a_pagar)}
                   </p>
                 </div>
                 <div className="text-center">
-                  <p className="text-sm text-gray-500">Saldo Proyectado</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Saldo Proyectado</p>
                   <p className={clsx(
                     'text-2xl font-bold',
-                    calendario.totales?.saldo_proyectado >= 0 ? 'text-green-600' : 'text-red-600'
+                    calendario.totales?.saldo_proyectado >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
                   )}>
                     {formatCurrency(calendario.totales?.saldo_proyectado)}
                   </p>
@@ -537,20 +537,20 @@ export default function Cheques() {
 
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                  <h4 className="font-medium text-green-700 mb-3">Cheques a Cobrar</h4>
+                  <h4 className="font-medium text-green-700 dark:text-green-400 mb-3">Cheques a Cobrar</h4>
                   {calendario.cheques_a_cobrar?.length === 0 ? (
-                    <p className="text-gray-500 text-sm">Sin cheques próximos</p>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm">Sin cheques próximos</p>
                   ) : (
                     <div className="space-y-2">
                       {calendario.cheques_a_cobrar?.map((c) => (
-                        <div key={c.id} className="flex justify-between text-sm p-2 bg-green-50 rounded">
+                        <div key={c.id} className="flex justify-between text-sm p-2 bg-green-50 dark:bg-green-950 rounded">
                           <div>
                             <span className="font-mono">#{c.numero}</span>
-                            <span className="text-gray-500 ml-2">{c.emisor}</span>
+                            <span className="text-gray-500 dark:text-gray-400 ml-2">{c.emisor}</span>
                           </div>
                           <div className="text-right">
                             <p className="font-medium">{formatCurrency(c.monto)}</p>
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
                               {format(new Date(c.fecha), 'dd/MM')}
                             </p>
                           </div>
@@ -561,20 +561,20 @@ export default function Cheques() {
                 </div>
 
                 <div>
-                  <h4 className="font-medium text-red-700 mb-3">Cheques a Pagar</h4>
+                  <h4 className="font-medium text-red-700 dark:text-red-400 mb-3">Cheques a Pagar</h4>
                   {calendario.cheques_a_pagar?.length === 0 ? (
-                    <p className="text-gray-500 text-sm">Sin cheques próximos</p>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm">Sin cheques próximos</p>
                   ) : (
                     <div className="space-y-2">
                       {calendario.cheques_a_pagar?.map((c) => (
-                        <div key={c.id} className="flex justify-between text-sm p-2 bg-red-50 rounded">
+                        <div key={c.id} className="flex justify-between text-sm p-2 bg-red-50 dark:bg-red-950 rounded">
                           <div>
                             <span className="font-mono">#{c.numero}</span>
-                            <span className="text-gray-500 ml-2">{c.beneficiario}</span>
+                            <span className="text-gray-500 dark:text-gray-400 ml-2">{c.beneficiario}</span>
                           </div>
                           <div className="text-right">
                             <p className="font-medium">{formatCurrency(c.monto)}</p>
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
                               {format(new Date(c.fecha), 'dd/MM')}
                             </p>
                           </div>
@@ -593,7 +593,7 @@ export default function Cheques() {
       {modalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="fixed inset-0 bg-black/50" onClick={closeModal} />
-          <div className="relative bg-white rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+          <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between p-4 border-b">
               <h2 className="text-lg font-semibold">
                 {accionModal === 'cobrar' && 'Confirmar Cobro'}
@@ -603,7 +603,7 @@ export default function Cheques() {
                 {!accionModal && modalTipo === 'recibido' && 'Nuevo Cheque Recibido'}
                 {!accionModal && modalTipo === 'emitido' && 'Nuevo Cheque Emitido'}
               </h2>
-              <button onClick={closeModal} className="p-2 hover:bg-gray-100 rounded-lg">
+              <button onClick={closeModal} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -612,11 +612,11 @@ export default function Cheques() {
               {/* Formularios según acción */}
               {accionModal === 'cobrar' && (
                 <div className="text-center py-4">
-                  <p className="text-gray-600 mb-4">
+                  <p className="text-gray-600 dark:text-gray-400 mb-4">
                     ¿Confirmar cobro del cheque #{chequeSeleccionado?.numero_cheque}
                     por {formatCurrency(chequeSeleccionado?.monto)}?
                   </p>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     Se registrará automáticamente un ingreso en caja.
                   </p>
                 </div>
@@ -661,11 +661,11 @@ export default function Cheques() {
 
               {accionModal === 'pagar' && (
                 <div className="text-center py-4">
-                  <p className="text-gray-600 mb-4">
+                  <p className="text-gray-600 dark:text-gray-400 mb-4">
                     ¿Confirmar que el cheque #{chequeSeleccionado?.numero_cheque}
                     por {formatCurrency(chequeSeleccionado?.monto)} fue debitado?
                   </p>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     Se registrará automáticamente un egreso en caja.
                   </p>
                 </div>

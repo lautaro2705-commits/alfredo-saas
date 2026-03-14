@@ -11,6 +11,12 @@ from sqlalchemy.orm import selectinload
 
 from app.core.database import get_db
 from app.core.security import get_current_user_with_tenant, TokenContext
+from app.platform.schemas.common import auth_errors
+from app.verticals.autos.schemas.dashboard import (
+    DashboardResumenResponse,
+    MetricasRapidasResponse,
+    StockPorMarcaItem,
+)
 from app.verticals.autos.models.unidad import Unidad, EstadoUnidad
 from app.verticals.autos.models.operacion import Operacion, EstadoOperacion
 from app.verticals.autos.models.caja_diaria import CajaDiaria, TipoMovimiento
@@ -25,12 +31,20 @@ from app.verticals.autos.models.cliente import Cliente
 router = APIRouter(prefix="/autos/dashboard", tags=["autos-dashboard"])
 
 
-@router.get("/resumen")
+@router.get("/resumen", response_model=DashboardResumenResponse, responses=auth_errors)
 async def dashboard_resumen(
     db: AsyncSession = Depends(get_db),
     token: TokenContext = Depends(get_current_user_with_tenant),
 ):
-    """Dashboard principal con métricas clave."""
+    """
+    Dashboard principal con métricas clave.
+
+    Retorna un resumen completo: stock, ventas del mes (con variación vs anterior),
+    caja del día, cheques próximos a vencer, alertas activas, y últimas ventas.
+
+    - **valor_costo** y **utilidad_bruta** solo se incluyen para usuarios admin
+    - **alertas** ordenadas por prioridad (alta → media → baja), máximo 20
+    """
     es_admin = token.rol == "admin"
     tz_argentina = ZoneInfo("America/Argentina/Buenos_Aires")
     hoy = datetime.now(tz_argentina).date()
@@ -47,7 +61,7 @@ async def dashboard_resumen(
     result = await db.execute(
         select(Unidad)
         .options(selectinload(Unidad.checklist_documentacion))
-        .where(Unidad.estado != EstadoUnidad.VENDIDO)
+        .where(Unidad.active(), Unidad.estado != EstadoUnidad.VENDIDO)
     )
     unidades_stock = result.scalars().all()
 
@@ -58,6 +72,7 @@ async def dashboard_resumen(
     # Ventas del mes actual
     result = await db.execute(
         select(Operacion).where(
+            Operacion.active(),
             Operacion.fecha_operacion >= primer_dia_mes,
             Operacion.estado == EstadoOperacion.COMPLETADA,
         )
@@ -70,6 +85,7 @@ async def dashboard_resumen(
     # Ventas del mes anterior
     result = await db.execute(
         select(Operacion).where(
+            Operacion.active(),
             Operacion.fecha_operacion >= primer_dia_mes_ant,
             Operacion.fecha_operacion <= ultimo_dia_mes_ant,
             Operacion.estado == EstadoOperacion.COMPLETADA,
@@ -81,7 +97,7 @@ async def dashboard_resumen(
 
     # Caja del día
     result = await db.execute(
-        select(CajaDiaria).where(CajaDiaria.fecha == hoy)
+        select(CajaDiaria).where(CajaDiaria.active(), CajaDiaria.fecha == hoy)
     )
     movimientos_hoy = result.scalars().all()
     ingresos_hoy = sum(m.monto for m in movimientos_hoy if m.tipo == TipoMovimiento.INGRESO)
@@ -90,7 +106,7 @@ async def dashboard_resumen(
 
     # Caja del mes
     result = await db.execute(
-        select(CajaDiaria).where(CajaDiaria.fecha >= primer_dia_mes)
+        select(CajaDiaria).where(CajaDiaria.active(), CajaDiaria.fecha >= primer_dia_mes)
     )
     movimientos_mes = result.scalars().all()
     egresos_mes = sum(m.monto for m in movimientos_mes if m.tipo == TipoMovimiento.EGRESO)
@@ -98,6 +114,7 @@ async def dashboard_resumen(
     # Cheques por vencer (próximos 7 días)
     result = await db.execute(
         select(ChequeRecibido).where(
+            ChequeRecibido.active(),
             ChequeRecibido.estado == EstadoChequeRecibido.EN_CARTERA,
             ChequeRecibido.fecha_vencimiento <= hoy + timedelta(days=7),
             ChequeRecibido.fecha_vencimiento >= hoy,
@@ -107,6 +124,7 @@ async def dashboard_resumen(
 
     result = await db.execute(
         select(ChequeEmitido).where(
+            ChequeEmitido.active(),
             ChequeEmitido.estado == EstadoChequeEmitido.PENDIENTE,
             ChequeEmitido.fecha_pago <= hoy + timedelta(days=7),
             ChequeEmitido.fecha_pago >= hoy,
@@ -117,6 +135,7 @@ async def dashboard_resumen(
     # Seguimientos pendientes
     result = await db.execute(
         select(Seguimiento).where(
+            Seguimiento.active(),
             Seguimiento.asignado_a == token.user_id,
             Seguimiento.estado == EstadoSeguimiento.PENDIENTE,
             Seguimiento.fecha_vencimiento <= hoy,
@@ -136,7 +155,7 @@ async def dashboard_resumen(
             selectinload(Operacion.unidad_vendida),
             selectinload(Operacion.cliente),
         )
-        .where(Operacion.estado == EstadoOperacion.COMPLETADA)
+        .where(Operacion.active(), Operacion.estado == EstadoOperacion.COMPLETADA)
         .order_by(Operacion.fecha_operacion.desc())
         .limit(5)
     )
@@ -273,34 +292,41 @@ def _obtener_alertas(
     return alertas[:20]
 
 
-@router.get("/metricas-rapidas")
+@router.get("/metricas-rapidas", response_model=MetricasRapidasResponse, responses=auth_errors)
 async def metricas_rapidas(
     db: AsyncSession = Depends(get_db),
     token: TokenContext = Depends(get_current_user_with_tenant),
 ):
-    """Métricas rápidas para widgets del dashboard."""
+    """
+    Métricas rápidas para widgets del dashboard.
+
+    Contadores livianos diseñados para renderizar rápido en la UI:
+    ventas recientes, unidades nuevas, operaciones en curso, y total de clientes.
+    """
     hoy = date.today()
     hace_7_dias = hoy - timedelta(days=7)
 
     ventas_7d = (await db.execute(
         select(func.count(Operacion.id)).where(
+            Operacion.active(),
             Operacion.fecha_operacion >= hace_7_dias,
             Operacion.estado == EstadoOperacion.COMPLETADA,
         )
     )).scalar() or 0
 
     unidades_nuevas = (await db.execute(
-        select(func.count(Unidad.id)).where(Unidad.fecha_ingreso >= hace_7_dias)
+        select(func.count(Unidad.id)).where(Unidad.active(), Unidad.fecha_ingreso >= hace_7_dias)
     )).scalar() or 0
 
     en_proceso = (await db.execute(
         select(func.count(Operacion.id)).where(
+            Operacion.active(),
             Operacion.estado == EstadoOperacion.EN_PROCESO
         )
     )).scalar() or 0
 
     total_clientes = (await db.execute(
-        select(func.count(Cliente.id))
+        select(func.count(Cliente.id)).where(Cliente.active())
     )).scalar() or 0
 
     return {
@@ -311,15 +337,20 @@ async def metricas_rapidas(
     }
 
 
-@router.get("/stock-por-marca")
+@router.get("/stock-por-marca", response_model=list[StockPorMarcaItem], responses=auth_errors)
 async def stock_por_marca(
     db: AsyncSession = Depends(get_db),
     token: TokenContext = Depends(get_current_user_with_tenant),
 ):
-    """Distribución de stock por marca."""
+    """
+    Distribución de stock actual por marca.
+
+    Retorna la cantidad de unidades (no vendidas) agrupadas por marca,
+    ordenadas de mayor a menor. Ideal para gráfico de torta/barras.
+    """
     result = await db.execute(
         select(Unidad.marca, func.count(Unidad.id).label("cantidad"))
-        .where(Unidad.estado != EstadoUnidad.VENDIDO)
+        .where(Unidad.active(), Unidad.estado != EstadoUnidad.VENDIDO)
         .group_by(Unidad.marca)
         .order_by(func.count(Unidad.id).desc())
     )

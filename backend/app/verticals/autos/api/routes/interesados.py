@@ -7,6 +7,7 @@ from app.core.database import get_db
 from app.core.security import get_current_user_with_tenant, require_role, TokenContext
 from app.verticals.autos.models.interesado import Interesado, NotificacionMatch
 from app.verticals.autos.models.unidad import Unidad, EstadoUnidad
+from app.core.soft_delete import soft_delete
 from app.verticals.autos.schemas.interesado import (
     InteresadoCreate,
     InteresadoUpdate,
@@ -34,7 +35,7 @@ async def listar_interesados(
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
     """Listar interesados (lista de espera) con filtros"""
-    stmt = select(Interesado)
+    stmt = select(Interesado).where(Interesado.active())
 
     if activos is not None:
         stmt = stmt.where(Interesado.activo == activos)
@@ -80,7 +81,7 @@ async def obtener_interesado(
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
     """Obtener detalle de un interesado"""
-    result = await db.execute(select(Interesado).where(Interesado.id == interesado_id))
+    result = await db.execute(select(Interesado).where(Interesado.active(), Interesado.id == interesado_id))
     interesado = result.scalar_one_or_none()
     if not interesado:
         raise HTTPException(status_code=404, detail="Interesado no encontrado")
@@ -116,7 +117,7 @@ async def actualizar_interesado(
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
     """Actualizar interesado"""
-    result = await db.execute(select(Interesado).where(Interesado.id == interesado_id))
+    result = await db.execute(select(Interesado).where(Interesado.active(), Interesado.id == interesado_id))
     db_interesado = result.scalar_one_or_none()
     if not db_interesado:
         raise HTTPException(status_code=404, detail="Interesado no encontrado")
@@ -142,8 +143,7 @@ async def eliminar_interesado(
     if not db_interesado:
         raise HTTPException(status_code=404, detail="Interesado no encontrado")
 
-    await db.delete(db_interesado)
-    await db.commit()
+    await soft_delete(db, db_interesado, deleted_by=token.user_id)
     return {"mensaje": "Interesado eliminado"}
 
 
@@ -154,7 +154,7 @@ async def desactivar_interesado(
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
     """Desactivar interesado (ya no busca)"""
-    result = await db.execute(select(Interesado).where(Interesado.id == interesado_id))
+    result = await db.execute(select(Interesado).where(Interesado.active(), Interesado.id == interesado_id))
     db_interesado = result.scalar_one_or_none()
     if not db_interesado:
         raise HTTPException(status_code=404, detail="Interesado no encontrado")
@@ -173,6 +173,7 @@ async def buscar_matches_para_interesado(db: AsyncSession, interesado: Interesad
 
     result = await db.execute(
         select(Unidad).where(
+            Unidad.active(),
             Unidad.estado.in_([EstadoUnidad.DISPONIBLE, EstadoUnidad.RESERVADO])
         )
     )
@@ -185,6 +186,7 @@ async def buscar_matches_para_interesado(db: AsyncSession, interesado: Interesad
             # Verificar que no exista notificacion previa
             result = await db.execute(
                 select(NotificacionMatch).where(
+                    NotificacionMatch.active(),
                     NotificacionMatch.interesado_id == interesado.id,
                     NotificacionMatch.unidad_id == unidad.id
                 )
@@ -208,7 +210,7 @@ async def buscar_matches_para_interesado(db: AsyncSession, interesado: Interesad
 
 async def buscar_matches_para_unidad(db: AsyncSession, unidad: Unidad, user_id):
     """Buscar interesados que coincidan con una unidad nueva"""
-    result = await db.execute(select(Interesado).where(Interesado.activo == True))
+    result = await db.execute(select(Interesado).where(Interesado.active(), Interesado.activo == True))
     interesados = result.scalars().all()
 
     matches = []
@@ -218,6 +220,7 @@ async def buscar_matches_para_unidad(db: AsyncSession, unidad: Unidad, user_id):
             # Verificar que no exista notificacion previa
             result = await db.execute(
                 select(NotificacionMatch).where(
+                    NotificacionMatch.active(),
                     NotificacionMatch.interesado_id == interesado.id,
                     NotificacionMatch.unidad_id == unidad.id
                 )
@@ -246,7 +249,7 @@ async def buscar_matches_interesado(
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
     """Buscar matches manualmente para un interesado"""
-    result = await db.execute(select(Interesado).where(Interesado.id == interesado_id))
+    result = await db.execute(select(Interesado).where(Interesado.active(), Interesado.id == interesado_id))
     interesado = result.scalar_one_or_none()
     if not interesado:
         raise HTTPException(status_code=404, detail="Interesado no encontrado")
@@ -265,6 +268,7 @@ async def notificaciones_pendientes(
     """Listar notificaciones de match no leidas"""
     result = await db.execute(
         select(NotificacionMatch).where(
+            NotificacionMatch.active(),
             NotificacionMatch.leida == False
         ).order_by(NotificacionMatch.score_match.desc())
     )
@@ -282,7 +286,7 @@ async def todas_notificaciones(
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
     """Listar todas las notificaciones de match con filtros"""
-    stmt = select(NotificacionMatch)
+    stmt = select(NotificacionMatch).where(NotificacionMatch.active())
 
     if solo_pendientes:
         stmt = stmt.where(NotificacionMatch.leida == False)
@@ -304,7 +308,7 @@ async def actualizar_notificacion(
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
     """Actualizar estado de notificacion (marcar como leida, contactado, etc)"""
-    result = await db.execute(select(NotificacionMatch).where(NotificacionMatch.id == notif_id))
+    result = await db.execute(select(NotificacionMatch).where(NotificacionMatch.active(), NotificacionMatch.id == notif_id))
     notif = result.scalar_one_or_none()
     if not notif:
         raise HTTPException(status_code=404, detail="Notificacion no encontrada")
@@ -330,7 +334,7 @@ async def marcar_notificacion_leida(
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
     """Marcar notificacion como leida"""
-    result = await db.execute(select(NotificacionMatch).where(NotificacionMatch.id == notif_id))
+    result = await db.execute(select(NotificacionMatch).where(NotificacionMatch.active(), NotificacionMatch.id == notif_id))
     notif = result.scalar_one_or_none()
     if not notif:
         raise HTTPException(status_code=404, detail="Notificacion no encontrada")
@@ -348,6 +352,7 @@ async def marcar_todas_leidas(
     """Marcar todas las notificaciones como leidas"""
     await db.execute(
         update(NotificacionMatch).where(
+            NotificacionMatch.active(),
             NotificacionMatch.leida == False
         ).values(leida=True)
     )
@@ -363,13 +368,13 @@ async def estadisticas_interesados(
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
     """Estadisticas de la lista de espera"""
-    result = await db.execute(select(func.count(Interesado.id)))
+    result = await db.execute(select(func.count(Interesado.id)).where(Interesado.active()))
     total = result.scalar()
 
-    result = await db.execute(select(func.count(Interesado.id)).where(Interesado.activo == True))
+    result = await db.execute(select(func.count(Interesado.id)).where(Interesado.active(), Interesado.activo == True))
     activos = result.scalar()
 
-    result = await db.execute(select(func.count(NotificacionMatch.id)).where(NotificacionMatch.leida == False))
+    result = await db.execute(select(func.count(NotificacionMatch.id)).where(NotificacionMatch.active(), NotificacionMatch.leida == False))
     notifs_pendientes = result.scalar()
 
     # Marcas mas buscadas
@@ -378,6 +383,7 @@ async def estadisticas_interesados(
             Interesado.marca_buscada,
             func.count(Interesado.id).label('cantidad')
         ).where(
+            Interesado.active(),
             Interesado.activo == True,
             Interesado.marca_buscada != None
         ).group_by(Interesado.marca_buscada).order_by(func.count(Interesado.id).desc()).limit(5)

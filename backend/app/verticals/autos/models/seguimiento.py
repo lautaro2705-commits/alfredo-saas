@@ -13,7 +13,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.core.database import Base
-from app.verticals.autos.models.mixins import TenantMixin
+from app.verticals.autos.models.mixins import TenantMixin, SoftDeleteMixin
 
 
 class TipoSeguimiento(str, enum.Enum):
@@ -36,7 +36,7 @@ class EstadoSeguimiento(str, enum.Enum):
     CANCELADO = "cancelado"
 
 
-class Seguimiento(TenantMixin, Base):
+class Seguimiento(SoftDeleteMixin, TenantMixin, Base):
     __tablename__ = "seguimientos"
 
     id = Column(Integer, primary_key=True, index=True)

@@ -294,8 +294,8 @@ export default function Operaciones() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Operaciones de Venta</h1>
-          <p className="text-gray-500">{operaciones?.length || 0} operaciones</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Operaciones de Venta</h1>
+          <p className="text-gray-500 dark:text-gray-400">{operaciones?.length || 0} operaciones</p>
         </div>
         <div className="flex gap-2">
           {isAdmin && (
@@ -339,7 +339,7 @@ export default function Operaciones() {
               'px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors',
               filtroEstado === estado
                 ? 'bg-primary-600 text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200'
             )}
           >
             {estado === '' ? 'Todas' : estadoLabels[estado]}
@@ -355,8 +355,8 @@ export default function Operaciones() {
       ) : operaciones?.length === 0 ? (
         <div className="card text-center py-12">
           <ShoppingCart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900">No hay operaciones</h3>
-          <p className="text-gray-500 mt-1">Cree una nueva operación de venta</p>
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white">No hay operaciones</h3>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">Cree una nueva operación de venta</p>
           <Link to="/operaciones/nueva" className="btn btn-primary mt-4 inline-flex items-center gap-2">
             <Plus className="w-5 h-5" />
             Nueva Venta
@@ -375,21 +375,21 @@ export default function Operaciones() {
                     {op.tiene_retoma && (
                       <span className="badge badge-info">Con retoma</span>
                     )}
-                    <span className="text-sm text-gray-500">
+                    <span className="text-sm text-gray-500 dark:text-gray-400">
                       #{op.id} • {format(new Date(op.fecha_operacion), 'dd/MM/yyyy')}
                     </span>
                   </div>
 
                   <div className="flex items-center gap-2 mb-2">
-                    <h3 className="font-semibold text-gray-900">
+                    <h3 className="font-semibold text-gray-900 dark:text-white">
                       {op.unidad_vendida?.marca} {op.unidad_vendida?.modelo}
                     </h3>
                     <span className="text-gray-400">→</span>
-                    <span className="text-gray-700">{op.cliente?.nombre_completo}</span>
+                    <span className="text-gray-700 dark:text-gray-300">{op.cliente?.nombre_completo}</span>
                   </div>
 
                   {op.tiene_retoma && (
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
                       Retoma: {op.retoma_marca} {op.retoma_modelo} ({op.retoma_dominio}) - {formatCurrency(op.retoma_valor)}
                     </p>
                   )}
@@ -397,11 +397,11 @@ export default function Operaciones() {
 
                 <div className="flex flex-col md:items-end gap-2">
                   <div className="text-right">
-                    <p className="text-2xl font-bold text-green-600">
+                    <p className="text-2xl font-bold text-green-600 dark:text-green-400">
                       {formatCurrency(op.precio_venta)}
                     </p>
                     {isAdmin && op.estado === 'completada' && (
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
                         Utilidad: {formatCurrency(op.utilidad_bruta)}
                       </p>
                     )}
@@ -471,13 +471,13 @@ export default function Operaciones() {
                   <div className="flex flex-wrap gap-4 text-sm">
                     <div className="flex items-center gap-2">
                       <FileText className="w-4 h-4 text-blue-500" />
-                      <span className="text-gray-600">
+                      <span className="text-gray-600 dark:text-gray-400">
                         Km entrega: <strong>{new Intl.NumberFormat('es-AR').format(op.km_entrega)} km</strong>
                       </span>
                     </div>
                     {op.garantia_km_limite && (
                       <div className="flex items-center gap-2">
-                        <span className="text-gray-600">
+                        <span className="text-gray-600 dark:text-gray-400">
                           Garantia hasta: <strong>{new Intl.NumberFormat('es-AR').format(op.garantia_km_limite)} km</strong>
                           {op.garantia_fecha_limite && (
                             <> o <strong>{format(new Date(op.garantia_fecha_limite), 'dd/MM/yyyy')}</strong></>
@@ -496,44 +496,44 @@ export default function Operaciones() {
               {op.estado === 'en_proceso' && (
                 <div className="mt-4 pt-4 border-t flex flex-wrap gap-4 text-sm">
                   <label
-                    className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 px-2 py-1 rounded"
+                    className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 px-2 py-1 rounded"
                     onClick={() => handleToggleDoc(op, 'boleto_compraventa', op.boleto_compraventa)}
                   >
                     <input
                       type="checkbox"
                       checked={op.boleto_compraventa}
                       onChange={() => {}}
-                      className="w-4 h-4 rounded border-gray-300 cursor-pointer"
+                      className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 cursor-pointer"
                     />
-                    <span className={op.boleto_compraventa ? 'text-green-600 font-medium' : 'text-gray-500'}>
+                    <span className={op.boleto_compraventa ? 'text-green-600 dark:text-green-400 font-medium' : 'text-gray-500 dark:text-gray-400'}>
                       Boleto firmado
                     </span>
                   </label>
                   <label
-                    className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 px-2 py-1 rounded"
+                    className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 px-2 py-1 rounded"
                     onClick={() => handleToggleDoc(op, 'form_08_firmado', op.form_08_firmado)}
                   >
                     <input
                       type="checkbox"
                       checked={op.form_08_firmado}
                       onChange={() => {}}
-                      className="w-4 h-4 rounded border-gray-300 cursor-pointer"
+                      className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 cursor-pointer"
                     />
-                    <span className={op.form_08_firmado ? 'text-green-600 font-medium' : 'text-gray-500'}>
+                    <span className={op.form_08_firmado ? 'text-green-600 dark:text-green-400 font-medium' : 'text-gray-500 dark:text-gray-400'}>
                       Form. 08 firmado
                     </span>
                   </label>
                   <label
-                    className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 px-2 py-1 rounded"
+                    className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 px-2 py-1 rounded"
                     onClick={() => handleToggleDoc(op, 'transferencia_realizada', op.transferencia_realizada)}
                   >
                     <input
                       type="checkbox"
                       checked={op.transferencia_realizada}
                       onChange={() => {}}
-                      className="w-4 h-4 rounded border-gray-300 cursor-pointer"
+                      className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 cursor-pointer"
                     />
-                    <span className={op.transferencia_realizada ? 'text-green-600 font-medium' : 'text-gray-500'}>
+                    <span className={op.transferencia_realizada ? 'text-green-600 dark:text-green-400 font-medium' : 'text-gray-500 dark:text-gray-400'}>
                       Transferencia
                     </span>
                   </label>
@@ -547,9 +547,9 @@ export default function Operaciones() {
       {/* Modal para completar operacion o cargar datos de boleto */}
       {showCompletarModal && operacionCompletar && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full">
             <div className="flex items-center justify-between p-4 border-b">
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                 {modoCargarDatos ? 'Cargar Datos para Boleto' : 'Completar Operacion'}
               </h3>
               <button
@@ -561,7 +561,7 @@ export default function Operaciones() {
             </div>
 
             <div className="p-4 space-y-4">
-              <div className={modoCargarDatos ? 'bg-yellow-50 rounded-lg p-3' : 'bg-blue-50 rounded-lg p-3'}>
+              <div className={modoCargarDatos ? 'bg-yellow-50 dark:bg-yellow-950 rounded-lg p-3' : 'bg-blue-50 dark:bg-blue-950 rounded-lg p-3'}>
                 <p className={modoCargarDatos ? 'text-sm text-yellow-800' : 'text-sm text-blue-800'}>
                   <strong>{operacionCompletar.unidad_vendida?.marca} {operacionCompletar.unidad_vendida?.modelo}</strong>
                   <br />
@@ -576,7 +576,7 @@ export default function Operaciones() {
               </div>
 
               {modoCargarDatos && (
-                <div className="bg-blue-50 rounded-lg p-3">
+                <div className="bg-blue-50 dark:bg-blue-950 rounded-lg p-3">
                   <p className="text-xs text-blue-800">
                     Esta venta fue completada sin datos del boleto. Ingrese el kilometraje de entrega
                     para poder generar e imprimir el boleto de compra-venta.
@@ -585,7 +585,7 @@ export default function Operaciones() {
               )}
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Kilometraje de Entrega *
                 </label>
                 <input
@@ -597,13 +597,13 @@ export default function Operaciones() {
                   min="0"
                   required
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   Este valor se utilizara para calcular la garantia (2.000 km adicionales)
                 </p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Costo de Transferencia
                 </label>
                 <input
@@ -614,12 +614,12 @@ export default function Operaciones() {
                   className="input w-full"
                   min="0"
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   Se mostrara desglosado en el boleto de compra-venta
                 </p>
               </div>
 
-              <div className="bg-yellow-50 rounded-lg p-3">
+              <div className="bg-yellow-50 dark:bg-yellow-950 rounded-lg p-3">
                 <p className="text-xs text-yellow-800">
                   <strong>Garantia:</strong> 3 meses o 2.000 km (lo que ocurra primero), exclusivamente sobre motor y caja.
                   <br />
@@ -657,9 +657,9 @@ export default function Operaciones() {
       {/* Modal para vista previa e impresion de boleto */}
       {showBoletoModal && boletoData && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-white rounded-xl shadow-xl max-w-5xl w-full my-8">
-            <div className="flex items-center justify-between p-4 border-b sticky top-0 bg-white z-10">
-              <h3 className="text-lg font-semibold text-gray-900">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-5xl w-full my-8">
+            <div className="flex items-center justify-between p-4 border-b sticky top-0 bg-white dark:bg-gray-800 z-10">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                 Boleto de Compra-Venta - Operacion #{boletoData.operacion_id}
               </h3>
               <div className="flex items-center gap-2">
@@ -682,8 +682,8 @@ export default function Operaciones() {
               </div>
             </div>
 
-            <div className="p-4 bg-gray-100 max-h-[70vh] overflow-y-auto">
-              <p className="text-sm text-gray-600 mb-4 text-center">
+            <div className="p-4 bg-gray-100 dark:bg-gray-800 max-h-[70vh] overflow-y-auto">
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 text-center">
                 Vista previa del boleto. Se imprimiran 2 copias: Original (Comprador) y Duplicado (Agencia).
                 <br />
                 <strong>Nota:</strong> Solo la copia de la Agencia incluye el kilometraje de entrega.
@@ -697,9 +697,9 @@ export default function Operaciones() {
       {/* Modal para recuperar operaciones faltantes */}
       {showRecuperarModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-lg w-full">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-lg w-full">
             <div className="flex items-center justify-between p-4 border-b">
-              <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                 <AlertTriangle className="w-5 h-5 text-yellow-500" />
                 Recuperar Operaciones Faltantes
               </h3>
@@ -721,22 +721,22 @@ export default function Operaciones() {
                 </div>
               ) : diagnostico ? (
                 <>
-                  <div className="bg-yellow-50 rounded-lg p-4">
+                  <div className="bg-yellow-50 dark:bg-yellow-950 rounded-lg p-4">
                     <h4 className="font-medium text-yellow-800 mb-2">Diagnostico</h4>
-                    <div className="text-sm text-yellow-700 space-y-1">
+                    <div className="text-sm text-yellow-700 dark:text-yellow-400 space-y-1">
                       <p>Unidades vendidas: <strong>{diagnostico.total_unidades_vendidas}</strong></p>
                       <p>Operaciones registradas: <strong>{diagnostico.total_operaciones_completadas}</strong></p>
                       <p className="text-lg">
-                        Operaciones faltantes: <strong className="text-red-600">{diagnostico.unidades_sin_operacion}</strong>
+                        Operaciones faltantes: <strong className="text-red-600 dark:text-red-400">{diagnostico.unidades_sin_operacion}</strong>
                       </p>
                     </div>
                   </div>
 
                   {diagnostico.unidades_sin_operacion > 0 ? (
                     <>
-                      <div className="bg-gray-50 rounded-lg p-3 max-h-40 overflow-y-auto">
-                        <p className="text-sm font-medium text-gray-700 mb-2">Unidades sin operacion:</p>
-                        <ul className="text-sm text-gray-600 space-y-1">
+                      <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 max-h-40 overflow-y-auto">
+                        <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Unidades sin operacion:</p>
+                        <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
                           {diagnostico.detalle_unidades_sin_operacion.map((u) => (
                             <li key={u.id}>
                               {u.marca} {u.modelo} ({u.dominio}) - ${u.precio_publicado?.toLocaleString() || 'Sin precio'}
@@ -746,7 +746,7 @@ export default function Operaciones() {
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                           Asignar a cliente:
                         </label>
                         <select
@@ -760,15 +760,15 @@ export default function Operaciones() {
                             </option>
                           ))}
                         </select>
-                        <p className="text-xs text-gray-500 mt-1">
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                           Puede editar el cliente correcto despues en cada operacion
                         </p>
                       </div>
                     </>
                   ) : (
-                    <div className="bg-green-50 rounded-lg p-4 text-center">
+                    <div className="bg-green-50 dark:bg-green-950 rounded-lg p-4 text-center">
                       <CheckCircle className="w-8 h-8 text-green-500 mx-auto mb-2" />
-                      <p className="text-green-700">Todas las unidades vendidas tienen su operacion registrada</p>
+                      <p className="text-green-700 dark:text-green-400">Todas las unidades vendidas tienen su operacion registrada</p>
                     </div>
                   )}
                 </>

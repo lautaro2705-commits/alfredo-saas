@@ -3,7 +3,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.core.database import Base
-from app.verticals.autos.models.mixins import TenantMixin
+from app.verticals.autos.models.mixins import TenantMixin, SoftDeleteMixin
 import enum
 
 
@@ -14,7 +14,7 @@ class ResultadoContacto(str, enum.Enum):
     SIN_RESPUESTA = "sin_respuesta"
 
 
-class Interesado(TenantMixin, Base):
+class Interesado(SoftDeleteMixin, TenantMixin, Base):
     """Lista de espera / CRM - personas buscando autos que no tenemos"""
     __tablename__ = "interesados"
 
@@ -47,7 +47,7 @@ class Interesado(TenantMixin, Base):
     created_by = Column(UUID(as_uuid=True), ForeignKey("platform_users.id"))
 
     # Relaciones
-    notificaciones = relationship("NotificacionMatch", back_populates="interesado", cascade="all, delete-orphan")
+    notificaciones = relationship("NotificacionMatch", back_populates="interesado")
 
     @property
     def nombre_completo(self) -> str:

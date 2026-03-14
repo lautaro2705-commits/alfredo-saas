@@ -18,6 +18,7 @@ from app.core.security import (
     get_password_hash,
     create_access_token,
     get_current_token,
+    get_current_user_with_tenant,
     TokenContext,
 )
 from app.core.security.failed_login_tracker import (
@@ -41,13 +42,23 @@ from app.platform.schemas.auth import (
     PasswordChangeRequest,
     MessageResponse,
 )
+from app.platform.schemas.common import (
+    error_400, error_401, error_403, error_404, error_409, error_429,
+    auth_errors, login_errors,
+)
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-@router.post("/login", response_model=TokenResponse)
+@router.post("/login", response_model=TokenResponse, responses=login_errors)
 async def login(data: LoginRequest, request: Request, db: AsyncSession = Depends(get_db)):
-    """Login con email + password. Retorna JWT con contexto de tenant."""
+    """
+    Login con email + password. Retorna JWT con contexto de tenant.
+
+    - **400**: Email o password vacío
+    - **401**: Credenciales incorrectas
+    - **429**: Cuenta bloqueada por intentos fallidos (15 min)
+    """
     client_ip = request.headers.get("X-Forwarded-For", "").split(",")[0].strip()
     if not client_ip and request.client:
         client_ip = request.client.host
@@ -120,9 +131,13 @@ async def login(data: LoginRequest, request: Request, db: AsyncSession = Depends
     )
 
 
-@router.post("/onboarding", response_model=OnboardingResponse)
+@router.post("/onboarding", response_model=OnboardingResponse, responses={**error_409})
 async def onboarding(data: OnboardingRequest, db: AsyncSession = Depends(get_db)):
-    """Registrar nueva agencia: crea tenant + admin + trial en una transacción."""
+    """
+    Registrar nueva agencia: crea tenant + admin user + suscripción trial.
+
+    - **409**: Email o CUIT ya registrado
+    """
 
     # Verificar que el email no esté registrado
     existing = await db.execute(
@@ -231,12 +246,12 @@ async def onboarding(data: OnboardingRequest, db: AsyncSession = Depends(get_db)
     )
 
 
-@router.get("/me", response_model=UserProfile)
+@router.get("/me", response_model=UserProfile, responses={**error_401})
 async def get_me(
-    token: TokenContext = Depends(get_current_token),
+    token: TokenContext = Depends(get_current_user_with_tenant),
     db: AsyncSession = Depends(get_db),
 ):
-    """Datos del usuario autenticado."""
+    """Datos del usuario autenticado (requiere Bearer token)."""
     result = await db.execute(
         select(PlatformUser).where(PlatformUser.id == token.user_id)
     )
@@ -262,14 +277,16 @@ async def get_me(
 
 # ── Refresh Token ──
 
-@router.post("/refresh", response_model=TokenResponse)
+@router.post("/refresh", response_model=TokenResponse, responses={**error_401, **error_403})
 async def refresh_access_token(
     data: RefreshRequest,
     db: AsyncSession = Depends(get_db),
 ):
     """
-    Exchange a valid refresh token for a new access + refresh token pair.
-    The old refresh token is consumed (one-time use / rotation).
+    Renovar tokens JWT. El refresh token se consume (rotación one-time use).
+
+    - **401**: Refresh token inválido, expirado, o usuario inactivo
+    - **403**: Agencia suspendida
     """
     token_data = await validate_refresh_token(data.refresh_token)
     if not token_data:
@@ -395,12 +412,16 @@ async def request_password_reset(
     return MessageResponse(message=msg)
 
 
-@router.post("/password-reset/confirm", response_model=MessageResponse)
+@router.post("/password-reset/confirm", response_model=MessageResponse, responses={**error_400, **error_404})
 async def confirm_password_reset(
     data: PasswordResetConfirm,
     db: AsyncSession = Depends(get_db),
 ):
-    """Confirmar reset de password con token (validado contra Redis)."""
+    """
+    Confirmar reset de password con token (validado contra Redis).
+
+    - **400**: Token inválido o expirado
+    """
     r = await _get_redis()
     try:
         raw = await r.get(f"{RESET_TOKEN_PREFIX}{data.token}")
@@ -434,13 +455,18 @@ async def confirm_password_reset(
     return MessageResponse(message="Contraseña actualizada exitosamente.")
 
 
-@router.post("/password-change", response_model=MessageResponse)
+@router.post("/password-change", response_model=MessageResponse, responses={**error_400, **error_401})
 async def change_password(
     data: PasswordChangeRequest,
     token: TokenContext = Depends(get_current_token),
     db: AsyncSession = Depends(get_db),
 ):
-    """Cambiar contraseña del usuario autenticado."""
+    """
+    Cambiar contraseña del usuario autenticado.
+
+    - **400**: Contraseña actual incorrecta
+    - **401**: Token inválido
+    """
     result = await db.execute(
         select(PlatformUser).where(PlatformUser.id == token.user_id)
     )

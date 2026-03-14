@@ -7,6 +7,7 @@ from app.core.database import get_db
 from app.core.security import get_current_user_with_tenant, require_role, TokenContext
 from app.verticals.autos.models.cliente import Cliente
 from app.verticals.autos.schemas.cliente import ClienteCreate, ClienteUpdate, ClienteResponse
+from app.core.soft_delete import soft_delete
 
 router = APIRouter(prefix="/autos/clientes", tags=["autos-clientes"])
 
@@ -20,7 +21,7 @@ async def listar_clientes(
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
     """Listar clientes con búsqueda opcional"""
-    stmt = select(Cliente)
+    stmt = select(Cliente).where(Cliente.active())
 
     if buscar:
         stmt = stmt.where(
@@ -44,7 +45,7 @@ async def obtener_cliente(
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
     """Obtener detalle de un cliente"""
-    result = await db.execute(select(Cliente).where(Cliente.id == cliente_id))
+    result = await db.execute(select(Cliente).where(Cliente.active(), Cliente.id == cliente_id))
     cliente = result.scalar_one_or_none()
     if not cliente:
         raise HTTPException(status_code=404, detail="Cliente no encontrado")
@@ -59,7 +60,7 @@ async def crear_cliente(
 ):
     """Crear nuevo cliente"""
     # Verificar DNI/CUIT único
-    result = await db.execute(select(Cliente).where(Cliente.dni_cuit == cliente.dni_cuit))
+    result = await db.execute(select(Cliente).where(Cliente.active(), Cliente.dni_cuit == cliente.dni_cuit))
     if result.scalar_one_or_none():
         raise HTTPException(status_code=400, detail="Ya existe un cliente con ese DNI/CUIT")
 
@@ -78,7 +79,7 @@ async def actualizar_cliente(
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
     """Actualizar un cliente"""
-    result = await db.execute(select(Cliente).where(Cliente.id == cliente_id))
+    result = await db.execute(select(Cliente).where(Cliente.active(), Cliente.id == cliente_id))
     db_cliente = result.scalar_one_or_none()
     if not db_cliente:
         raise HTTPException(status_code=404, detail="Cliente no encontrado")
@@ -109,8 +110,7 @@ async def eliminar_cliente(
     if db_cliente.operaciones:
         raise HTTPException(status_code=400, detail="No se puede eliminar un cliente con operaciones")
 
-    await db.delete(db_cliente)
-    await db.commit()
+    await soft_delete(db, db_cliente, deleted_by=token.user_id)
     return {"mensaje": "Cliente eliminado correctamente"}
 
 
@@ -122,7 +122,7 @@ async def operaciones_cliente(
 ):
     """Obtener historial de operaciones de un cliente"""
     result = await db.execute(
-        select(Cliente).options(selectinload(Cliente.operaciones)).where(Cliente.id == cliente_id)
+        select(Cliente).options(selectinload(Cliente.operaciones)).where(Cliente.active(), Cliente.id == cliente_id)
     )
     cliente = result.scalar_one_or_none()
     if not cliente:

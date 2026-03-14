@@ -13,8 +13,8 @@ export default function ScoreCard({ label, score, maxScore = 100, size = 'md' })
     if (percentage >= 80) {
       return {
         color: 'green',
-        bgColor: 'bg-green-50',
-        textColor: 'text-green-700',
+        bgColor: 'bg-green-50 dark:bg-green-950',
+        textColor: 'text-green-700 dark:text-green-400',
         borderColor: 'border-green-200',
         barColor: 'bg-green-500',
         icon: CheckCircle,
@@ -23,8 +23,8 @@ export default function ScoreCard({ label, score, maxScore = 100, size = 'md' })
     } else if (percentage >= 60) {
       return {
         color: 'blue',
-        bgColor: 'bg-blue-50',
-        textColor: 'text-blue-700',
+        bgColor: 'bg-blue-50 dark:bg-blue-950',
+        textColor: 'text-blue-700 dark:text-blue-400',
         borderColor: 'border-blue-200',
         barColor: 'bg-blue-500',
         icon: CheckCircle,
@@ -33,8 +33,8 @@ export default function ScoreCard({ label, score, maxScore = 100, size = 'md' })
     } else if (percentage >= 40) {
       return {
         color: 'yellow',
-        bgColor: 'bg-yellow-50',
-        textColor: 'text-yellow-700',
+        bgColor: 'bg-yellow-50 dark:bg-yellow-950',
+        textColor: 'text-yellow-700 dark:text-yellow-400',
         borderColor: 'border-yellow-200',
         barColor: 'bg-yellow-500',
         icon: AlertCircle,
@@ -43,8 +43,8 @@ export default function ScoreCard({ label, score, maxScore = 100, size = 'md' })
     } else {
       return {
         color: 'red',
-        bgColor: 'bg-red-50',
-        textColor: 'text-red-700',
+        bgColor: 'bg-red-50 dark:bg-red-950',
+        textColor: 'text-red-700 dark:text-red-400',
         borderColor: 'border-red-200',
         barColor: 'bg-red-500',
         icon: XCircle,
@@ -97,7 +97,7 @@ export default function ScoreCard({ label, score, maxScore = 100, size = 'md' })
         <span className={clsx('font-bold', info.textColor, sizes.score)}>
           {Math.round(score)}
         </span>
-        <span className={clsx('text-gray-500', sizes.label)}>
+        <span className={clsx('text-gray-500 dark:text-gray-400', sizes.label)}>
           / {maxScore}
         </span>
       </div>
@@ -120,10 +120,10 @@ export default function ScoreCard({ label, score, maxScore = 100, size = 'md' })
 // Variante compacta para usar en listados
 export function ScoreBadge({ score, showLabel = true }) {
   const getInfo = () => {
-    if (score >= 80) return { bg: 'bg-green-100', text: 'text-green-800', label: 'Excelente' }
-    if (score >= 60) return { bg: 'bg-blue-100', text: 'text-blue-800', label: 'Bueno' }
-    if (score >= 40) return { bg: 'bg-yellow-100', text: 'text-yellow-800', label: 'Regular' }
-    return { bg: 'bg-red-100', text: 'text-red-800', label: 'Malo' }
+    if (score >= 80) return { bg: 'bg-green-100 dark:bg-green-900', text: 'text-green-800', label: 'Excelente' }
+    if (score >= 60) return { bg: 'bg-blue-100 dark:bg-blue-900', text: 'text-blue-800', label: 'Bueno' }
+    if (score >= 40) return { bg: 'bg-yellow-100 dark:bg-yellow-900', text: 'text-yellow-800', label: 'Regular' }
+    return { bg: 'bg-red-100 dark:bg-red-900', text: 'text-red-800', label: 'Malo' }
   }
 
   const info = getInfo()

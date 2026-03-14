@@ -2,10 +2,10 @@ from sqlalchemy import Column, Integer, String, DateTime, Text, UniqueConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.core.database import Base
-from app.verticals.autos.models.mixins import TenantMixin
+from app.verticals.autos.models.mixins import TenantMixin, SoftDeleteMixin
 
 
-class Cliente(TenantMixin, Base):
+class Cliente(SoftDeleteMixin, TenantMixin, Base):
     __tablename__ = "clientes"
     __table_args__ = (
         UniqueConstraint("tenant_id", "dni_cuit", name="uq_cliente_tenant_dni"),

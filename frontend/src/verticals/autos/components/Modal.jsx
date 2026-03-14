@@ -64,11 +64,11 @@ export default function Modal({
         {/* Header */}
         {(title || showClose) && (
           <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-800">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{title}</h2>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white dark:text-gray-100">{title}</h2>
             {showClose && (
               <button
                 onClick={onClose}
-                className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 dark:hover:bg-gray-800 rounded-lg transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>

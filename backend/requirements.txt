@@ -29,6 +29,9 @@ resend==2.23.0
 # Monitoring
 sentry-sdk[fastapi]==2.54.0
 
+# Scheduler
+APScheduler==3.10.4
+
 # Utils
 python-multipart==0.0.7
 python-dotenv==1.0.1

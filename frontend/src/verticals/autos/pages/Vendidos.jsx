@@ -45,12 +45,12 @@ export default function Vendidos() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-4">
-          <Link to="/unidades" className="p-2 hover:bg-gray-100 rounded-lg">
+          <Link to="/unidades" className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Vehículos Vendidos</h1>
-            <p className="text-gray-500">{unidades?.length || 0} unidades vendidas</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Vehículos Vendidos</h1>
+            <p className="text-gray-500 dark:text-gray-400">{unidades?.length || 0} unidades vendidas</p>
           </div>
         </div>
       </div>
@@ -77,8 +77,8 @@ export default function Vendidos() {
       ) : unidades?.length === 0 ? (
         <div className="card text-center py-12">
           <CheckCircle className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900">No hay vehículos vendidos</h3>
-          <p className="text-gray-500 mt-1">Los vehículos vendidos aparecerán aquí</p>
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white">No hay vehículos vendidos</h3>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">Los vehículos vendidos aparecerán aquí</p>
         </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -86,34 +86,34 @@ export default function Vendidos() {
             <Link
               key={unidad.id}
               to={`/unidades/${unidad.id}`}
-              className="card hover:border-primary-300 transition-all"
+              className="card hover:border-primary-300 dark:hover:border-primary-600 transition-all"
             >
               <div className="flex items-start justify-between mb-3">
                 <div>
-                  <h3 className="font-semibold text-gray-900">
+                  <h3 className="font-semibold text-gray-900 dark:text-white">
                     {unidad.marca} {unidad.modelo}
                   </h3>
-                  <p className="text-gray-500 text-sm">{unidad.anio}</p>
+                  <p className="text-gray-500 dark:text-gray-400 text-sm">{unidad.anio}</p>
                 </div>
-                <span className="badge bg-blue-100 text-blue-800">
+                <span className="badge bg-blue-100 dark:bg-blue-900 text-blue-800">
                   Vendido
                 </span>
               </div>
 
-              <div className="flex items-center gap-2 text-gray-600 text-sm mb-3">
+              <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 text-sm mb-3">
                 <Car className="w-4 h-4" />
                 <span className="font-mono">{unidad.dominio}</span>
               </div>
 
-              <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                <div className="flex items-center gap-1 text-sm text-gray-500">
+              <div className="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-800">
+                <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
                   <Calendar className="w-4 h-4" />
                   <span>Vendido: {formatDate(unidad.fecha_venta)}</span>
                 </div>
 
                 <div className="text-right">
                   {unidad.precio_publicado ? (
-                    <p className="font-semibold text-green-600">
+                    <p className="font-semibold text-green-600 dark:text-green-400">
                       {formatCurrency(unidad.precio_publicado)}
                     </p>
                   ) : (

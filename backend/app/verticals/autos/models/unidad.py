@@ -3,7 +3,7 @@ from sqlalchemy import Column, Integer, String, Float, Date, DateTime, Enum, Tex
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.core.database import Base
-from app.verticals.autos.models.mixins import TenantMixin
+from app.verticals.autos.models.mixins import TenantMixin, SoftDeleteMixin
 import enum
 
 
@@ -21,7 +21,7 @@ class OrigenUnidad(str, enum.Enum):
     CONSIGNACION = "consignacion"
 
 
-class Unidad(TenantMixin, Base):
+class Unidad(SoftDeleteMixin, TenantMixin, Base):
     __tablename__ = "unidades"
     __table_args__ = (
         UniqueConstraint("tenant_id", "dominio", name="uq_unidad_tenant_dominio"),
@@ -93,8 +93,8 @@ class Unidad(TenantMixin, Base):
     operacion_retoma_id = Column(Integer, ForeignKey("operaciones.id"), nullable=True)
 
     # Relaciones
-    costos_directos = relationship("CostoDirecto", back_populates="unidad", cascade="all, delete-orphan", lazy="selectin")
-    checklist_documentacion = relationship("ChecklistDocumentacion", back_populates="unidad", uselist=False, cascade="all, delete-orphan")
+    costos_directos = relationship("CostoDirecto", back_populates="unidad", lazy="selectin")
+    checklist_documentacion = relationship("ChecklistDocumentacion", back_populates="unidad", uselist=False)
     operacion_venta = relationship("Operacion", back_populates="unidad_vendida", foreign_keys="Operacion.unidad_id")
 
     @property

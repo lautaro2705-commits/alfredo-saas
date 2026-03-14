@@ -273,10 +273,10 @@ export default function Usuarios() {
   const getRolColor = (rol) => {
     switch(rol) {
       case 'admin': return 'bg-purple-100 text-purple-700'
-      case 'vendedor': return 'bg-blue-100 text-blue-700'
-      case 'gestor': return 'bg-green-100 text-green-700'
+      case 'vendedor': return 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-400'
+      case 'gestor': return 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-400'
       case 'administrativo': return 'bg-orange-100 text-orange-700'
-      default: return 'bg-gray-100 text-gray-700'
+      default: return 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
     }
   }
 
@@ -294,8 +294,8 @@ export default function Usuarios() {
     return (
       <div className="text-center py-12">
         <Shield className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
-        <h2 className="text-xl font-semibold text-gray-900">Acceso Restringido</h2>
-        <p className="text-gray-500 mt-2">Solo administradores pueden gestionar usuarios.</p>
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Acceso Restringido</h2>
+        <p className="text-gray-500 dark:text-gray-400 mt-2">Solo administradores pueden gestionar usuarios.</p>
       </div>
     )
   }
@@ -305,8 +305,8 @@ export default function Usuarios() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Usuarios</h1>
-          <p className="text-gray-500">Gestion de usuarios y permisos</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Usuarios</h1>
+          <p className="text-gray-500 dark:text-gray-400">Gestion de usuarios y permisos</p>
         </div>
         <button
           onClick={() => setShowForm(true)}
@@ -324,8 +324,8 @@ export default function Usuarios() {
           className={clsx(
             "px-4 py-2 rounded-lg text-sm font-medium transition-colors",
             filterActivo
-              ? "bg-primary-100 text-primary-700"
-              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              ? "bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-400"
+              : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200"
           )}
         >
           Activos
@@ -335,8 +335,8 @@ export default function Usuarios() {
           className={clsx(
             "px-4 py-2 rounded-lg text-sm font-medium transition-colors",
             !filterActivo
-              ? "bg-red-100 text-red-700"
-              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              ? "bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-400"
+              : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200"
           )}
         >
           Inactivos
@@ -346,7 +346,7 @@ export default function Usuarios() {
       {/* Modal de formulario */}
       {showForm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
             <div className="p-4 border-b flex items-center justify-between">
               <h2 className="text-lg font-semibold">
                 {editingUser ? 'Editar Usuario' : 'Nuevo Usuario'}
@@ -359,7 +359,7 @@ export default function Usuarios() {
             <form onSubmit={handleSubmit} className="p-4 space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nombre</label>
                   <input
                     type="text"
                     className="input w-full"
@@ -369,7 +369,7 @@ export default function Usuarios() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Apellido</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Apellido</label>
                   <input
                     type="text"
                     className="input w-full"
@@ -381,7 +381,7 @@ export default function Usuarios() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Usuario</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Usuario</label>
                 <input
                   type="text"
                   className="input w-full"
@@ -393,7 +393,7 @@ export default function Usuarios() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
                 <input
                   type="email"
                   className="input w-full"
@@ -404,7 +404,7 @@ export default function Usuarios() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Telefono</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Telefono</label>
                 <input
                   type="tel"
                   className="input w-full"
@@ -414,7 +414,7 @@ export default function Usuarios() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   {editingUser ? 'Nueva Contrasena (dejar vacio para no cambiar)' : 'Contrasena'}
                 </label>
                 <div className="relative">
@@ -437,7 +437,7 @@ export default function Usuarios() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Rol</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Rol</label>
                 <select
                   className="input w-full"
                   value={formData.rol}
@@ -448,7 +448,7 @@ export default function Usuarios() {
                   <option value="administrativo">Administrativo</option>
                   <option value="admin">Administrador</option>
                 </select>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   El rol define los permisos por defecto. Puedes personalizarlos luego.
                 </p>
               </div>
@@ -474,11 +474,11 @@ export default function Usuarios() {
       {/* Modal de permisos */}
       {showPermisosModal && userParaPermisos && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
             <div className="p-4 border-b flex items-center justify-between">
               <div>
                 <h2 className="text-lg font-semibold">Permisos de {userParaPermisos.nombre_completo}</h2>
-                <p className="text-sm text-gray-500">Rol: {getRolLabel(userParaPermisos.rol)}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Rol: {getRolLabel(userParaPermisos.rol)}</p>
               </div>
               <button onClick={() => setShowPermisosModal(false)} className="text-gray-400 hover:text-gray-600">
                 <X className="w-5 h-5" />
@@ -499,15 +499,15 @@ export default function Usuarios() {
                   return (
                     <div key={categoria} className="border rounded-lg p-4">
                       <div className="flex items-center justify-between mb-3">
-                        <h3 className="font-semibold text-gray-900">{categoria}</h3>
+                        <h3 className="font-semibold text-gray-900 dark:text-white">{categoria}</h3>
                         <button
                           type="button"
                           onClick={() => handleToggleCategoria(permisosValidos)}
                           className={clsx(
                             "text-xs px-2 py-1 rounded",
                             todosSeleccionados
-                              ? "bg-primary-100 text-primary-700"
-                              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                              ? "bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-400"
+                              : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200"
                           )}
                         >
                           {todosSeleccionados ? 'Quitar todos' : 'Seleccionar todos'}
@@ -520,17 +520,17 @@ export default function Usuarios() {
                             className={clsx(
                               "flex items-center gap-2 p-2 rounded cursor-pointer transition-colors",
                               permisosEditando.includes(permiso)
-                                ? "bg-primary-50 border border-primary-200"
-                                : "bg-gray-50 border border-transparent hover:bg-gray-100"
+                                ? "bg-primary-50 dark:bg-primary-950 border border-primary-200 dark:border-primary-700"
+                                : "bg-gray-50 dark:bg-gray-800 border border-transparent hover:bg-gray-100 dark:hover:bg-gray-700"
                             )}
                           >
                             <input
                               type="checkbox"
                               checked={permisosEditando.includes(permiso)}
                               onChange={() => handleTogglePermiso(permiso)}
-                              className="rounded text-primary-600 focus:ring-primary-500"
+                              className="rounded text-primary-600 dark:text-primary-400 focus:ring-primary-500"
                             />
-                            <span className="text-sm text-gray-700">
+                            <span className="text-sm text-gray-700 dark:text-gray-300">
                               {getDescripcionPermiso(permiso)}
                             </span>
                           </label>
@@ -542,7 +542,7 @@ export default function Usuarios() {
               </div>
             </div>
 
-            <div className="p-4 border-t bg-gray-50 flex justify-between">
+            <div className="p-4 border-t bg-gray-50 dark:bg-gray-800 flex justify-between">
               <button
                 type="button"
                 onClick={() => restablecerPermisosMutation.mutate(userParaPermisos.id)}
@@ -578,7 +578,7 @@ export default function Usuarios() {
       {/* Modal de estadisticas */}
       {selectedUser && estadisticas && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-lg w-full">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-lg w-full">
             <div className="p-4 border-b flex items-center justify-between">
               <h2 className="text-lg font-semibold">
                 Estadisticas de {estadisticas.vendedor.nombre_completo}
@@ -589,40 +589,40 @@ export default function Usuarios() {
             </div>
 
             <div className="p-4 space-y-4">
-              <div className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
-                <div className="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center">
-                  <Users className="w-6 h-6 text-primary-600" />
+              <div className="flex items-center gap-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <div className="w-12 h-12 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center">
+                  <Users className="w-6 h-6 text-primary-600 dark:text-primary-400" />
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900">{estadisticas.vendedor.nombre_completo}</p>
-                  <p className="text-sm text-gray-500">{estadisticas.vendedor.email}</p>
+                  <p className="font-medium text-gray-900 dark:text-white">{estadisticas.vendedor.nombre_completo}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{estadisticas.vendedor.email}</p>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="p-4 bg-blue-50 rounded-lg">
-                  <p className="text-sm text-blue-600">Este Mes</p>
+                <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
+                  <p className="text-sm text-blue-600 dark:text-blue-400">Este Mes</p>
                   <p className="text-2xl font-bold text-blue-900">{estadisticas.mes_actual.ventas}</p>
-                  <p className="text-sm text-blue-600">{formatCurrency(estadisticas.mes_actual.monto_total)}</p>
+                  <p className="text-sm text-blue-600 dark:text-blue-400">{formatCurrency(estadisticas.mes_actual.monto_total)}</p>
                 </div>
-                <div className="p-4 bg-green-50 rounded-lg">
-                  <p className="text-sm text-green-600">Trimestre</p>
+                <div className="p-4 bg-green-50 dark:bg-green-950 rounded-lg">
+                  <p className="text-sm text-green-600 dark:text-green-400">Trimestre</p>
                   <p className="text-2xl font-bold text-green-900">{estadisticas.trimestre.ventas}</p>
-                  <p className="text-sm text-green-600">{formatCurrency(estadisticas.trimestre.monto_total)}</p>
+                  <p className="text-sm text-green-600 dark:text-green-400">{formatCurrency(estadisticas.trimestre.monto_total)}</p>
                 </div>
-                <div className="p-4 bg-purple-50 rounded-lg">
-                  <p className="text-sm text-purple-600">Este Ano</p>
+                <div className="p-4 bg-purple-50 dark:bg-purple-950 rounded-lg">
+                  <p className="text-sm text-purple-600 dark:text-purple-400">Este Ano</p>
                   <p className="text-2xl font-bold text-purple-900">{estadisticas.anio.ventas}</p>
-                  <p className="text-sm text-purple-600">{formatCurrency(estadisticas.anio.monto_total)}</p>
+                  <p className="text-sm text-purple-600 dark:text-purple-400">{formatCurrency(estadisticas.anio.monto_total)}</p>
                 </div>
-                <div className="p-4 bg-gray-100 rounded-lg">
-                  <p className="text-sm text-gray-600">Total Historico</p>
-                  <p className="text-2xl font-bold text-gray-900">{estadisticas.historico.ventas}</p>
-                  <p className="text-sm text-gray-600">{formatCurrency(estadisticas.historico.monto_total)}</p>
+                <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Total Historico</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">{estadisticas.historico.ventas}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">{formatCurrency(estadisticas.historico.monto_total)}</p>
                 </div>
               </div>
 
-              <div className="text-sm text-gray-500 space-y-1">
+              <div className="text-sm text-gray-500 dark:text-gray-400 space-y-1">
                 <p className="flex items-center gap-2">
                   <Calendar className="w-4 h-4" />
                   Creado: {formatDate(estadisticas.vendedor.created_at)}
@@ -645,7 +645,7 @@ export default function Usuarios() {
       ) : usuarios?.length === 0 ? (
         <div className="text-center py-12 card">
           <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-500">No hay usuarios {filterActivo ? 'activos' : 'inactivos'}</p>
+          <p className="text-gray-500 dark:text-gray-400">No hay usuarios {filterActivo ? 'activos' : 'inactivos'}</p>
         </div>
       ) : (
         <div className="grid gap-4">
@@ -661,20 +661,20 @@ export default function Usuarios() {
                 <div className={clsx(
                   "w-12 h-12 rounded-full flex items-center justify-center",
                   user.rol === 'admin' ? "bg-purple-100" :
-                  user.rol === 'gestor' ? "bg-green-100" :
+                  user.rol === 'gestor' ? "bg-green-100 dark:bg-green-900" :
                   user.rol === 'administrativo' ? "bg-orange-100" :
-                  "bg-blue-100"
+                  "bg-blue-100 dark:bg-blue-900"
                 )}>
                   {user.rol === 'admin' ? (
-                    <ShieldCheck className="w-6 h-6 text-purple-600" />
+                    <ShieldCheck className="w-6 h-6 text-purple-600 dark:text-purple-400" />
                   ) : (
-                    <Users className="w-6 h-6 text-blue-600" />
+                    <Users className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                   )}
                 </div>
 
                 <div>
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="font-semibold text-gray-900">{user.nombre_completo}</h3>
+                    <h3 className="font-semibold text-gray-900 dark:text-white">{user.nombre_completo}</h3>
                     <span className={clsx(
                       "text-xs px-2 py-0.5 rounded-full",
                       getRolColor(user.rol)
@@ -682,12 +682,12 @@ export default function Usuarios() {
                       {getRolLabel(user.rol)}
                     </span>
                     {!user.activo && (
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-700">
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-400">
                         Inactivo
                       </span>
                     )}
                   </div>
-                  <p className="text-sm text-gray-500 flex items-center gap-1">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1">
                     <Mail className="w-3 h-3" /> {user.email}
                   </p>
                   {user.permisos && (

@@ -157,15 +157,15 @@ export default function CajaDiaria() {
       {/* Header con fecha */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Caja Diaria</h1>
-          <p className="text-gray-500">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Caja Diaria</h1>
+          <p className="text-gray-500 dark:text-gray-400">
             {format(fecha, "EEEE d 'de' MMMM, yyyy", { locale: es })}
           </p>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={() => setFecha(subDays(fecha, 1))}
-            className="p-2 hover:bg-gray-100 rounded-lg"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
@@ -177,7 +177,7 @@ export default function CajaDiaria() {
           />
           <button
             onClick={() => setFecha(addDays(fecha, 1))}
-            className="p-2 hover:bg-gray-100 rounded-lg"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
           >
             <ChevronRight className="w-5 h-5" />
           </button>
@@ -191,24 +191,24 @@ export default function CajaDiaria() {
       <div className="grid grid-cols-3 gap-4">
         <div className="card text-center">
           <TrendingUp className="w-8 h-8 text-green-500 mx-auto mb-2" />
-          <p className="text-sm text-gray-500">Ingresos</p>
-          <p className="text-xl font-bold text-green-600">
+          <p className="text-sm text-gray-500 dark:text-gray-400">Ingresos</p>
+          <p className="text-xl font-bold text-green-600 dark:text-green-400">
             {formatCurrency(resumen?.total_ingresos)}
           </p>
         </div>
         <div className="card text-center">
           <TrendingDown className="w-8 h-8 text-red-500 mx-auto mb-2" />
-          <p className="text-sm text-gray-500">Egresos</p>
-          <p className="text-xl font-bold text-red-600">
+          <p className="text-sm text-gray-500 dark:text-gray-400">Egresos</p>
+          <p className="text-xl font-bold text-red-600 dark:text-red-400">
             {formatCurrency(resumen?.total_egresos)}
           </p>
         </div>
         <div className="card text-center">
           <Wallet className="w-8 h-8 text-primary-500 mx-auto mb-2" />
-          <p className="text-sm text-gray-500">Saldo</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Saldo</p>
           <p className={clsx(
             'text-xl font-bold',
-            (resumen?.saldo || 0) >= 0 ? 'text-green-600' : 'text-red-600'
+            (resumen?.saldo || 0) >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
           )}>
             {formatCurrency(resumen?.saldo)}
           </p>
@@ -235,7 +235,7 @@ export default function CajaDiaria() {
 
       {/* Lista de movimientos */}
       <div className="card">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
           Movimientos del día ({movimientos?.length || 0})
         </h2>
 
@@ -244,7 +244,7 @@ export default function CajaDiaria() {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600" />
           </div>
         ) : movimientos?.length === 0 ? (
-          <p className="text-gray-500 text-center py-8">No hay movimientos en esta fecha</p>
+          <p className="text-gray-500 dark:text-gray-400 text-center py-8">No hay movimientos en esta fecha</p>
         ) : (
           <div className="space-y-3">
             {movimientos?.map((mov) => (
@@ -252,12 +252,12 @@ export default function CajaDiaria() {
                 key={mov.id}
                 className={clsx(
                   'flex items-center justify-between p-3 rounded-lg',
-                  mov.tipo === 'ingreso' ? 'bg-green-50' : 'bg-red-50'
+                  mov.tipo === 'ingreso' ? 'bg-green-50 dark:bg-green-950' : 'bg-red-50 dark:bg-red-950'
                 )}
               >
                 <div className="flex-1">
-                  <p className="font-medium text-gray-900">{mov.descripcion}</p>
-                  <p className="text-sm text-gray-500">
+                  <p className="font-medium text-gray-900 dark:text-white">{mov.descripcion}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     {mov.categoria.replace('_', ' ')}
                     {mov.medio_pago && ` • ${mov.medio_pago}`}
                   </p>
@@ -265,7 +265,7 @@ export default function CajaDiaria() {
                 <div className="flex items-center gap-3">
                   <p className={clsx(
                     'font-semibold',
-                    mov.tipo === 'ingreso' ? 'text-green-600' : 'text-red-600'
+                    mov.tipo === 'ingreso' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
                   )}>
                     {mov.tipo === 'ingreso' ? '+' : '-'}{formatCurrency(mov.monto)}
                   </p>
@@ -288,10 +288,10 @@ export default function CajaDiaria() {
       {modalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="fixed inset-0 bg-black/50" onClick={closeModal} />
-          <div className="relative bg-white rounded-xl shadow-xl w-full max-w-md">
+          <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-md">
             <div className={clsx(
               'flex items-center justify-between p-4 border-b',
-              tipoMovimiento === 'ingreso' ? 'bg-green-50' : 'bg-red-50'
+              tipoMovimiento === 'ingreso' ? 'bg-green-50 dark:bg-green-950' : 'bg-red-50 dark:bg-red-950'
             )}>
               <h2 className="text-lg font-semibold">
                 Nuevo {tipoMovimiento === 'ingreso' ? 'Ingreso' : 'Egreso'}

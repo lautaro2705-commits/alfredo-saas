@@ -35,11 +35,11 @@ export default function MercadoLibreCallback() {
   }, [searchParams, navigate])
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-800">
       <div className="max-w-md w-full mx-4">
         <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
           {/* Logo MercadoLibre */}
-          <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-yellow-100 flex items-center justify-center">
+          <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-yellow-100 dark:bg-yellow-900 flex items-center justify-center">
             <span className="text-3xl">🛒</span>
           </div>
 
@@ -47,7 +47,7 @@ export default function MercadoLibreCallback() {
           {status === 'loading' && (
             <>
               <Loader2 className="w-12 h-12 mx-auto mb-4 text-blue-500 animate-spin" />
-              <h2 className="text-xl font-semibold text-gray-900 mb-2">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
                 Procesando...
               </h2>
             </>
@@ -56,20 +56,20 @@ export default function MercadoLibreCallback() {
           {status === 'success' && (
             <>
               <CheckCircle2 className="w-12 h-12 mx-auto mb-4 text-green-500" />
-              <h2 className="text-xl font-semibold text-gray-900 mb-2">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
                 ¡Conexión exitosa!
               </h2>
-              <p className="text-gray-600 mb-6">{message}</p>
+              <p className="text-gray-600 dark:text-gray-400 mb-6">{message}</p>
             </>
           )}
 
           {status === 'error' && (
             <>
               <XCircle className="w-12 h-12 mx-auto mb-4 text-red-500" />
-              <h2 className="text-xl font-semibold text-gray-900 mb-2">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
                 Error de conexión
               </h2>
-              <p className="text-gray-600 mb-6">{message}</p>
+              <p className="text-gray-600 dark:text-gray-400 mb-6">{message}</p>
             </>
           )}
 
@@ -81,7 +81,7 @@ export default function MercadoLibreCallback() {
           {/* Botón manual */}
           <button
             onClick={() => navigate('/mi-perfil')}
-            className="mt-4 text-primary-600 hover:text-primary-700 font-medium"
+            className="mt-4 text-primary-600 dark:text-primary-400 hover:text-primary-700 font-medium"
           >
             Ir ahora →
           </button>

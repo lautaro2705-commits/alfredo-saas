@@ -10,7 +10,8 @@ export function useTheme() {
   const [theme, setTheme] = useState(() => {
     const stored = localStorage.getItem('alfredo-theme')
     if (stored === 'dark' || stored === 'light') return stored
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+    // Default to light — users can toggle to dark if they prefer
+    return 'light'
   })
 
   useEffect(() => {

@@ -30,7 +30,7 @@ export default function BadgeCompetitividad({
   if (!competitividad || !valorMercado) {
     return (
       <span className={clsx(
-        'badge bg-gray-100 text-gray-500 flex items-center gap-1',
+        'badge bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 flex items-center gap-1',
         size === 'small' && 'text-xs px-1.5 py-0.5'
       )}>
         <HelpCircle className={clsx('w-3 h-3', size === 'small' && 'w-2.5 h-2.5')} />
@@ -58,7 +58,7 @@ export default function BadgeCompetitividad({
       </span>
 
       {showDetails && (
-        <div className="text-xs text-gray-500 text-right">
+        <div className="text-xs text-gray-500 dark:text-gray-400 text-right">
           <div>Mercado: {formatCurrency(valorMercado)}</div>
           {diferencia !== 0 && (
             <div className={clsx(

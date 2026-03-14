@@ -77,13 +77,83 @@ async def lifespan(app: FastAPI):
 
         logger.info("All production startup checks passed ✓")
 
+    # ── Start scheduler (alertas automáticas) ──
+    from app.core.scheduler import start_scheduler, shutdown_scheduler
+    await start_scheduler()
+
     yield
+
+    # ── Shutdown scheduler ──
+    await shutdown_scheduler()
     await engine.dispose()
 
 
+# ── OpenAPI tag metadata (organiza Swagger UI por sección) ──
+openapi_tags = [
+    # Plataforma
+    {"name": "auth", "description": "Autenticación, JWT tokens, password reset"},
+    {"name": "billing", "description": "Suscripciones, planes, pagos con MercadoPago"},
+    {"name": "admin", "description": "Administración de la plataforma (super-admin)"},
+    # Stock
+    {"name": "autos-unidades", "description": "Inventario de vehículos (CRUD, fotos, historial de costos)"},
+    {"name": "autos-peritajes", "description": "Inspecciones vehiculares con scoring por sección"},
+    {"name": "autos-documentacion", "description": "Checklist de documentación (08, VPA, VTV, título)"},
+    {"name": "autos-archivos", "description": "Upload y gestión de archivos/fotos (Cloudinary)"},
+    # Ventas
+    {"name": "autos-operaciones", "description": "Operaciones de venta, toma, boletos"},
+    {"name": "autos-clientes", "description": "Gestión de clientes"},
+    {"name": "autos-interesados", "description": "Leads, matching automático con stock"},
+    {"name": "autos-seguimientos", "description": "Follow-ups y recordatorios"},
+    # Finanzas
+    {"name": "autos-caja-diaria", "description": "Movimientos de caja, categorías, cierres diarios"},
+    {"name": "autos-cheques", "description": "Cheques recibidos y emitidos (cartera, endosos, depósitos)"},
+    {"name": "autos-costos-directos", "description": "Costos directos asociados a unidades"},
+    {"name": "autos-gastos-mensuales", "description": "Gastos fijos mensuales de la agencia"},
+    # Reportes & BI
+    {"name": "autos-dashboard", "description": "KPIs, métricas rápidas, alertas activas"},
+    {"name": "autos-reportes", "description": "Reportes de utilidad, stock, ventas, rentabilidad"},
+    {"name": "autos-inteligencia", "description": "BI: ROI por marca/modelo, costo de oportunidad, repricing"},
+    {"name": "autos-precios-mercado", "description": "Consulta y cache de precios de mercado"},
+    # Integraciones
+    {"name": "autos-mercadolibre", "description": "Publicación y sincronización con MercadoLibre"},
+    # Otros
+    {"name": "autos-proveedores", "description": "Gestión de proveedores y estadísticas"},
+    {"name": "autos-usuarios", "description": "Usuarios del tenant, roles y permisos"},
+    {"name": "autos-actividades", "description": "Log de actividad / auditoría"},
+    {"name": "autos-busqueda", "description": "Búsqueda global cross-entidad"},
+    {"name": "autos-marketing", "description": "Fichas de venta, compartir por WhatsApp"},
+]
+
 app = FastAPI(
     title=settings.PROJECT_NAME,
-    version="0.1.0",
+    version=settings.VERSION,
+    description="""
+## Alfredo — API de gestión para agencias de autos
+
+API REST multi-tenant para administrar stock, ventas, finanzas y documentación
+de agencias automotrices argentinas.
+
+### Autenticación
+Todos los endpoints (excepto `/auth/login` y `/auth/onboarding`) requieren
+un **Bearer token JWT** en el header `Authorization`.
+
+```
+Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
+```
+
+Los tokens expiran en 15 minutos. Usar `/auth/refresh` para renovar.
+
+### Multi-tenancy
+Cada request opera dentro del contexto del tenant del usuario autenticado.
+Los datos están aislados a nivel de base de datos mediante Row Level Security (RLS).
+
+### Rate Limiting
+- General: 100 requests/minuto
+- Auth endpoints: 5 requests/minuto (protección anti brute-force)
+    """,
+    openapi_tags=openapi_tags,
+    docs_url="/docs" if settings.ENVIRONMENT != "production" else None,
+    redoc_url="/redoc" if settings.ENVIRONMENT != "production" else None,
     lifespan=lifespan,
 )
 

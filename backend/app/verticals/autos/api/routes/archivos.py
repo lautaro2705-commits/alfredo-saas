@@ -13,6 +13,7 @@ from app.core.security.file_validator import validate_file_content
 from app.verticals.autos.models.archivo import ArchivoUnidad, TipoDocumentoArchivo
 from app.verticals.autos.models.unidad import Unidad
 from app.verticals.autos.schemas.archivo import ArchivoResponse, ArchivoListResponse
+from app.core.soft_delete import soft_delete
 
 router = APIRouter(prefix="/autos/archivos", tags=["autos-archivos"])
 
@@ -47,12 +48,12 @@ async def listar_archivos_unidad(
 ):
     """Listar archivos de una unidad"""
     # Verificar que existe la unidad
-    result = await db.execute(select(Unidad).where(Unidad.id == unidad_id))
+    result = await db.execute(select(Unidad).where(Unidad.active(), Unidad.id == unidad_id))
     unidad = result.scalar_one_or_none()
     if not unidad:
         raise HTTPException(status_code=404, detail="Unidad no encontrada")
 
-    stmt = select(ArchivoUnidad).where(ArchivoUnidad.unidad_id == unidad_id)
+    stmt = select(ArchivoUnidad).where(ArchivoUnidad.active(), ArchivoUnidad.unidad_id == unidad_id)
 
     if tipo:
         stmt = stmt.where(ArchivoUnidad.tipo_documento == tipo)
@@ -69,7 +70,7 @@ async def obtener_archivo(
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
     """Obtener detalle de un archivo"""
-    result = await db.execute(select(ArchivoUnidad).where(ArchivoUnidad.id == archivo_id))
+    result = await db.execute(select(ArchivoUnidad).where(ArchivoUnidad.active(), ArchivoUnidad.id == archivo_id))
     archivo = result.scalar_one_or_none()
     if not archivo:
         raise HTTPException(status_code=404, detail="Archivo no encontrado")
@@ -83,7 +84,7 @@ async def descargar_archivo(
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
     """Descargar un archivo"""
-    result = await db.execute(select(ArchivoUnidad).where(ArchivoUnidad.id == archivo_id))
+    result = await db.execute(select(ArchivoUnidad).where(ArchivoUnidad.active(), ArchivoUnidad.id == archivo_id))
     archivo = result.scalar_one_or_none()
     if not archivo:
         raise HTTPException(status_code=404, detail="Archivo no encontrado")
@@ -109,7 +110,7 @@ async def subir_archivo(
 ):
     """Subir archivo a una unidad"""
     # Verificar que existe la unidad
-    result = await db.execute(select(Unidad).where(Unidad.id == unidad_id))
+    result = await db.execute(select(Unidad).where(Unidad.active(), Unidad.id == unidad_id))
     unidad = result.scalar_one_or_none()
     if not unidad:
         raise HTTPException(status_code=404, detail="Unidad no encontrada")
@@ -175,7 +176,7 @@ async def subir_multiples_archivos(
 ):
     """Subir multiples archivos a una unidad"""
     # Verificar que existe la unidad
-    result = await db.execute(select(Unidad).where(Unidad.id == unidad_id))
+    result = await db.execute(select(Unidad).where(Unidad.active(), Unidad.id == unidad_id))
     unidad = result.scalar_one_or_none()
     if not unidad:
         raise HTTPException(status_code=404, detail="Unidad no encontrada")
@@ -246,13 +247,8 @@ async def eliminar_archivo(
     if not archivo:
         raise HTTPException(status_code=404, detail="Archivo no encontrado")
 
-    # Eliminar archivo fisico
-    if os.path.exists(archivo.ruta_archivo):
-        os.remove(archivo.ruta_archivo)
-
-    # Eliminar registro
-    await db.delete(archivo)
-    await db.commit()
+    # Soft delete — archivo físico NO se elimina
+    await soft_delete(db, archivo, deleted_by=token.user_id)
 
     return {"mensaje": "Archivo eliminado"}
 
@@ -284,7 +280,7 @@ async def resumen_archivos_unidad(
 ):
     """Obtener resumen de archivos de una unidad"""
     result = await db.execute(
-        select(ArchivoUnidad).where(ArchivoUnidad.unidad_id == unidad_id)
+        select(ArchivoUnidad).where(ArchivoUnidad.active(), ArchivoUnidad.unidad_id == unidad_id)
     )
     archivos = result.scalars().all()
 

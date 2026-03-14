@@ -3,7 +3,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.core.database import Base
-from app.verticals.autos.models.mixins import TenantMixin
+from app.verticals.autos.models.mixins import TenantMixin, SoftDeleteMixin
 import enum
 
 
@@ -14,7 +14,7 @@ class EstadoGestoria(str, enum.Enum):
     FINALIZADO = "finalizado"
 
 
-class ChecklistDocumentacion(TenantMixin, Base):
+class ChecklistDocumentacion(SoftDeleteMixin, TenantMixin, Base):
     """
     Checklist de documentación de cada unidad.
     Incluye: 08, VPA, Multas, etc.

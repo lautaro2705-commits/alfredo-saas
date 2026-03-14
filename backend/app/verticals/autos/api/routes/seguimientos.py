@@ -14,6 +14,7 @@ from sqlalchemy.orm import selectinload
 from app.core.database import get_db
 from app.core.security import get_current_user_with_tenant, require_role, TokenContext
 from app.verticals.autos.models.seguimiento import Seguimiento, EstadoSeguimiento
+from app.core.soft_delete import soft_delete
 from app.verticals.autos.schemas.seguimiento import (
     SeguimientoCreate,
     SeguimientoUpdate,
@@ -66,7 +67,7 @@ def _to_response(s: Seguimiento) -> dict:
 
 def _base_stmt():
     """Select base con joins eagerly loaded."""
-    return select(Seguimiento).options(
+    return select(Seguimiento).where(Seguimiento.active()).options(
         selectinload(Seguimiento.cliente),
         selectinload(Seguimiento.interesado),
         selectinload(Seguimiento.unidad),
@@ -185,7 +186,7 @@ async def actualizar_seguimiento(
     token: TokenContext = Depends(get_current_user_with_tenant),
 ):
     """Editar un seguimiento."""
-    result = await db.execute(select(Seguimiento).where(Seguimiento.id == seguimiento_id))
+    result = await db.execute(select(Seguimiento).where(Seguimiento.active(), Seguimiento.id == seguimiento_id))
     seguimiento = result.scalar_one_or_none()
     if not seguimiento:
         raise HTTPException(status_code=404, detail="Seguimiento no encontrado")
@@ -214,7 +215,7 @@ async def completar_seguimiento(
     token: TokenContext = Depends(get_current_user_with_tenant),
 ):
     """Marcar seguimiento como completado."""
-    result = await db.execute(select(Seguimiento).where(Seguimiento.id == seguimiento_id))
+    result = await db.execute(select(Seguimiento).where(Seguimiento.active(), Seguimiento.id == seguimiento_id))
     seguimiento = result.scalar_one_or_none()
     if not seguimiento:
         raise HTTPException(status_code=404, detail="Seguimiento no encontrado")
@@ -242,7 +243,7 @@ async def cancelar_seguimiento(
     token: TokenContext = Depends(get_current_user_with_tenant),
 ):
     """Cancelar un seguimiento."""
-    result = await db.execute(select(Seguimiento).where(Seguimiento.id == seguimiento_id))
+    result = await db.execute(select(Seguimiento).where(Seguimiento.active(), Seguimiento.id == seguimiento_id))
     seguimiento = result.scalar_one_or_none()
     if not seguimiento:
         raise HTTPException(status_code=404, detail="Seguimiento no encontrado")
@@ -271,6 +272,5 @@ async def eliminar_seguimiento(
     if not seguimiento:
         raise HTTPException(status_code=404, detail="Seguimiento no encontrado")
 
-    await db.delete(seguimiento)
-    await db.commit()
+    await soft_delete(db, seguimiento, deleted_by=token.user_id)
     return {"ok": True, "mensaje": "Seguimiento eliminado"}

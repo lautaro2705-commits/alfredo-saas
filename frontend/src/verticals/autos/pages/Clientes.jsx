@@ -87,8 +87,8 @@ export default function Clientes() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Clientes</h1>
-          <p className="text-gray-500">{clientes?.length || 0} clientes registrados</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Clientes</h1>
+          <p className="text-gray-500 dark:text-gray-400">{clientes?.length || 0} clientes registrados</p>
         </div>
         <button onClick={() => openModal()} className="btn btn-primary flex items-center gap-2">
           <Plus className="w-5 h-5" />
@@ -133,8 +133,8 @@ export default function Clientes() {
               <div key={cliente.id} className="card">
                 <div className="flex items-start justify-between mb-2">
                   <div>
-                    <p className="font-semibold text-gray-900">{cliente.nombre} {cliente.apellido}</p>
-                    <p className="text-xs text-gray-500 font-mono mt-0.5">{cliente.dni_cuit}</p>
+                    <p className="font-semibold text-gray-900 dark:text-white">{cliente.nombre} {cliente.apellido}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 font-mono mt-0.5">{cliente.dni_cuit}</p>
                   </div>
                   <div className="flex gap-1">
                     <button
@@ -151,7 +151,7 @@ export default function Clientes() {
                     </button>
                   </div>
                 </div>
-                <div className="flex flex-wrap gap-3 text-sm text-gray-500">
+                <div className="flex flex-wrap gap-3 text-sm text-gray-500 dark:text-gray-400">
                   {cliente.telefono && (
                     <a href={`tel:${cliente.telefono}`} className="flex items-center gap-1 hover:text-primary-600">
                       <Phone className="w-3.5 h-3.5" />
@@ -176,22 +176,22 @@ export default function Clientes() {
           <div className="hidden md:block card overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-gray-50">
+                <thead className="bg-gray-50 dark:bg-gray-800">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nombre</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">DNI/CUIT</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Teléfono</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Acciones</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Nombre</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">DNI/CUIT</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Teléfono</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Email</th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Acciones</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
+                <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                   {clientes?.map((cliente) => (
-                    <tr key={cliente.id} className="hover:bg-gray-50">
+                    <tr key={cliente.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
                       <td className="px-4 py-3 whitespace-nowrap">
-                        <p className="font-medium text-gray-900">{cliente.nombre} {cliente.apellido}</p>
+                        <p className="font-medium text-gray-900 dark:text-white">{cliente.nombre} {cliente.apellido}</p>
                         {cliente.localidad && (
-                          <p className="text-sm text-gray-500">{cliente.localidad}</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">{cliente.localidad}</p>
                         )}
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap font-mono text-sm">

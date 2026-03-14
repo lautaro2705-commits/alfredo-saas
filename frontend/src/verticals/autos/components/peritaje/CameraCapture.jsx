@@ -287,7 +287,7 @@ export default function CameraCapture({
               <button
                 onClick={captureFromCamera}
                 disabled={isProcessing}
-                className="w-16 h-16 bg-white rounded-full border-4 border-gray-300 hover:border-primary-500 transition-colors disabled:opacity-50"
+                className="w-16 h-16 bg-white dark:bg-gray-800 rounded-full border-4 border-gray-300 dark:border-gray-600 hover:border-primary-500 transition-colors disabled:opacity-50"
               >
                 <span className="sr-only">Capturar</span>
               </button>
@@ -396,7 +396,7 @@ export function PhotoInput({ value, onChange, className }) {
       ) : (
         <button
           onClick={() => fileInputRef.current?.click()}
-          className="w-full h-32 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center gap-2 text-gray-500 hover:border-primary-500 hover:text-primary-600 transition-colors"
+          className="w-full h-32 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg flex flex-col items-center justify-center gap-2 text-gray-500 dark:text-gray-400 hover:border-primary-500 hover:text-primary-600 transition-colors"
         >
           <Camera className="w-8 h-8" />
           <span className="text-sm">Agregar foto</span>

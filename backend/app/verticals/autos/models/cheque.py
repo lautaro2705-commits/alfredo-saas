@@ -3,7 +3,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.core.database import Base
-from app.verticals.autos.models.mixins import TenantMixin
+from app.verticals.autos.models.mixins import TenantMixin, SoftDeleteMixin
 import enum
 
 
@@ -21,7 +21,7 @@ class EstadoChequeEmitido(str, enum.Enum):
     ANULADO = "anulado"
 
 
-class ChequeRecibido(TenantMixin, Base):
+class ChequeRecibido(SoftDeleteMixin, TenantMixin, Base):
     """
     Cheques recibidos como medio de pago (cartera).
     Pueden asociarse a ventas o quedar en cartera para luego depositarlos o endosarlos.
@@ -90,7 +90,7 @@ class ChequeRecibido(TenantMixin, Base):
         return self.dias_para_vencer < 0 and self.estado == EstadoChequeRecibido.EN_CARTERA
 
 
-class ChequeEmitido(TenantMixin, Base):
+class ChequeEmitido(SoftDeleteMixin, TenantMixin, Base):
     """
     Cheques propios emitidos para pagos.
     Pueden asociarse a compras de unidades o gastos operativos.

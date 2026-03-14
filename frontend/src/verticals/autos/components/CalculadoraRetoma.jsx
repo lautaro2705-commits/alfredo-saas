@@ -124,7 +124,7 @@ export default function CalculadoraRetoma({
   return (
     <div className={clsx('card bg-gradient-to-br from-purple-50 to-indigo-50 border-purple-200', className)}>
       <div className="flex items-center gap-2 mb-4">
-        <Calculator className="w-5 h-5 text-purple-600" />
+        <Calculator className="w-5 h-5 text-purple-600 dark:text-purple-400" />
         <h3 className="font-semibold text-purple-900">Calculadora de Retoma</h3>
       </div>
 
@@ -194,9 +194,9 @@ export default function CalculadoraRetoma({
 
       {/* Resultados */}
       {resultado && (
-        <div className="bg-white rounded-lg p-4 border border-purple-200 space-y-4">
+        <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-purple-200 space-y-4">
           {resultado.error && !resultado.precio_mercado ? (
-            <div className="flex items-center gap-2 text-yellow-600">
+            <div className="flex items-center gap-2 text-yellow-600 dark:text-yellow-400">
               <AlertTriangle className="w-5 h-5 flex-shrink-0" />
               <span>{resultado.error}</span>
             </div>
@@ -204,41 +204,41 @@ export default function CalculadoraRetoma({
             <>
               {/* Precio de mercado */}
               <div>
-                <h4 className="text-sm font-medium text-gray-500 mb-2">Precio de Mercado (Cordoba)</h4>
+                <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Precio de Mercado (Cordoba)</h4>
                 <div className="grid grid-cols-3 gap-4 text-center">
                   <div>
                     <p className="text-xs text-gray-400">Minimo</p>
-                    <p className="font-semibold text-gray-700">{formatCurrency(resultado.precio_mercado_min)}</p>
+                    <p className="font-semibold text-gray-700 dark:text-gray-300">{formatCurrency(resultado.precio_mercado_min)}</p>
                   </div>
                   <div className="bg-purple-100 rounded-lg py-2">
-                    <p className="text-xs text-purple-600">Promedio</p>
+                    <p className="text-xs text-purple-600 dark:text-purple-400">Promedio</p>
                     <p className="text-lg font-bold text-purple-700">{formatCurrency(resultado.precio_mercado)}</p>
                     <p className="text-xs text-purple-500">{resultado.cantidad_resultados} resultados</p>
                   </div>
                   <div>
                     <p className="text-xs text-gray-400">Maximo</p>
-                    <p className="font-semibold text-gray-700">{formatCurrency(resultado.precio_mercado_max)}</p>
+                    <p className="font-semibold text-gray-700 dark:text-gray-300">{formatCurrency(resultado.precio_mercado_max)}</p>
                   </div>
                 </div>
               </div>
 
               {/* Desglose del calculo */}
-              <div className="border-t border-gray-100 pt-4">
-                <h4 className="text-sm font-medium text-gray-700 mb-3">Calculo del Precio de Compra:</h4>
+              <div className="border-t border-gray-100 dark:border-gray-800 pt-4">
+                <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Calculo del Precio de Compra:</h4>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Precio de Mercado</span>
+                    <span className="text-gray-500 dark:text-gray-400">Precio de Mercado</span>
                     <span className="font-medium">{formatCurrency(resultado.precio_mercado)}</span>
                   </div>
-                  <div className="flex justify-between text-red-600">
+                  <div className="flex justify-between text-red-600 dark:text-red-400">
                     <span>- Margen Agencia ({resultado.margen_agencia_porcentaje}%)</span>
                     <span>-{formatCurrency(resultado.margen_agencia_pesos)}</span>
                   </div>
-                  <div className="flex justify-between text-red-600">
+                  <div className="flex justify-between text-red-600 dark:text-red-400">
                     <span>- Gastos Reacondicionamiento</span>
                     <span>-{formatCurrency(resultado.gastos_reacondicionamiento)}</span>
                   </div>
-                  <div className="flex justify-between font-bold text-lg border-t border-gray-200 pt-3 mt-3 text-green-600">
+                  <div className="flex justify-between font-bold text-lg border-t border-gray-200 dark:border-gray-700 pt-3 mt-3 text-green-600 dark:text-green-400">
                     <span>= Precio Compra Maximo</span>
                     <span>{formatCurrency(resultado.precio_compra_maximo)}</span>
                   </div>
@@ -247,42 +247,42 @@ export default function CalculadoraRetoma({
 
               {/* Ajuste por estado del vehiculo (Peritaje) */}
               {peritajeEstado && (
-                <div className="border-t border-gray-100 pt-4">
-                  <h4 className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
-                    <ClipboardCheck className="w-4 h-4 text-purple-600" />
+                <div className="border-t border-gray-100 dark:border-gray-800 pt-4">
+                  <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
+                    <ClipboardCheck className="w-4 h-4 text-purple-600 dark:text-purple-400" />
                     Ajuste por Estado del Vehiculo:
                   </h4>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-gray-500">Puntaje de Estado</span>
+                      <span className="text-gray-500 dark:text-gray-400">Puntaje de Estado</span>
                       <span className={clsx(
                         'font-medium',
-                        peritajeEstado.puntaje_estado >= 80 ? 'text-green-600' :
-                        peritajeEstado.puntaje_estado >= 60 ? 'text-blue-600' :
-                        peritajeEstado.puntaje_estado >= 40 ? 'text-yellow-600' : 'text-red-600'
+                        peritajeEstado.puntaje_estado >= 80 ? 'text-green-600 dark:text-green-400' :
+                        peritajeEstado.puntaje_estado >= 60 ? 'text-blue-600 dark:text-blue-400' :
+                        peritajeEstado.puntaje_estado >= 40 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'
                       )}>
                         {Math.round(peritajeEstado.puntaje_estado)}/100 ({peritajeEstado.resumen_estado})
                       </span>
                     </div>
                     {peritajeEstado.costo_reparaciones > 0 && (
-                      <div className="flex justify-between text-red-600">
+                      <div className="flex justify-between text-red-600 dark:text-red-400">
                         <span>- Reparaciones estimadas</span>
                         <span>-{formatCurrency(peritajeEstado.costo_reparaciones)}</span>
                       </div>
                     )}
                     {peritajeEstado.ajuste_precio !== 0 && (
-                      <div className="flex justify-between text-red-600">
+                      <div className="flex justify-between text-red-600 dark:text-red-400">
                         <span>- Ajuste por estado</span>
                         <span>{formatCurrency(peritajeEstado.ajuste_precio)}</span>
                       </div>
                     )}
                     {peritajeEstado.items_urgentes?.length > 0 && (
-                      <div className="mt-2 p-2 bg-red-50 rounded-lg">
-                        <p className="text-xs text-red-700 font-medium mb-1 flex items-center gap-1">
+                      <div className="mt-2 p-2 bg-red-50 dark:bg-red-950 rounded-lg">
+                        <p className="text-xs text-red-700 dark:text-red-400 font-medium mb-1 flex items-center gap-1">
                           <AlertTriangle className="w-3 h-3" />
                           Items urgentes:
                         </p>
-                        <ul className="text-xs text-red-600 list-disc list-inside">
+                        <ul className="text-xs text-red-600 dark:text-red-400 list-disc list-inside">
                           {peritajeEstado.items_urgentes.slice(0, 3).map((item, i) => (
                             <li key={i}>{item}</li>
                           ))}
@@ -295,7 +295,7 @@ export default function CalculadoraRetoma({
                   </div>
                   <Link
                     to={`/peritajes/${peritajeId}`}
-                    className="mt-2 text-xs text-purple-600 hover:text-purple-700 flex items-center gap-1"
+                    className="mt-2 text-xs text-purple-600 dark:text-purple-400 hover:text-purple-700 flex items-center gap-1"
                   >
                     Ver peritaje completo <ExternalLink className="w-3 h-3" />
                   </Link>
@@ -315,19 +315,19 @@ export default function CalculadoraRetoma({
                       )}
                     </span>
                   </div>
-                  <p className="text-xs text-purple-600 mt-1">
+                  <p className="text-xs text-purple-600 dark:text-purple-400 mt-1">
                     Precio maximo considerando el estado del vehiculo segun peritaje
                   </p>
                 </div>
               )}
 
               {/* Utilidad proyectada */}
-              <div className="bg-green-50 rounded-lg p-3 flex items-center justify-between">
+              <div className="bg-green-50 dark:bg-green-950 rounded-lg p-3 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5 text-green-600" />
+                  <TrendingUp className="w-5 h-5 text-green-600 dark:text-green-400" />
                   <span className="text-green-700 font-medium">Utilidad Proyectada</span>
                 </div>
-                <span className="font-bold text-green-700 text-lg">{formatCurrency(resultado.utilidad_proyectada)}</span>
+                <span className="font-bold text-green-700 dark:text-green-400 text-lg">{formatCurrency(resultado.utilidad_proyectada)}</span>
               </div>
 
               {/* Boton para usar el precio */}
@@ -341,7 +341,7 @@ export default function CalculadoraRetoma({
               )}
 
               {/* Recomendacion */}
-              <p className="text-xs text-gray-500 italic">
+              <p className="text-xs text-gray-500 dark:text-gray-400 italic">
                 {resultado.recomendacion}
               </p>
 
@@ -356,7 +356,7 @@ export default function CalculadoraRetoma({
 
       {/* Configuracion actual */}
       {config && (
-        <div className="mt-4 pt-4 border-t border-purple-200 text-xs text-purple-600">
+        <div className="mt-4 pt-4 border-t border-purple-200 text-xs text-purple-600 dark:text-purple-400">
           <span className="font-medium">Configuracion:</span>{' '}
           Margen {config.margen_agencia_retoma}% |{' '}
           Gastos estimados {formatCurrency(config.gastos_estimados_reacondicionamiento)} |{' '}

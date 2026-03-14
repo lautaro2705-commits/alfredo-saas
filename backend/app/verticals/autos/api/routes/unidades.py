@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
-from sqlalchemy import or_, select, delete
+from sqlalchemy import or_, select, delete, update
 from typing import List, Optional
-from datetime import date
+from datetime import date, datetime, timezone
 import logging
 from app.core.database import get_db
 
@@ -13,9 +13,9 @@ from app.verticals.autos.models.unidad import Unidad, EstadoUnidad, OrigenUnidad
 from app.platform.models.user import RolUsuario
 from app.verticals.autos.schemas.unidad import UnidadCreate, UnidadUpdate, UnidadResponse, UnidadListResponse
 from app.verticals.autos.models.actividad import registrar_actividad, AccionActividad, EntidadActividad
+from app.core.soft_delete import soft_delete, soft_delete_many
 from app.verticals.autos.services.cloudinary_service import (  # TODO: move to shared services
     upload_foto_unidad,
-    delete_foto,
     is_cloudinary_configured,
     get_thumbnail_url
 )
@@ -36,7 +36,7 @@ async def listar_unidades(
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
     """Listar unidades con filtros opcionales"""
-    stmt = select(Unidad)
+    stmt = select(Unidad).where(Unidad.active())
 
     if estado:
         stmt = stmt.where(Unidad.estado == estado)
@@ -72,7 +72,7 @@ async def listar_vendidos(
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
     """Listar unidades vendidas"""
-    stmt = select(Unidad).where(Unidad.estado == EstadoUnidad.VENDIDO)
+    stmt = select(Unidad).where(Unidad.active(), Unidad.estado == EstadoUnidad.VENDIDO)
 
     if buscar:
         stmt = stmt.where(
@@ -95,6 +95,7 @@ async def listar_stock_disponible(
 ):
     """Listar solo unidades disponibles para venta"""
     stmt = select(Unidad).where(
+        Unidad.active(),
         Unidad.estado.in_([EstadoUnidad.DISPONIBLE, EstadoUnidad.RESERVADO])
     ).order_by(Unidad.fecha_ingreso.desc())
     result = await db.execute(stmt)
@@ -109,6 +110,7 @@ async def listar_inmovilizados(
     """Listar unidades con más de 60 días en stock"""
     from app.core.config import settings
     stmt = select(Unidad).where(
+        Unidad.active(),
         Unidad.estado == EstadoUnidad.DISPONIBLE
     )
     result = await db.execute(stmt)
@@ -127,6 +129,7 @@ async def valorizacion_stock(
     """
     # Unidades disponibles y reservadas (en stock activo)
     stmt = select(Unidad).where(
+        Unidad.active(),
         Unidad.estado.in_([EstadoUnidad.DISPONIBLE, EstadoUnidad.RESERVADO, EstadoUnidad.EN_REPARACION])
     )
     result = await db.execute(stmt)
@@ -197,7 +200,7 @@ async def obtener_unidad(
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
     """Obtener detalle de una unidad"""
-    result = await db.execute(select(Unidad).where(Unidad.id == unidad_id))
+    result = await db.execute(select(Unidad).where(Unidad.active(), Unidad.id == unidad_id))
     unidad = result.scalar_one_or_none()
     if not unidad:
         raise HTTPException(status_code=404, detail="Unidad no encontrada")
@@ -212,7 +215,7 @@ async def crear_unidad(
 ):
     """Crear nueva unidad"""
     # Verificar dominio único
-    result = await db.execute(select(Unidad).where(Unidad.dominio == unidad.dominio))
+    result = await db.execute(select(Unidad).where(Unidad.active(), Unidad.dominio == unidad.dominio))
     if result.scalar_one_or_none():
         raise HTTPException(status_code=400, detail="Ya existe una unidad con ese dominio")
 
@@ -244,7 +247,7 @@ async def actualizar_unidad(
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
     """Actualizar una unidad"""
-    result = await db.execute(select(Unidad).where(Unidad.id == unidad_id))
+    result = await db.execute(select(Unidad).where(Unidad.active(), Unidad.id == unidad_id))
     db_unidad = result.scalar_one_or_none()
     if not db_unidad:
         raise HTTPException(status_code=404, detail="Unidad no encontrada")
@@ -253,7 +256,7 @@ async def actualizar_unidad(
 
     # Verificar dominio único si se está cambiando
     if "dominio" in update_data and update_data["dominio"] != db_unidad.dominio:
-        dup_result = await db.execute(select(Unidad).where(Unidad.dominio == update_data["dominio"]))
+        dup_result = await db.execute(select(Unidad).where(Unidad.active(), Unidad.dominio == update_data["dominio"]))
         if dup_result.scalar_one_or_none():
             raise HTTPException(status_code=400, detail="Ya existe una unidad con ese dominio")
 
@@ -296,33 +299,51 @@ async def eliminar_unidad(
             raise HTTPException(status_code=403, detail="Solo administradores pueden forzar esta eliminación")
 
     try:
-        # Si hay operaciones, eliminar movimientos de caja y operaciones
+        now = datetime.now(timezone.utc)
+        sd_values = {"deleted_at": now, "deleted_by": token.user_id}
+
+        # Si hay operaciones, soft-delete movimientos de caja y operaciones
         if tiene_operaciones:
             for op in operaciones:
-                await db.execute(delete(CajaDiaria).where(CajaDiaria.operacion_id == op.id))
-                await db.delete(op)
+                await db.execute(
+                    update(CajaDiaria)
+                    .where(CajaDiaria.operacion_id == op.id, CajaDiaria.deleted_at.is_(None))
+                    .values(**sd_values)
+                )
+                await soft_delete(db, op, deleted_by=token.user_id, commit=False)
             await db.flush()
 
-        # Eliminar costos directos asociados
+        # Soft-delete costos directos asociados
         from app.verticals.autos.models.costo_directo import CostoDirecto
-        await db.execute(delete(CostoDirecto).where(CostoDirecto.unidad_id == unidad_id))
+        await db.execute(
+            update(CostoDirecto)
+            .where(CostoDirecto.unidad_id == unidad_id, CostoDirecto.deleted_at.is_(None))
+            .values(**sd_values)
+        )
 
-        # Eliminar checklist de documentación
+        # Soft-delete checklist de documentación
         try:
             from app.verticals.autos.models.documentacion import ChecklistDocumentacion
-            await db.execute(delete(ChecklistDocumentacion).where(ChecklistDocumentacion.unidad_id == unidad_id))
+            await db.execute(
+                update(ChecklistDocumentacion)
+                .where(ChecklistDocumentacion.unidad_id == unidad_id, ChecklistDocumentacion.deleted_at.is_(None))
+                .values(**sd_values)
+            )
         except Exception as e:
-            logger.warning(f"Error eliminando checklist documentación unidad {unidad_id}: {e}")
+            logger.warning(f"Error soft-deleting checklist documentación unidad {unidad_id}: {e}")
 
-        # Eliminar archivos asociados
+        # Soft-delete archivos asociados
         try:
             from app.verticals.autos.models.archivo import ArchivoUnidad
-            await db.execute(delete(ArchivoUnidad).where(ArchivoUnidad.unidad_id == unidad_id))
+            await db.execute(
+                update(ArchivoUnidad)
+                .where(ArchivoUnidad.unidad_id == unidad_id, ArchivoUnidad.deleted_at.is_(None))
+                .values(**sd_values)
+            )
         except Exception as e:
-            logger.warning(f"Error eliminando archivos unidad {unidad_id}: {e}")
+            logger.warning(f"Error soft-deleting archivos unidad {unidad_id}: {e}")
 
-        await db.delete(db_unidad)
-        await db.commit()
+        await soft_delete(db, db_unidad, deleted_by=token.user_id)
         return {"mensaje": "Unidad eliminada correctamente"}
 
     except IntegrityError as e:
@@ -352,7 +373,7 @@ async def historial_costos(
     result = await db.execute(
         select(Unidad)
         .options(selectinload(Unidad.costos_directos))
-        .where(Unidad.id == unidad_id)
+        .where(Unidad.active(), Unidad.id == unidad_id)
     )
     unidad = result.scalar_one_or_none()
     if not unidad:
@@ -447,7 +468,7 @@ async def listar_fotos_unidad(
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
     """Obtener lista de fotos de una unidad."""
-    result = await db.execute(select(Unidad).where(Unidad.id == unidad_id))
+    result = await db.execute(select(Unidad).where(Unidad.active(), Unidad.id == unidad_id))
     unidad = result.scalar_one_or_none()
     if not unidad:
         raise HTTPException(status_code=404, detail="Unidad no encontrada")
@@ -490,7 +511,7 @@ async def subir_foto_unidad(
         )
 
     # Verificar que la unidad existe
-    result = await db.execute(select(Unidad).where(Unidad.id == unidad_id))
+    result = await db.execute(select(Unidad).where(Unidad.active(), Unidad.id == unidad_id))
     unidad = result.scalar_one_or_none()
     if not unidad:
         raise HTTPException(status_code=404, detail="Unidad no encontrada")
@@ -557,7 +578,7 @@ async def eliminar_foto_unidad(
     """
     import json
 
-    result = await db.execute(select(Unidad).where(Unidad.id == unidad_id))
+    result = await db.execute(select(Unidad).where(Unidad.active(), Unidad.id == unidad_id))
     unidad = result.scalar_one_or_none()
     if not unidad:
         raise HTTPException(status_code=404, detail="Unidad no encontrada")
@@ -577,12 +598,8 @@ async def eliminar_foto_unidad(
     # Obtener foto a eliminar
     foto = fotos_actuales[foto_index]
 
-    # Eliminar de Cloudinary si tiene public_id
-    if foto.get("public_id"):
-        try:
-            delete_foto(foto["public_id"])
-        except Exception:
-            pass  # Si falla Cloudinary, igual eliminamos de la BD
+    # NO eliminamos de Cloudinary — preservamos el archivo físico (soft delete)
+    # La foto se quita del array visible pero sigue en Cloudinary
 
     # Eliminar del array
     fotos_actuales.pop(foto_index)
@@ -615,7 +632,7 @@ async def reordenar_fotos_unidad(
     """
     import json
 
-    result = await db.execute(select(Unidad).where(Unidad.id == unidad_id))
+    result = await db.execute(select(Unidad).where(Unidad.active(), Unidad.id == unidad_id))
     unidad = result.scalar_one_or_none()
     if not unidad:
         raise HTTPException(status_code=404, detail="Unidad no encontrada")

@@ -2,7 +2,7 @@
 from datetime import datetime
 from typing import Optional
 from uuid import UUID
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 
 # ── Tenant listing ──
@@ -115,4 +115,34 @@ class ImpersonateResponse(BaseModel):
     tenant_name: str
     vertical: str
     plan: str
+    message: str
+
+
+# ── Gift access ──
+
+class GiftRequest(BaseModel):
+    """Crear una cuenta con acceso regalado."""
+    # Datos de la agencia
+    nombre_agencia: str
+    email_contacto: EmailStr
+    telefono: Optional[str] = None
+
+    # Datos del usuario admin
+    admin_nombre: str
+    admin_apellido: str
+    admin_email: EmailStr
+    admin_password: str  # sin validación compleja — es un regalo
+
+    # Qué se regala
+    plan: str = "profesional"   # trial, basico, profesional, premium
+    dias: int = 90              # duración del acceso
+    motivo: Optional[str] = None  # "amigo", "demo", "partner", etc.
+
+
+class GiftResponse(BaseModel):
+    tenant_id: UUID
+    tenant_name: str
+    plan: str
+    acceso_hasta: datetime
+    admin_email: str
     message: str

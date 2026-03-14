@@ -19,6 +19,7 @@ async def _enrich_proveedor(db: AsyncSession, proveedor: Proveedor) -> dict:
             sql_func.count(CostoDirecto.id).label("cantidad"),
             sql_func.coalesce(sql_func.sum(CostoDirecto.monto), 0).label("total")
         ).where(
+            CostoDirecto.active(),
             CostoDirecto.proveedor.ilike(proveedor.nombre)
         )
     )
@@ -51,7 +52,7 @@ async def listar_proveedores(
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
     """Listar proveedores con filtros"""
-    stmt = select(Proveedor)
+    stmt = select(Proveedor).where(Proveedor.active())
 
     if activos is not None:
         stmt = stmt.where(Proveedor.activo == activos)
@@ -76,7 +77,7 @@ async def estadisticas_proveedores(
 ):
     """Ranking de proveedores por gasto"""
     result = await db.execute(
-        select(Proveedor).where(Proveedor.activo == True)
+        select(Proveedor).where(Proveedor.active(), Proveedor.activo == True)
     )
     proveedores = result.scalars().all()
     ranking = []
@@ -86,6 +87,7 @@ async def estadisticas_proveedores(
                 sql_func.count(CostoDirecto.id).label("cantidad"),
                 sql_func.coalesce(sql_func.sum(CostoDirecto.monto), 0).label("total")
             ).where(
+                CostoDirecto.active(),
                 CostoDirecto.proveedor.ilike(p.nombre)
             )
         )
@@ -116,7 +118,7 @@ async def obtener_proveedor(
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
     """Obtener detalle de un proveedor"""
-    result = await db.execute(select(Proveedor).where(Proveedor.id == proveedor_id))
+    result = await db.execute(select(Proveedor).where(Proveedor.active(), Proveedor.id == proveedor_id))
     proveedor = result.scalar_one_or_none()
     if not proveedor:
         raise HTTPException(status_code=404, detail="Proveedor no encontrado")
@@ -131,7 +133,7 @@ async def costos_proveedor(
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
     """Historial de costos de un proveedor"""
-    result = await db.execute(select(Proveedor).where(Proveedor.id == proveedor_id))
+    result = await db.execute(select(Proveedor).where(Proveedor.active(), Proveedor.id == proveedor_id))
     proveedor = result.scalar_one_or_none()
     if not proveedor:
         raise HTTPException(status_code=404, detail="Proveedor no encontrado")
@@ -139,7 +141,7 @@ async def costos_proveedor(
     from sqlalchemy.orm import selectinload
     result = await db.execute(
         select(CostoDirecto)
-        .where(CostoDirecto.proveedor.ilike(proveedor.nombre))
+        .where(CostoDirecto.active(), CostoDirecto.proveedor.ilike(proveedor.nombre))
         .order_by(CostoDirecto.fecha.desc())
         .limit(limit)
         .options(selectinload(CostoDirecto.unidad))
@@ -182,7 +184,7 @@ async def actualizar_proveedor(
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
     """Actualizar proveedor"""
-    result = await db.execute(select(Proveedor).where(Proveedor.id == proveedor_id))
+    result = await db.execute(select(Proveedor).where(Proveedor.active(), Proveedor.id == proveedor_id))
     db_proveedor = result.scalar_one_or_none()
     if not db_proveedor:
         raise HTTPException(status_code=404, detail="Proveedor no encontrado")

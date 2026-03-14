@@ -48,7 +48,7 @@ function VariacionBadge({ variacion, invertir = false }) {
 
   if (esCero) {
     return (
-      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
         <Minus className="w-3 h-3" />
         0%
       </span>
@@ -58,7 +58,7 @@ function VariacionBadge({ variacion, invertir = false }) {
   return (
     <span className={clsx(
       'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium',
-      esPositivo ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+      esPositivo ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-400' : 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-400'
     )}>
       {porcentaje > 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
       {porcentaje > 0 ? '+' : ''}{porcentaje}%
@@ -147,25 +147,25 @@ export default function ComparativoMensual() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <ArrowLeftRight className="w-7 h-7 text-primary-600" />
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+              <ArrowLeftRight className="w-7 h-7 text-primary-600 dark:text-primary-400" />
               Comparativo Mensual
             </h1>
-            <p className="text-gray-500">Comparación mes a mes de métricas clave</p>
+            <p className="text-gray-500 dark:text-gray-400">Comparación mes a mes de métricas clave</p>
           </div>
           {data && <ExportButton onClick={handleExportar} />}
         </div>
 
         {/* Navegación de meses */}
-        <div className="flex items-center gap-3 bg-white rounded-lg border px-4 py-2">
-          <button onClick={irMesAnterior} className="p-1 hover:bg-gray-100 rounded">
-            <ChevronLeft className="w-5 h-5 text-gray-600" />
+        <div className="flex items-center gap-3 bg-white dark:bg-gray-800 rounded-lg border px-4 py-2">
+          <button onClick={irMesAnterior} className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded">
+            <ChevronLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />
           </button>
-          <span className="text-lg font-semibold text-gray-900 min-w-[180px] text-center">
+          <span className="text-lg font-semibold text-gray-900 dark:text-white min-w-[180px] text-center">
             {MESES[mes - 1]} {anio}
           </span>
-          <button onClick={irMesSiguiente} className="p-1 hover:bg-gray-100 rounded">
-            <ChevronRight className="w-5 h-5 text-gray-600" />
+          <button onClick={irMesSiguiente} className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded">
+            <ChevronRight className="w-5 h-5 text-gray-600 dark:text-gray-400" />
           </button>
         </div>
       </div>
@@ -176,43 +176,43 @@ export default function ComparativoMensual() {
         </div>
       ) : !data ? (
         <div className="card text-center py-12">
-          <p className="text-gray-500">No hay datos para este período</p>
+          <p className="text-gray-500 dark:text-gray-400">No hay datos para este período</p>
         </div>
       ) : (
         <>
           {/* Tabla de métricas comparativas */}
           <div className="card overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50">
+              <thead className="bg-gray-50 dark:bg-gray-800">
                 <tr>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Métrica</th>
-                  <th className="px-4 py-3 text-right text-sm font-medium text-blue-600">
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Métrica</th>
+                  <th className="px-4 py-3 text-right text-sm font-medium text-blue-600 dark:text-blue-400">
                     {data.mes_actual.nombre_mes} {data.mes_actual.anio}
                   </th>
-                  <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">
+                  <th className="px-4 py-3 text-right text-sm font-medium text-gray-500 dark:text-gray-400">
                     {data.mes_anterior.nombre_mes} {data.mes_anterior.anio}
                   </th>
-                  <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">Variación</th>
+                  <th className="px-4 py-3 text-right text-sm font-medium text-gray-500 dark:text-gray-400">Variación</th>
                 </tr>
               </thead>
               <tbody className="divide-y">
                 {METRICAS.map(m => {
                   const Icon = m.icon
                   return (
-                    <tr key={m.key} className="hover:bg-gray-50">
+                    <tr key={m.key} className="hover:bg-gray-50 dark:hover:bg-gray-800">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
                           <Icon className="w-4 h-4 text-gray-400" />
-                          <span className="text-sm font-medium text-gray-900">{m.label}</span>
+                          <span className="text-sm font-medium text-gray-900 dark:text-white">{m.label}</span>
                         </div>
                       </td>
                       <td className="px-4 py-3 text-right">
-                        <span className="text-sm font-semibold text-gray-900">
+                        <span className="text-sm font-semibold text-gray-900 dark:text-white">
                           {formatValue(data.mes_actual[m.key], m.format)}
                         </span>
                       </td>
                       <td className="px-4 py-3 text-right">
-                        <span className="text-sm text-gray-600">
+                        <span className="text-sm text-gray-600 dark:text-gray-400">
                           {formatValue(data.mes_anterior[m.key], m.format)}
                         </span>
                       </td>
@@ -231,7 +231,7 @@ export default function ComparativoMensual() {
 
           {/* Gráfico comparativo */}
           <div className="card">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Comparación Visual</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Comparación Visual</h3>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -248,14 +248,14 @@ export default function ComparativoMensual() {
           {/* Highlight card - Rentabilidad */}
           <div className={clsx(
             'card border-2',
-            data.mes_actual.rentabilidad_neta >= 0 ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'
+            data.mes_actual.rentabilidad_neta >= 0 ? 'border-green-200 bg-green-50 dark:bg-green-950' : 'border-red-200 bg-red-50 dark:bg-red-950'
           )}>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Rentabilidad Neta del Mes</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Rentabilidad Neta del Mes</p>
                 <p className={clsx(
                   'text-3xl font-bold',
-                  data.mes_actual.rentabilidad_neta >= 0 ? 'text-green-600' : 'text-red-600'
+                  data.mes_actual.rentabilidad_neta >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
                 )}>
                   {formatCurrency(data.mes_actual.rentabilidad_neta)}
                 </p>

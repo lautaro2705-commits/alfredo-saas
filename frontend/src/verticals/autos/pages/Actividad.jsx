@@ -18,12 +18,12 @@ import {
 import clsx from 'clsx'
 
 const ENTIDAD_CONFIG = {
-  unidad: { icon: Car, color: 'text-blue-600 bg-blue-100', href: (id) => `/unidades/${id}` },
-  operacion: { icon: ShoppingCart, color: 'text-green-600 bg-green-100', href: (id) => `/operaciones` },
-  cliente: { icon: Users, color: 'text-purple-600 bg-purple-100', href: () => `/clientes` },
-  caja: { icon: Wallet, color: 'text-yellow-600 bg-yellow-100', href: () => `/caja` },
-  costo: { icon: Wrench, color: 'text-red-600 bg-red-100', href: () => `/costo-rapido` },
-  cheque: { icon: FileText, color: 'text-indigo-600 bg-indigo-100', href: () => `/cheques` },
+  unidad: { icon: Car, color: 'text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900', href: (id) => `/unidades/${id}` },
+  operacion: { icon: ShoppingCart, color: 'text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900', href: (id) => `/operaciones` },
+  cliente: { icon: Users, color: 'text-purple-600 dark:text-purple-400 bg-purple-100', href: () => `/clientes` },
+  caja: { icon: Wallet, color: 'text-yellow-600 dark:text-yellow-400 bg-yellow-100 dark:bg-yellow-900', href: () => `/caja` },
+  costo: { icon: Wrench, color: 'text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900', href: () => `/costo-rapido` },
+  cheque: { icon: FileText, color: 'text-indigo-600 dark:text-indigo-400 bg-indigo-100', href: () => `/cheques` },
   seguimiento: { icon: CalendarCheck, color: 'text-teal-600 bg-teal-100', href: () => `/agenda` },
   interesado: { icon: UserPlus, color: 'text-pink-600 bg-pink-100', href: () => `/interesados` },
 }
@@ -95,11 +95,11 @@ export default function Actividad() {
     <div className="space-y-6 pb-20 lg:pb-0">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-          <History className="w-7 h-7 text-primary-600" />
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+          <History className="w-7 h-7 text-primary-600 dark:text-primary-400" />
           Historial de Actividad
         </h1>
-        <p className="text-gray-500">Registro de todas las acciones del sistema</p>
+        <p className="text-gray-500 dark:text-gray-400">Registro de todas las acciones del sistema</p>
       </div>
 
       {/* Filtros */}
@@ -137,7 +137,7 @@ export default function Actividad() {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600" />
           </div>
         ) : !actividades?.length ? (
-          <p className="text-gray-500 text-center py-8">No hay actividad registrada</p>
+          <p className="text-gray-500 dark:text-gray-400 text-center py-8">No hay actividad registrada</p>
         ) : (
           <div className="space-y-0">
             {actividades.map((act, idx) => {
@@ -159,11 +159,11 @@ export default function Actividad() {
                   <div className={clsx('flex-1 pb-6', !isLast && 'border-b-0')}>
                     <div className="flex items-start justify-between">
                       <div>
-                        <p className="text-sm font-medium text-gray-900">
+                        <p className="text-sm font-medium text-gray-900 dark:text-white">
                           {act.descripcion}
                         </p>
                         <div className="flex items-center gap-2 mt-1">
-                          <span className="text-xs text-gray-500">{act.usuario_nombre}</span>
+                          <span className="text-xs text-gray-500 dark:text-gray-400">{act.usuario_nombre}</span>
                           <span className="text-xs text-gray-300">•</span>
                           <span className="text-xs text-gray-400">{tiempoRelativo(act.created_at)}</span>
                         </div>
@@ -171,7 +171,7 @@ export default function Actividad() {
                       {act.entidad_id && (
                         <button
                           onClick={() => handleClickEntidad(act.entidad, act.entidad_id)}
-                          className="text-xs text-primary-600 hover:text-primary-700 font-medium"
+                          className="text-xs text-primary-600 dark:text-primary-400 hover:text-primary-700 font-medium"
                         >
                           Ver →
                         </button>
@@ -188,7 +188,7 @@ export default function Actividad() {
         {actividades?.length >= limit && (
           <button
             onClick={() => setLimit(prev => prev + 50)}
-            className="w-full mt-4 py-2 text-sm text-primary-600 hover:bg-primary-50 rounded-lg transition-colors flex items-center justify-center gap-1"
+            className="w-full mt-4 py-2 text-sm text-primary-600 dark:text-primary-400 hover:bg-primary-50 rounded-lg transition-colors flex items-center justify-center gap-1"
           >
             <ChevronDown className="w-4 h-4" />
             Cargar más actividad

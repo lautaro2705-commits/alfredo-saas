@@ -140,8 +140,8 @@ export default function GastosMensuales() {
       {/* Header con selector de mes */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Gastos del Mes</h1>
-          <p className="text-gray-500">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Gastos del Mes</h1>
+          <p className="text-gray-500 dark:text-gray-400">
             Detalle completo de todos los gastos
           </p>
         </div>
@@ -151,16 +151,16 @@ export default function GastosMensuales() {
           )}
           <button
             onClick={irMesAnterior}
-            className="p-2 hover:bg-gray-100 rounded-lg"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
-          <span className="text-lg font-semibold text-gray-700 min-w-[160px] text-center">
+          <span className="text-lg font-semibold text-gray-700 dark:text-gray-300 min-w-[160px] text-center">
             {MESES[mes - 1]} {anio}
           </span>
           <button
             onClick={irMesSiguiente}
-            className="p-2 hover:bg-gray-100 rounded-lg"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
           >
             <ChevronRight className="w-5 h-5" />
           </button>
@@ -171,8 +171,8 @@ export default function GastosMensuales() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="card text-center">
           <Wallet className="w-8 h-8 text-blue-500 mx-auto mb-2" />
-          <p className="text-sm text-gray-500">Gastos Operativos</p>
-          <p className="text-xl font-bold text-blue-600">
+          <p className="text-sm text-gray-500 dark:text-gray-400">Gastos Operativos</p>
+          <p className="text-xl font-bold text-blue-600 dark:text-blue-400">
             {formatCurrency(data?.total_gastos_operativos)}
           </p>
           <p className="text-xs text-gray-400 mt-1">
@@ -181,18 +181,18 @@ export default function GastosMensuales() {
         </div>
         <div className="card text-center">
           <Wrench className="w-8 h-8 text-orange-500 mx-auto mb-2" />
-          <p className="text-sm text-gray-500">Costos Directos</p>
-          <p className="text-xl font-bold text-orange-600">
+          <p className="text-sm text-gray-500 dark:text-gray-400">Costos Directos</p>
+          <p className="text-xl font-bold text-orange-600 dark:text-orange-400">
             {formatCurrency(data?.total_costos_directos)}
           </p>
           <p className="text-xs text-gray-400 mt-1">
             {data?.cantidad_costos_directos || 0} movimientos
           </p>
         </div>
-        <div className="card text-center bg-red-50 border-red-200">
+        <div className="card text-center bg-red-50 dark:bg-red-950 border-red-200">
           <TrendingDown className="w-8 h-8 text-red-500 mx-auto mb-2" />
-          <p className="text-sm text-gray-500">TOTAL GASTOS</p>
-          <p className="text-2xl font-bold text-red-600">
+          <p className="text-sm text-gray-500 dark:text-gray-400">TOTAL GASTOS</p>
+          <p className="text-2xl font-bold text-red-600 dark:text-red-400">
             {formatCurrency(data?.gran_total)}
           </p>
           <p className="text-xs text-gray-400 mt-1">
@@ -204,7 +204,7 @@ export default function GastosMensuales() {
       {/* Desglose por categoría */}
       {data?.resumen_por_categoria?.length > 0 && (
         <div className="card">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             Desglose por Categoría
           </h2>
           <div className="space-y-3">
@@ -223,8 +223,8 @@ export default function GastosMensuales() {
                   className={clsx(
                     'w-full text-left p-2 rounded-lg transition-colors',
                     filtroCategoria === cat.categoria
-                      ? 'bg-gray-100 ring-2 ring-primary-300'
-                      : 'hover:bg-gray-50'
+                      ? 'bg-gray-100 dark:bg-gray-800 ring-2 ring-primary-300'
+                      : 'hover:bg-gray-50 dark:hover:bg-gray-800'
                   )}
                 >
                   <div className="flex items-center justify-between mb-1">
@@ -233,14 +233,14 @@ export default function GastosMensuales() {
                         'inline-block w-2 h-2 rounded-full',
                         cat.origen === 'operativo' ? 'bg-blue-500' : 'bg-orange-500'
                       )} />
-                      <span className="text-sm font-medium text-gray-700">
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                         {LABELS_CATEGORIAS[cat.categoria] || cat.categoria}
                       </span>
                       <span className="text-xs text-gray-400">
                         ({cat.cantidad})
                       </span>
                     </div>
-                    <span className="text-sm font-semibold text-gray-900">
+                    <span className="text-sm font-semibold text-gray-900 dark:text-white">
                       {formatCurrency(cat.total)}
                     </span>
                   </div>
@@ -279,7 +279,7 @@ export default function GastosMensuales() {
               'px-3 py-1.5 text-sm rounded-full transition-colors',
               filtroOrigen === tipo
                 ? 'bg-primary-600 text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200'
             )}
           >
             {tipo === 'todos' ? 'Todos' : tipo === 'operativo' ? 'Operativos' : 'Directos'}
@@ -288,7 +288,7 @@ export default function GastosMensuales() {
         {filtroCategoria && (
           <button
             onClick={() => setFiltroCategoria('')}
-            className="px-3 py-1.5 text-sm rounded-full bg-yellow-100 text-yellow-800 hover:bg-yellow-200"
+            className="px-3 py-1.5 text-sm rounded-full bg-yellow-100 dark:bg-yellow-900 text-yellow-800 hover:bg-yellow-200"
           >
             {LABELS_CATEGORIAS[filtroCategoria] || filtroCategoria} ✕
           </button>
@@ -297,7 +297,7 @@ export default function GastosMensuales() {
 
       {/* Tabla de gastos */}
       <div className="card overflow-hidden">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
           Detalle de Gastos ({gastosFiltrados.length})
         </h2>
 
@@ -308,22 +308,22 @@ export default function GastosMensuales() {
         ) : gastosFiltrados.length === 0 ? (
           <div className="text-center py-12">
             <Receipt className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-            <p className="text-gray-500">No hay gastos en este período</p>
+            <p className="text-gray-500 dark:text-gray-400">No hay gastos en este período</p>
           </div>
         ) : (
           <>
             {/* Mobile card view */}
             <div className="md:hidden space-y-2 -mx-2">
               {gastosFiltrados.map((g) => (
-                <div key={`${g.origen}-${g.id}`} className="p-3 rounded-lg bg-gray-50 border border-gray-100">
+                <div key={`${g.origen}-${g.id}`} className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-800">
                   <div className="flex items-start justify-between mb-1.5">
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-gray-900 text-sm truncate">
+                      <p className="font-medium text-gray-900 dark:text-white text-sm truncate">
                         {LABELS_CATEGORIAS[g.categoria] || g.categoria}
                       </p>
-                      <p className="text-xs text-gray-500 truncate">{g.descripcion}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{g.descripcion}</p>
                     </div>
-                    <p className="font-semibold text-red-600 text-sm ml-3 whitespace-nowrap">
+                    <p className="font-semibold text-red-600 dark:text-red-400 text-sm ml-3 whitespace-nowrap">
                       {formatCurrency(g.monto)}
                     </p>
                   </div>
@@ -336,7 +336,7 @@ export default function GastosMensuales() {
                     <span className={clsx(
                       'inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full font-medium',
                       g.origen === 'operativo'
-                        ? 'bg-blue-100 text-blue-700'
+                        ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-400'
                         : 'bg-orange-100 text-orange-700'
                     )}>
                       {g.origen === 'operativo' ? 'Op' : 'Dir'}
@@ -347,9 +347,9 @@ export default function GastosMensuales() {
                   </div>
                 </div>
               ))}
-              <div className="flex items-center justify-between p-3 bg-red-50 rounded-lg border border-red-200 font-bold">
-                <span className="text-gray-700">TOTAL</span>
-                <span className="text-red-700 text-lg">{formatCurrency(totalFiltrado)}</span>
+              <div className="flex items-center justify-between p-3 bg-red-50 dark:bg-red-950 rounded-lg border border-red-200 font-bold">
+                <span className="text-gray-700 dark:text-gray-300">TOTAL</span>
+                <span className="text-red-700 dark:text-red-400 text-lg">{formatCurrency(totalFiltrado)}</span>
               </div>
             </div>
 
@@ -357,19 +357,19 @@ export default function GastosMensuales() {
             <div className="hidden md:block overflow-x-auto -mx-6">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="bg-gray-50 text-left">
-                    <th className="px-6 py-3 font-medium text-gray-500">Fecha</th>
-                    <th className="px-6 py-3 font-medium text-gray-500">Tipo</th>
-                    <th className="px-6 py-3 font-medium text-gray-500">Categoría</th>
-                    <th className="px-6 py-3 font-medium text-gray-500">Descripción</th>
-                    <th className="px-6 py-3 font-medium text-gray-500">Unidad</th>
-                    <th className="px-6 py-3 font-medium text-gray-500 text-right">Monto</th>
+                  <tr className="bg-gray-50 dark:bg-gray-800 text-left">
+                    <th className="px-6 py-3 font-medium text-gray-500 dark:text-gray-400">Fecha</th>
+                    <th className="px-6 py-3 font-medium text-gray-500 dark:text-gray-400">Tipo</th>
+                    <th className="px-6 py-3 font-medium text-gray-500 dark:text-gray-400">Categoría</th>
+                    <th className="px-6 py-3 font-medium text-gray-500 dark:text-gray-400">Descripción</th>
+                    <th className="px-6 py-3 font-medium text-gray-500 dark:text-gray-400">Unidad</th>
+                    <th className="px-6 py-3 font-medium text-gray-500 dark:text-gray-400 text-right">Monto</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100">
+                <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
                   {gastosFiltrados.map((g) => (
-                    <tr key={`${g.origen}-${g.id}`} className="hover:bg-gray-50">
-                      <td className="px-6 py-3 text-gray-600 whitespace-nowrap">
+                    <tr key={`${g.origen}-${g.id}`} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                      <td className="px-6 py-3 text-gray-600 dark:text-gray-400 whitespace-nowrap">
                         {new Date(g.fecha + 'T12:00:00').toLocaleDateString('es-AR', {
                           day: '2-digit', month: '2-digit'
                         })}
@@ -378,7 +378,7 @@ export default function GastosMensuales() {
                         <span className={clsx(
                           'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium',
                           g.origen === 'operativo'
-                            ? 'bg-blue-100 text-blue-700'
+                            ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-400'
                             : 'bg-orange-100 text-orange-700'
                         )}>
                           {g.origen === 'operativo' ? (
@@ -388,27 +388,27 @@ export default function GastosMensuales() {
                           )}
                         </span>
                       </td>
-                      <td className="px-6 py-3 text-gray-700">
+                      <td className="px-6 py-3 text-gray-700 dark:text-gray-300">
                         {LABELS_CATEGORIAS[g.categoria] || g.categoria}
                       </td>
-                      <td className="px-6 py-3 text-gray-600 max-w-[200px] truncate">
+                      <td className="px-6 py-3 text-gray-600 dark:text-gray-400 max-w-[200px] truncate">
                         {g.descripcion}
                       </td>
-                      <td className="px-6 py-3 text-gray-500 text-xs">
+                      <td className="px-6 py-3 text-gray-500 dark:text-gray-400 text-xs">
                         {g.unidad_descripcion || '—'}
                       </td>
-                      <td className="px-6 py-3 text-right font-semibold text-red-600 whitespace-nowrap">
+                      <td className="px-6 py-3 text-right font-semibold text-red-600 dark:text-red-400 whitespace-nowrap">
                         {formatCurrency(g.monto)}
                       </td>
                     </tr>
                   ))}
                 </tbody>
                 <tfoot>
-                  <tr className="bg-gray-50 font-bold">
-                    <td colSpan={5} className="px-6 py-3 text-gray-700 text-right">
+                  <tr className="bg-gray-50 dark:bg-gray-800 font-bold">
+                    <td colSpan={5} className="px-6 py-3 text-gray-700 dark:text-gray-300 text-right">
                       TOTAL
                     </td>
-                    <td className="px-6 py-3 text-right text-red-700 text-lg whitespace-nowrap">
+                    <td className="px-6 py-3 text-right text-red-700 dark:text-red-400 text-lg whitespace-nowrap">
                       {formatCurrency(totalFiltrado)}
                     </td>
                   </tr>

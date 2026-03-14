@@ -26,10 +26,10 @@ import { DashboardSkeleton } from '../components/Skeletons'
 
 function StatCard({ title, value, subtitle, icon: Icon, color = 'primary', link }) {
   const colors = {
-    primary: 'bg-primary-100 text-primary-600',
-    green: 'bg-green-100 text-green-600',
-    yellow: 'bg-yellow-100 text-yellow-600',
-    red: 'bg-red-100 text-red-600',
+    primary: 'bg-primary-100 text-primary-600 dark:bg-primary-900/40 dark:text-primary-400',
+    green: 'bg-green-100 text-green-600 dark:bg-green-900/40 dark:text-green-400',
+    yellow: 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/40 dark:text-yellow-400',
+    red: 'bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-400',
   }
 
   const content = (
@@ -38,17 +38,17 @@ function StatCard({ title, value, subtitle, icon: Icon, color = 'primary', link 
         <Icon className="w-6 h-6" />
       </div>
       <div className="flex-1">
-        <p className="text-sm text-gray-500">{title}</p>
-        <p className="text-2xl font-bold text-gray-900">{value}</p>
-        {subtitle && <p className="text-xs text-gray-500 mt-1">{subtitle}</p>}
+        <p className="text-sm text-gray-500 dark:text-gray-400">{title}</p>
+        <p className="text-2xl font-bold text-gray-900 dark:text-white">{value}</p>
+        {subtitle && <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{subtitle}</p>}
       </div>
-      {link && <ArrowRight className="w-5 h-5 text-gray-400" />}
+      {link && <ArrowRight className="w-5 h-5 text-gray-400 dark:text-gray-500" />}
     </>
   )
 
   if (link) {
     return (
-      <Link to={link} className="card flex items-center gap-4 hover:border-primary-300 transition-all">
+      <Link to={link} className="card flex items-center gap-4 hover:border-primary-300 dark:hover:border-primary-600 transition-all">
         {content}
       </Link>
     )
@@ -59,9 +59,9 @@ function StatCard({ title, value, subtitle, icon: Icon, color = 'primary', link 
 
 function AlertItem({ alerta }) {
   const prioridadColors = {
-    alta: 'border-red-500 bg-red-50',
-    media: 'border-yellow-500 bg-yellow-50',
-    baja: 'border-primary-500 bg-primary-50',
+    alta: 'border-red-500 bg-red-50 dark:bg-red-950/40',
+    media: 'border-yellow-500 bg-yellow-50 dark:bg-yellow-950/40',
+    baja: 'border-primary-500 bg-primary-50 dark:bg-primary-950/40',
   }
 
   const tipoIcons = {
@@ -86,10 +86,10 @@ function AlertItem({ alerta }) {
         prioridadColors[alerta.prioridad]
       )}
     >
-      <Icon className="w-4 h-4 mt-0.5 flex-shrink-0 text-gray-600" />
+      <Icon className="w-4 h-4 mt-0.5 flex-shrink-0 text-gray-600 dark:text-gray-400" />
       <div className="flex-1 min-w-0">
-        <p className="font-medium text-gray-900 text-sm">{alerta.mensaje}</p>
-        <p className="text-xs text-gray-500 mt-1 truncate">{alerta.unidad_info}</p>
+        <p className="font-medium text-gray-900 dark:text-white text-sm">{alerta.mensaje}</p>
+        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate">{alerta.unidad_info}</p>
       </div>
     </Link>
   )
@@ -100,7 +100,9 @@ function VariacionBadge({ valor, tipo = 'cantidad' }) {
 
   const isPositive = valor > 0
   const Icon = isPositive ? ArrowUpRight : ArrowDownRight
-  const colorClass = isPositive ? 'text-green-600 bg-green-100' : 'text-red-600 bg-red-100'
+  const colorClass = isPositive
+    ? 'text-green-600 bg-green-100 dark:text-green-400 dark:bg-green-900/40'
+    : 'text-red-600 bg-red-100 dark:text-red-400 dark:bg-red-900/40'
 
   const formatted = tipo === 'dinero'
     ? `${isPositive ? '+' : ''}$${Math.abs(valor).toLocaleString('es-AR')}`
@@ -128,32 +130,44 @@ export default function Dashboard() {
   const { data: resumen, isLoading, error } = useQuery({
     queryKey: ['dashboard-resumen'],
     queryFn: async () => {
-      try {
-        const res = await dashboardAPI.resumen()
-        return res.data
-      } catch (e) {
-        console.error('Error en dashboard resumen:', e)
-        return null
-      }
+      const res = await dashboardAPI.resumen()
+      return res.data
     },
-    refetchInterval: 60000, // Actualizar cada minuto
+    refetchInterval: 60000,
+    retry: 2,
   })
 
   const { data: metricas } = useQuery({
     queryKey: ['dashboard-metricas'],
     queryFn: async () => {
-      try {
-        const res = await dashboardAPI.metricasRapidas()
-        return res.data
-      } catch (e) {
-        console.error('Error en metricas:', e)
-        return null
-      }
+      const res = await dashboardAPI.metricasRapidas()
+      return res.data
     },
+    retry: 2,
   })
 
   if (isLoading) {
     return <DashboardSkeleton />
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 text-center">
+        <div className="rounded-full bg-red-100 dark:bg-red-900/30 p-4 mb-4">
+          <svg className="w-8 h-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Error al cargar el dashboard</h3>
+        <p className="text-gray-500 dark:text-gray-400 mt-1">No se pudieron obtener los datos. Intenta recargar la pagina.</p>
+        <button
+          onClick={() => window.location.reload()}
+          className="mt-4 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition"
+        >
+          Recargar
+        </button>
+      </div>
+    )
   }
 
   const formatCurrency = (value) => {
@@ -191,18 +205,18 @@ export default function Dashboard() {
           link="/unidades"
         />
         <div className="card flex items-center gap-4">
-          <div className="p-3 rounded-xl bg-green-100 text-green-600">
+          <div className="p-3 rounded-xl bg-green-100 text-green-600 dark:bg-green-900/40 dark:text-green-400">
             <ShoppingCart className="w-6 h-6" />
           </div>
           <div className="flex-1">
-            <p className="text-sm text-gray-500">Ventas del Mes</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Ventas del Mes</p>
             <div className="flex items-center gap-2">
-              <p className="text-2xl font-bold text-gray-900">{resumen?.ventas_mes?.cantidad || 0}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{resumen?.ventas_mes?.cantidad || 0}</p>
               <VariacionBadge valor={resumen?.ventas_mes?.variacion_cantidad} tipo="cantidad" />
             </div>
-            <p className="text-xs text-gray-500 mt-1">{formatCurrency(resumen?.ventas_mes?.ingresos)}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{formatCurrency(resumen?.ventas_mes?.ingresos)}</p>
           </div>
-          <Link to="/operaciones"><ArrowRight className="w-5 h-5 text-gray-400" /></Link>
+          <Link to="/operaciones"><ArrowRight className="w-5 h-5 text-gray-400 dark:text-gray-500" /></Link>
         </div>
         <StatCard
           title="Caja Hoy"
@@ -237,24 +251,24 @@ export default function Dashboard() {
       {/* Cheques - si hay pendientes */}
       {(resumen?.cheques?.por_cobrar_7_dias > 0 || resumen?.cheques?.por_pagar_7_dias > 0) && (
         <div className="grid grid-cols-2 gap-4">
-          <Link to="/cheques" className="card flex items-center gap-4 hover:border-primary-300 transition-all bg-primary-50 border-primary-200">
-            <div className="p-3 rounded-xl bg-primary-100 text-primary-600">
+          <Link to="/cheques" className="card flex items-center gap-4 hover:border-primary-300 transition-all bg-primary-50 border-primary-200 dark:bg-primary-950/30 dark:border-primary-800">
+            <div className="p-3 rounded-xl bg-primary-100 text-primary-600 dark:bg-primary-900/40 dark:text-primary-400">
               <CreditCard className="w-6 h-6" />
             </div>
             <div className="flex-1">
-              <p className="text-sm text-primary-600">Cheques por cobrar (7 dias)</p>
-              <p className="text-xl font-bold text-gray-900">{resumen?.cheques?.por_cobrar_7_dias || 0}</p>
-              <p className="text-xs text-primary-600">{formatCurrency(resumen?.cheques?.monto_por_cobrar)}</p>
+              <p className="text-sm text-primary-600 dark:text-primary-400">Cheques por cobrar (7 dias)</p>
+              <p className="text-xl font-bold text-gray-900 dark:text-white">{resumen?.cheques?.por_cobrar_7_dias || 0}</p>
+              <p className="text-xs text-primary-600 dark:text-primary-400">{formatCurrency(resumen?.cheques?.monto_por_cobrar)}</p>
             </div>
           </Link>
-          <Link to="/cheques" className="card flex items-center gap-4 hover:border-orange-300 transition-all bg-orange-50 border-orange-200">
-            <div className="p-3 rounded-xl bg-orange-100 text-orange-600">
+          <Link to="/cheques" className="card flex items-center gap-4 hover:border-orange-300 transition-all bg-orange-50 border-orange-200 dark:bg-orange-950/30 dark:border-orange-800">
+            <div className="p-3 rounded-xl bg-orange-100 text-orange-600 dark:bg-orange-900/40 dark:text-orange-400">
               <CreditCard className="w-6 h-6" />
             </div>
             <div className="flex-1">
-              <p className="text-sm text-orange-600">Cheques por pagar (7 dias)</p>
-              <p className="text-xl font-bold text-gray-900">{resumen?.cheques?.por_pagar_7_dias || 0}</p>
-              <p className="text-xs text-orange-600">{formatCurrency(resumen?.cheques?.monto_por_pagar)}</p>
+              <p className="text-sm text-orange-600 dark:text-orange-400">Cheques por pagar (7 dias)</p>
+              <p className="text-xl font-bold text-gray-900 dark:text-white">{resumen?.cheques?.por_pagar_7_dias || 0}</p>
+              <p className="text-xs text-orange-600 dark:text-orange-400">{formatCurrency(resumen?.cheques?.monto_por_pagar)}</p>
             </div>
           </Link>
         </div>
@@ -264,15 +278,15 @@ export default function Dashboard() {
       {resumen?.seguimientos_pendientes > 0 && (
         <Link
           to="/agenda"
-          className="card flex items-center gap-4 hover:border-orange-300 transition-all bg-orange-50 border-orange-200"
+          className="card flex items-center gap-4 hover:border-orange-300 transition-all bg-orange-50 border-orange-200 dark:bg-orange-950/30 dark:border-orange-800"
         >
-          <div className="p-3 rounded-xl bg-orange-100 text-orange-600">
+          <div className="p-3 rounded-xl bg-orange-100 text-orange-600 dark:bg-orange-900/40 dark:text-orange-400">
             <CalendarCheck className="w-6 h-6" />
           </div>
           <div className="flex-1">
-            <p className="text-sm text-orange-600">Tareas Pendientes</p>
-            <p className="text-xl font-bold text-gray-900">{resumen.seguimientos_pendientes}</p>
-            <p className="text-xs text-orange-600">Para hoy o vencidas → ver agenda</p>
+            <p className="text-sm text-orange-600 dark:text-orange-400">Tareas Pendientes</p>
+            <p className="text-xl font-bold text-gray-900 dark:text-white">{resumen.seguimientos_pendientes}</p>
+            <p className="text-xs text-orange-600 dark:text-orange-400">Para hoy o vencidas → ver agenda</p>
           </div>
           <ArrowRight className="w-5 h-5 text-orange-400" />
         </Link>
@@ -281,20 +295,20 @@ export default function Dashboard() {
       {/* Metricas rapidas */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="card text-center">
-          <p className="text-3xl font-bold text-primary-600">{metricas?.ventas_7_dias || 0}</p>
-          <p className="text-sm text-gray-500">Ventas ultima semana</p>
+          <p className="text-3xl font-bold text-primary-600 dark:text-primary-400">{metricas?.ventas_7_dias || 0}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Ventas ultima semana</p>
         </div>
         <div className="card text-center">
-          <p className="text-3xl font-bold text-primary-600">{metricas?.unidades_nuevas_semana || 0}</p>
-          <p className="text-sm text-gray-500">Ingresos esta semana</p>
+          <p className="text-3xl font-bold text-primary-600 dark:text-primary-400">{metricas?.unidades_nuevas_semana || 0}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Ingresos esta semana</p>
         </div>
         <div className="card text-center">
-          <p className="text-3xl font-bold text-yellow-600">{resumen?.stock?.inmovilizadas || 0}</p>
-          <p className="text-sm text-gray-500">Stock inmovilizado</p>
+          <p className="text-3xl font-bold text-yellow-600 dark:text-yellow-400">{resumen?.stock?.inmovilizadas || 0}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Stock inmovilizado</p>
         </div>
         <div className="card text-center">
-          <p className="text-3xl font-bold text-primary-600">{metricas?.total_clientes || 0}</p>
-          <p className="text-sm text-gray-500">Clientes registrados</p>
+          <p className="text-3xl font-bold text-primary-600 dark:text-primary-400">{metricas?.total_clientes || 0}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Clientes registrados</p>
         </div>
       </div>
 
@@ -302,7 +316,7 @@ export default function Dashboard() {
         {/* Alertas */}
         <div className="card">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
               <AlertTriangle className="w-5 h-5 text-yellow-500" />
               Alertas Activas
             </h2>
@@ -310,7 +324,7 @@ export default function Dashboard() {
           </div>
 
           {resumen?.alertas?.length === 0 ? (
-            <p className="text-gray-500 text-center py-8">No hay alertas activas. Todo en orden.</p>
+            <p className="text-gray-500 dark:text-gray-400 text-center py-8">No hay alertas activas. Todo en orden.</p>
           ) : (
             <div className="space-y-3 max-h-80 overflow-y-auto">
               {resumen?.alertas?.slice(0, 8).map((alerta, i) => (
@@ -323,30 +337,30 @@ export default function Dashboard() {
         {/* Ultimas ventas */}
         <div className="card">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">Ultimas Ventas</h2>
-            <Link to="/operaciones" className="text-primary-600 text-sm hover:text-primary-700 transition-colors">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Ultimas Ventas</h2>
+            <Link to="/operaciones" className="text-primary-600 dark:text-primary-400 text-sm hover:text-primary-700 dark:hover:text-primary-300 transition-colors">
               Ver todas
             </Link>
           </div>
 
           {resumen?.ultimas_ventas?.length === 0 ? (
-            <p className="text-gray-500 text-center py-8">No hay ventas recientes</p>
+            <p className="text-gray-500 dark:text-gray-400 text-center py-8">No hay ventas recientes</p>
           ) : (
             <div className="space-y-3">
               {resumen?.ultimas_ventas?.map((venta) => (
                 <Link
                   key={venta.id}
                   to={`/operaciones`}
-                  className="block p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors border border-gray-200"
+                  className="block p-3 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-750 transition-colors border border-gray-200 dark:border-gray-700"
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="font-medium text-gray-900">{venta.unidad}</p>
-                      <p className="text-sm text-gray-500">{venta.cliente}</p>
+                      <p className="font-medium text-gray-900 dark:text-white">{venta.unidad}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{venta.cliente}</p>
                     </div>
                     <div className="text-right">
-                      <p className="font-semibold text-green-600">{formatCurrency(venta.monto)}</p>
-                      <p className="text-xs text-gray-500">
+                      <p className="font-semibold text-green-600 dark:text-green-400">{formatCurrency(venta.monto)}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         {format(new Date(venta.fecha), 'dd/MM/yyyy')}
                       </p>
                     </div>
@@ -362,17 +376,17 @@ export default function Dashboard() {
       <div className="lg:hidden grid grid-cols-2 gap-4">
         <Link
           to="/unidades/nuevo"
-          className="card flex flex-col items-center justify-center py-6 text-center hover:border-primary-300 transition-all"
+          className="card flex flex-col items-center justify-center py-6 text-center hover:border-primary-300 dark:hover:border-primary-600 transition-all"
         >
-          <Car className="w-8 h-8 text-primary-600 mb-2" />
-          <span className="font-medium text-gray-900">Nueva Unidad</span>
+          <Car className="w-8 h-8 text-primary-600 dark:text-primary-400 mb-2" />
+          <span className="font-medium text-gray-900 dark:text-white">Nueva Unidad</span>
         </Link>
         <Link
           to="/costo-rapido"
-          className="card flex flex-col items-center justify-center py-6 text-center hover:border-primary-300 transition-all"
+          className="card flex flex-col items-center justify-center py-6 text-center hover:border-primary-300 dark:hover:border-primary-600 transition-all"
         >
-          <DollarSign className="w-8 h-8 text-primary-600 mb-2" />
-          <span className="font-medium text-gray-900">Cargar Gasto</span>
+          <DollarSign className="w-8 h-8 text-primary-600 dark:text-primary-400 mb-2" />
+          <span className="font-medium text-gray-900 dark:text-white">Cargar Gasto</span>
         </Link>
       </div>
     </div>

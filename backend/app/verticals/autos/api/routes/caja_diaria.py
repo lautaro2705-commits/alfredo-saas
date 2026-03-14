@@ -17,6 +17,7 @@ from app.verticals.autos.schemas.caja_diaria import (
     ResumenCajaDiaria
 )
 from app.verticals.autos.models.actividad import registrar_actividad, AccionActividad, EntidadActividad
+from app.core.soft_delete import soft_delete
 
 router = APIRouter(prefix="/autos/caja", tags=["autos-caja"])
 
@@ -33,7 +34,7 @@ async def listar_movimientos(
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
     """Listar movimientos de caja con filtros"""
-    stmt = select(CajaDiaria)
+    stmt = select(CajaDiaria).where(CajaDiaria.active())
 
     if tipo:
         stmt = stmt.where(CajaDiaria.tipo == tipo)
@@ -77,7 +78,7 @@ async def resumen_diario(
         tz_argentina = ZoneInfo("America/Argentina/Buenos_Aires")
         fecha = datetime.now(tz_argentina).date()
 
-    result = await db.execute(select(CajaDiaria).where(CajaDiaria.fecha == fecha))
+    result = await db.execute(select(CajaDiaria).where(CajaDiaria.active(), CajaDiaria.fecha == fecha))
     movimientos = result.scalars().all()
 
     total_ingresos = sum(m.monto for m in movimientos if m.tipo == TipoMovimiento.INGRESO)
@@ -130,8 +131,7 @@ async def eliminar_movimiento(
     if movimiento.cierre_caja_id:
         raise HTTPException(status_code=400, detail="No se puede eliminar un movimiento de un cierre cerrado")
 
-    await db.delete(movimiento)
-    await db.commit()
+    await soft_delete(db, movimiento, deleted_by=token.user_id)
     return {"mensaje": "Movimiento eliminado"}
 
 
@@ -144,7 +144,7 @@ async def listar_cierres(
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
     """Listar cierres de caja"""
-    stmt = select(CierreCaja)
+    stmt = select(CierreCaja).where(CierreCaja.active())
     if anio:
         stmt = stmt.where(CierreCaja.anio == anio)
     stmt = stmt.order_by(CierreCaja.anio.desc(), CierreCaja.mes.desc())
@@ -162,6 +162,7 @@ async def obtener_cierre(
     """Obtener cierre de un mes específico"""
     result = await db.execute(
         select(CierreCaja).where(
+            CierreCaja.active(),
             CierreCaja.mes == mes,
             CierreCaja.anio == anio
         )
@@ -192,6 +193,7 @@ async def calcular_cierre(
     # Movimientos de caja del mes
     result = await db.execute(
         select(CajaDiaria).where(
+            CajaDiaria.active(),
             CajaDiaria.fecha >= primer_dia,
             CajaDiaria.fecha <= ultimo_dia
         )
@@ -204,6 +206,7 @@ async def calcular_cierre(
     # Operaciones completadas del mes
     result = await db.execute(
         select(Operacion).where(
+            Operacion.active(),
             Operacion.fecha_operacion >= primer_dia,
             Operacion.fecha_operacion <= ultimo_dia,
             Operacion.estado == EstadoOperacion.COMPLETADA
@@ -253,6 +256,7 @@ async def crear_cierre(
     # Verificar que no exista cierre
     result = await db.execute(
         select(CierreCaja).where(
+            CierreCaja.active(),
             CierreCaja.mes == cierre.mes,
             CierreCaja.anio == cierre.anio
         )
@@ -268,6 +272,7 @@ async def crear_cierre(
 
     result = await db.execute(
         select(CajaDiaria).where(
+            CajaDiaria.active(),
             CajaDiaria.fecha >= primer_dia,
             CajaDiaria.fecha <= ultimo_dia
         )
@@ -280,6 +285,7 @@ async def crear_cierre(
     # Operaciones del mes
     result = await db.execute(
         select(Operacion).where(
+            Operacion.active(),
             Operacion.fecha_operacion >= primer_dia,
             Operacion.fecha_operacion <= ultimo_dia,
             Operacion.estado == EstadoOperacion.COMPLETADA
@@ -293,6 +299,7 @@ async def crear_cierre(
     # Costos directos del período
     result = await db.execute(
         select(func.sum(CostoDirecto.monto)).where(
+            CostoDirecto.active(),
             CostoDirecto.fecha >= primer_dia,
             CostoDirecto.fecha <= ultimo_dia
         )

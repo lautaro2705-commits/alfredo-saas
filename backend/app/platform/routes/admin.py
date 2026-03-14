@@ -9,29 +9,34 @@ Endpoints:
   - GET    /admin/tenants/{id}       — tenant detail + users + subscription
   - PUT    /admin/tenants/{id}       — update tenant (activate/deactivate, plan)
   - POST   /admin/tenants/{id}/impersonate — get token as tenant admin
+  - POST   /admin/gift              — regalar acceso a una agencia
 """
 import logging
 from datetime import datetime, timedelta, timezone
+from typing import Optional
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select, func, case
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.database import get_db
+from app.core.database import get_db, set_tenant_context
 from app.core.security import (
     TokenContext, require_platform_admin, create_access_token,
+    get_password_hash,
 )
 from app.platform.models import (
     Tenant, PlanTier, PlatformUser,
     Subscription, SubscriptionStatus, PaymentRecord, PaymentStatus,
 )
-from app.platform.models.user import PERMISOS_POR_ROL
+from app.platform.models.user import RolUsuario, PERMISOS_POR_ROL
 from app.platform.schemas.admin import (
     TenantSummary, TenantListResponse, TenantDetail,
     TenantUserInfo, TenantSubscriptionInfo, TenantUpdate,
     PlatformMetrics, ImpersonateResponse,
+    GiftRequest, GiftResponse,
 )
+from app.platform.services.plans import get_plan_config, UNLIMITED
 
 logger = logging.getLogger(__name__)
 
@@ -402,4 +407,128 @@ async def impersonate_tenant(
         vertical="autos",
         plan=tenant.plan.value,
         message=f"Impersonando {tenant.nombre} por 1 hora",
+    )
+
+
+# ── Resolve gift limits ──
+
+def resolve_gift_limits(plan: str, dias: int) -> Optional[dict]:
+    """
+    Regalo = acceso premium completo sin restricciones.
+    Solo accesible vía superadmin, no hay forma pública de obtener esto.
+    """
+    try:
+        plan_tier = PlanTier(plan)
+    except ValueError:
+        return None
+
+    # Regalos siempre van con todo: unlimited users, unlimited items, status ACTIVE.
+    # El plan del tenant refleja lo que se regaló (para métricas/reportes),
+    # pero los límites son siempre los máximos.
+    return {
+        "max_usuarios": "unlimited",
+        "max_items": "unlimited",
+        "plan_tier": plan_tier,
+        "sub_status": SubscriptionStatus.ACTIVE,
+    }
+
+
+# ── Gift access ──
+
+@router.post("/gift", response_model=GiftResponse, status_code=status.HTTP_201_CREATED)
+async def gift_access(
+    body: GiftRequest,
+    token: TokenContext = platform_admin,
+    db: AsyncSession = Depends(get_db),
+):
+    """Regalar acceso a una nueva agencia — crea tenant + admin + suscripción."""
+
+    # Validar email único
+    existing = await db.execute(
+        select(PlatformUser).where(PlatformUser.email == body.admin_email)
+    )
+    if existing.scalar_one_or_none():
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"Ya existe una cuenta con el email {body.admin_email}",
+        )
+
+    # Resolver límites según plan regalado
+    gift = resolve_gift_limits(body.plan, body.dias)
+    if gift is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Plan '{body.plan}' no válido. Opciones: trial, basico, profesional, premium",
+        )
+
+    acceso_hasta = datetime.now(timezone.utc) + timedelta(days=body.dias)
+
+    # 1. Crear tenant
+    tenant = Tenant(
+        nombre=body.nombre_agencia,
+        vertical="autos",
+        email_contacto=body.email_contacto,
+        telefono=body.telefono,
+        plan=gift["plan_tier"],
+        activa=True,
+        trial_ends_at=acceso_hasta,
+        max_usuarios=gift["max_usuarios"],
+        max_items=gift["max_items"],
+        settings={
+            "moneda_principal": "ARS",
+            "timezone": "America/Argentina/Buenos_Aires",
+            "gift_from": token.username,
+            "gift_motivo": body.motivo,
+            "gift_dias": body.dias,
+        },
+    )
+    db.add(tenant)
+    await db.flush()
+
+    # Set RLS context
+    await set_tenant_context(db, str(tenant.id))
+
+    # 2. Crear usuario admin
+    username = body.admin_email.split("@")[0]
+    admin_user = PlatformUser(
+        tenant_id=tenant.id,
+        username=username,
+        email=body.admin_email,
+        hashed_password=get_password_hash(body.admin_password),
+        nombre=body.admin_nombre,
+        apellido=body.admin_apellido,
+        rol=RolUsuario.ADMIN,
+        activo=True,
+    )
+    db.add(admin_user)
+    await db.flush()
+
+    # 3. Crear suscripción
+    subscription = Subscription(
+        tenant_id=tenant.id,
+        plan=body.plan,
+        status=gift["sub_status"],
+        trial_end=acceso_hasta,
+        current_period_start=datetime.now(timezone.utc),
+        current_period_end=acceso_hasta,
+        amount=0,
+        currency="ARS",
+    )
+    db.add(subscription)
+
+    await db.commit()
+
+    logger.info(
+        "🎁 Gift: %s regaló plan '%s' (%d días) a '%s' (%s) — motivo: %s",
+        token.username, body.plan, body.dias,
+        body.nombre_agencia, body.admin_email, body.motivo,
+    )
+
+    return GiftResponse(
+        tenant_id=tenant.id,
+        tenant_name=tenant.nombre,
+        plan=body.plan,
+        acceso_hasta=acceso_hasta,
+        admin_email=body.admin_email,
+        message=f"Acceso '{body.plan}' regalado a {body.nombre_agencia} por {body.dias} días",
     )

@@ -1,10 +1,10 @@
 from sqlalchemy import Column, Integer, String, DateTime, Text, Boolean
 from sqlalchemy.sql import func
 from app.core.database import Base
-from app.verticals.autos.models.mixins import TenantMixin
+from app.verticals.autos.models.mixins import TenantMixin, SoftDeleteMixin
 
 
-class Proveedor(TenantMixin, Base):
+class Proveedor(SoftDeleteMixin, TenantMixin, Base):
     """Proveedores de servicios (mecánicos, pintores, gestores, etc.)"""
     __tablename__ = "proveedores"
 

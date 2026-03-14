@@ -101,17 +101,17 @@ export default function OperacionForm() {
     <div className="max-w-3xl mx-auto space-y-6 pb-20 lg:pb-0">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Link to="/operaciones" className="p-2 hover:bg-gray-100 rounded-lg">
+        <Link to="/operaciones" className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
           <ArrowLeft className="w-5 h-5" />
         </Link>
-        <h1 className="text-2xl font-bold text-gray-900">Nueva Operación de Venta</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Nueva Operación de Venta</h1>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Fecha de operación */}
         <div className="card">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-primary-600" />
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+            <Calendar className="w-5 h-5 text-primary-600 dark:text-primary-400" />
             Fecha de la Operación
           </h2>
           <input
@@ -126,7 +126,7 @@ export default function OperacionForm() {
 
         {/* Selección de unidad */}
         <div className="card">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
             <Car className="w-5 h-5" />
             Unidad a Vender
           </h2>
@@ -149,7 +149,7 @@ export default function OperacionForm() {
 
         {/* Cliente */}
         <div className="card">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Cliente</h2>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Cliente</h2>
 
           <select
             className="input"
@@ -165,14 +165,14 @@ export default function OperacionForm() {
           {errors.cliente_id && (
             <p className="text-red-500 text-sm mt-1">{errors.cliente_id.message}</p>
           )}
-          <Link to="/clientes" className="text-primary-600 text-sm hover:underline mt-2 inline-block">
+          <Link to="/clientes" className="text-primary-600 dark:text-primary-400 text-sm hover:underline mt-2 inline-block">
             + Agregar nuevo cliente
           </Link>
         </div>
 
         {/* Vendedor */}
         <div className="card">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
             <User className="w-5 h-5" />
             Vendedor
           </h2>
@@ -188,12 +188,12 @@ export default function OperacionForm() {
               </option>
             ))}
           </select>
-          <p className="text-gray-500 text-sm mt-1">Si no selecciona, se asignará automáticamente al usuario actual</p>
+          <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Si no selecciona, se asignará automáticamente al usuario actual</p>
         </div>
 
         {/* Precio y forma de pago */}
         <div className="card">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Condiciones de Venta</h2>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Condiciones de Venta</h2>
 
           <div className="grid md:grid-cols-2 gap-4">
             <div>
@@ -256,20 +256,20 @@ export default function OperacionForm() {
         {/* Retoma */}
         <div className="card">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">Retoma</h2>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Retoma</h2>
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
                 checked={conRetoma}
                 onChange={(e) => setConRetoma(e.target.checked)}
-                className="w-4 h-4 rounded border-gray-300 text-primary-600"
+                className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-primary-600 dark:text-primary-400"
               />
-              <span className="text-sm text-gray-600">Incluye retoma</span>
+              <span className="text-sm text-gray-600 dark:text-gray-400">Incluye retoma</span>
             </label>
           </div>
 
           {conRetoma && (
-            <div className="grid md:grid-cols-2 gap-4 p-4 bg-blue-50 rounded-lg">
+            <div className="grid md:grid-cols-2 gap-4 p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
               <div>
                 <label className="label">Marca *</label>
                 <input
@@ -331,7 +331,7 @@ export default function OperacionForm() {
           )}
 
           {conRetoma && precioVenta && retomaValor && (
-            <div className="mt-4 p-4 bg-green-50 rounded-lg">
+            <div className="mt-4 p-4 bg-green-50 dark:bg-green-950 rounded-lg">
               <p className="text-green-800">
                 <span className="font-medium">Monto neto a recibir: </span>
                 {formatCurrency(parseFloat(precioVenta) - parseFloat(retomaValor))}

@@ -46,7 +46,7 @@ export default function NotificacionesBadge() {
       {/* Botón con badge */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+        className="relative p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
       >
         <Bell className="w-5 h-5" />
         {count > 0 && (
@@ -64,9 +64,9 @@ export default function NotificacionesBadge() {
             onClick={() => setIsOpen(false)}
           />
 
-          <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-gray-200 z-50 overflow-hidden">
-            <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50">
-              <h3 className="font-semibold text-gray-900">Notificaciones</h3>
+          <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 z-50 overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+              <h3 className="font-semibold text-gray-900 dark:text-white">Notificaciones</h3>
               <button
                 onClick={() => setIsOpen(false)}
                 className="p-1 text-gray-400 hover:text-gray-600 rounded"
@@ -77,27 +77,27 @@ export default function NotificacionesBadge() {
 
             <div className="max-h-80 overflow-y-auto">
               {count === 0 ? (
-                <div className="p-4 text-center text-gray-500">
+                <div className="p-4 text-center text-gray-500 dark:text-gray-400">
                   No hay notificaciones
                 </div>
               ) : (
-                <div className="divide-y divide-gray-100">
+                <div className="divide-y divide-gray-100 dark:divide-gray-800">
                   {/* Seguimientos pendientes/vencidos */}
                   {segPendientes.slice(0, 5).map((seg) => (
                     <Link
                       key={`seg-${seg.id}`}
                       to="/agenda"
                       onClick={() => setIsOpen(false)}
-                      className="flex items-start gap-3 p-4 hover:bg-gray-50 transition-colors"
+                      className="flex items-start gap-3 p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                     >
                       <div className="flex-shrink-0 w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center">
-                        <CalendarCheck className="w-5 h-5 text-orange-600" />
+                        <CalendarCheck className="w-5 h-5 text-orange-600 dark:text-orange-400" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">
+                        <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
                           {seg.titulo}
                         </p>
-                        <p className="text-sm text-gray-500 truncate">
+                        <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
                           {seg.cliente_nombre || seg.interesado_nombre || seg.unidad_info || 'Sin vincular'}
                         </p>
                         <p className="text-xs text-gray-400 mt-1">
@@ -106,7 +106,7 @@ export default function NotificacionesBadge() {
                       </div>
                       <div className={clsx(
                         'flex-shrink-0 px-2 py-1 rounded-full text-xs font-medium',
-                        seg.vencido ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'
+                        seg.vencido ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-400' : 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-400'
                       )}>
                         {seg.prioridad}
                       </div>
@@ -119,16 +119,16 @@ export default function NotificacionesBadge() {
                       key={`per-${peritaje.id}`}
                       to={`/peritajes/${peritaje.id}`}
                       onClick={() => setIsOpen(false)}
-                      className="flex items-start gap-3 p-4 hover:bg-gray-50 transition-colors"
+                      className="flex items-start gap-3 p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                     >
-                      <div className="flex-shrink-0 w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                        <ClipboardCheck className="w-5 h-5 text-blue-600" />
+                      <div className="flex-shrink-0 w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
+                        <ClipboardCheck className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">
+                        <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
                           Peritaje pendiente de aprobación
                         </p>
-                        <p className="text-sm text-gray-500 truncate">
+                        <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
                           {peritaje.vehiculo_descripcion}
                         </p>
                         <p className="text-xs text-gray-400 mt-1">
@@ -137,9 +137,9 @@ export default function NotificacionesBadge() {
                       </div>
                       <div className={clsx(
                         'flex-shrink-0 px-2 py-1 rounded-full text-xs font-medium',
-                        peritaje.puntaje_total >= 70 ? 'bg-green-100 text-green-700' :
-                        peritaje.puntaje_total >= 40 ? 'bg-yellow-100 text-yellow-700' :
-                        'bg-red-100 text-red-700'
+                        peritaje.puntaje_total >= 70 ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-400' :
+                        peritaje.puntaje_total >= 40 ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-400' :
+                        'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-400'
                       )}>
                         {Math.round(peritaje.puntaje_total)}%
                       </div>
@@ -153,7 +153,7 @@ export default function NotificacionesBadge() {
               <Link
                 to="/agenda"
                 onClick={() => setIsOpen(false)}
-                className="block p-3 text-center text-sm font-medium text-primary-600 hover:bg-primary-50 border-t border-gray-200"
+                className="block p-3 text-center text-sm font-medium text-primary-600 dark:text-primary-400 hover:bg-primary-50 border-t border-gray-200 dark:border-gray-700"
               >
                 Ver todas las notificaciones
               </Link>

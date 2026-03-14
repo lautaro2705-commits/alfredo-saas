@@ -28,9 +28,13 @@ PLANS: dict[str, PlanConfig] = {
         name="trial",
         display_name="Trial (14 dias)",
         price_ars=0,
-        max_usuarios=2,
-        max_items=30,
-        features=["stock", "clientes", "operaciones", "caja", "reportes_basicos"],
+        max_usuarios=UNLIMITED,
+        max_items=UNLIMITED,
+        features=[
+            "stock", "clientes", "operaciones", "caja", "reportes_basicos",
+            "cheques", "mercadolibre", "peritajes", "reportes_avanzados",
+            "inteligencia", "api", "soporte_prioritario",
+        ],
     ),
     "basico": PlanConfig(
         name="basico",

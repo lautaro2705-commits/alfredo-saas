@@ -17,10 +17,10 @@ import { ScoreBadge } from '../components/peritaje/ScoreCard'
 
 // Configuración de estados
 const ESTADOS = {
-  borrador: { label: 'Borrador', color: 'bg-gray-100 text-gray-800' },
-  completado: { label: 'Completado', color: 'bg-blue-100 text-blue-800' },
-  aprobado: { label: 'Aprobado', color: 'bg-green-100 text-green-800' },
-  rechazado: { label: 'Rechazado', color: 'bg-red-100 text-red-800' }
+  borrador: { label: 'Borrador', color: 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200' },
+  completado: { label: 'Completado', color: 'bg-blue-100 dark:bg-blue-900 text-blue-800' },
+  aprobado: { label: 'Aprobado', color: 'bg-green-100 dark:bg-green-900 text-green-800' },
+  rechazado: { label: 'Rechazado', color: 'bg-red-100 dark:bg-red-900 text-red-800' }
 }
 
 const TIPOS = {
@@ -64,8 +64,8 @@ export default function Peritajes() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Peritajes</h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Peritajes</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
             Inspecciones vehiculares realizadas
           </p>
         </div>
@@ -79,7 +79,7 @@ export default function Peritajes() {
       </div>
 
       {/* Barra de búsqueda y filtros */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
         <div className="flex gap-2">
           {/* Búsqueda */}
           <div className="flex-1 relative">
@@ -108,7 +108,7 @@ export default function Peritajes() {
 
         {/* Panel de filtros */}
         {showFilters && (
-          <div className="mt-4 pt-4 border-t border-gray-200 grid grid-cols-2 gap-4">
+          <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 grid grid-cols-2 gap-4">
             <div>
               <label className="label">Estado</label>
               <select
@@ -145,16 +145,16 @@ export default function Peritajes() {
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
         </div>
       ) : error ? (
-        <div className="bg-red-50 text-red-700 p-4 rounded-xl">
+        <div className="bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-400 p-4 rounded-xl">
           Error al cargar los peritajes: {error.message}
         </div>
       ) : peritajesFiltrados.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-12 text-center">
           <ClipboardCheck className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
             No hay peritajes
           </h3>
-          <p className="text-gray-500 mb-4">
+          <p className="text-gray-500 dark:text-gray-400 mb-4">
             {filtros.busqueda || filtros.estado || filtros.tipo
               ? 'No se encontraron peritajes con los filtros aplicados'
               : 'Comienza creando tu primer peritaje'
@@ -184,19 +184,19 @@ function PeritajeCard({ peritaje }) {
   return (
     <Link
       to={`/peritajes/${peritaje.id}`}
-      className="block bg-white rounded-xl shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow"
+      className="block bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition-shadow"
     >
       <div className="flex items-start justify-between gap-4">
         {/* Info principal */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-lg">{tipo.icon}</span>
-            <h3 className="font-semibold text-gray-900 truncate">
+            <h3 className="font-semibold text-gray-900 dark:text-white truncate">
               {peritaje.vehiculo_descripcion}
             </h3>
           </div>
 
-          <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-gray-500">
+          <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
             <span className="flex items-center gap-1">
               <Calendar className="w-4 h-4" />
               {format(new Date(peritaje.fecha_peritaje), 'dd/MM/yyyy', { locale: es })}
@@ -210,7 +210,7 @@ function PeritajeCard({ peritaje }) {
           {/* Barra de progreso */}
           {peritaje.estado === 'borrador' && (
             <div className="mt-3">
-              <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
+              <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
                 <span>Progreso</span>
                 <span>{Math.round(peritaje.porcentaje_completado)}%</span>
               </div>

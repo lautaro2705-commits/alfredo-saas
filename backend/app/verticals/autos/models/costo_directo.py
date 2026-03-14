@@ -3,7 +3,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.core.database import Base
-from app.verticals.autos.models.mixins import TenantMixin
+from app.verticals.autos.models.mixins import TenantMixin, SoftDeleteMixin
 import enum
 
 
@@ -22,7 +22,7 @@ class CategoriaCosto(str, enum.Enum):
     OTROS = "otros"
 
 
-class CostoDirecto(TenantMixin, Base):
+class CostoDirecto(SoftDeleteMixin, TenantMixin, Base):
     """
     Costos vinculados directamente a una unidad específica.
     Incluye: reparaciones, gestoría, lavado, etc.

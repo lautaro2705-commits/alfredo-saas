@@ -18,10 +18,10 @@ class ErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-800">
           <div className="text-center p-8">
-            <h1 className="text-2xl font-bold text-red-600 mb-4">Algo salió mal</h1>
-            <p className="text-gray-600 mb-4">Ha ocurrido un error en la aplicación.</p>
+            <h1 className="text-2xl font-bold text-red-600 dark:text-red-400 mb-4">Algo salió mal</h1>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">Ha ocurrido un error en la aplicación.</p>
             <button
               onClick={() => {
                 clearAuthData()
@@ -31,9 +31,9 @@ class ErrorBoundary extends React.Component {
             >
               Volver al Login
             </button>
-            <details className="mt-4 text-left text-sm text-gray-500">
+            <details className="mt-4 text-left text-sm text-gray-500 dark:text-gray-400">
               <summary>Detalles del error</summary>
-              <pre className="mt-2 p-2 bg-gray-100 rounded overflow-auto">
+              <pre className="mt-2 p-2 bg-gray-100 dark:bg-gray-800 rounded overflow-auto">
                 {this.state.error?.toString()}
               </pre>
             </details>

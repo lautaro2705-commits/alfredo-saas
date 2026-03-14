@@ -118,8 +118,8 @@ export default function Reportes() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Reportes</h1>
-            <p className="text-gray-500">Análisis de utilidad y rendimiento</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Reportes</h1>
+            <p className="text-gray-500 dark:text-gray-400">Análisis de utilidad y rendimiento</p>
           </div>
           {reporteUtilidad?.unidades_vendidas?.length > 0 && (
             <ExportButton onClick={handleExportar} />
@@ -134,7 +134,7 @@ export default function Reportes() {
                 'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
                 periodo === p
                   ? 'bg-primary-600 text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200'
               )}
             >
               {p === 'mes' ? 'Mes' : p === 'trimestre' ? 'Trimestre' : 'Año'}
@@ -153,7 +153,7 @@ export default function Reportes() {
             onChange={(e) => setFechaDesde(e.target.value)}
             className="input w-auto"
           />
-          <span className="text-gray-500">a</span>
+          <span className="text-gray-500 dark:text-gray-400">a</span>
           <input
             type="date"
             value={fechaHasta}
@@ -167,48 +167,48 @@ export default function Reportes() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="card">
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <Car className="w-5 h-5 text-blue-600" />
+            <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+              <Car className="w-5 h-5 text-blue-600 dark:text-blue-400" />
             </div>
-            <span className="text-sm text-gray-500">Ventas</span>
+            <span className="text-sm text-gray-500 dark:text-gray-400">Ventas</span>
           </div>
-          <p className="text-2xl font-bold text-gray-900">
+          <p className="text-2xl font-bold text-gray-900 dark:text-white">
             {reporteUtilidad?.cantidad_ventas || 0}
           </p>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             {formatCurrency(reporteUtilidad?.total_ventas)}
           </p>
         </div>
 
         <div className="card">
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-red-100 rounded-lg">
-              <TrendingDown className="w-5 h-5 text-red-600" />
+            <div className="p-2 bg-red-100 dark:bg-red-900 rounded-lg">
+              <TrendingDown className="w-5 h-5 text-red-600 dark:text-red-400" />
             </div>
-            <span className="text-sm text-gray-500">Costos</span>
+            <span className="text-sm text-gray-500 dark:text-gray-400">Costos</span>
           </div>
-          <p className="text-2xl font-bold text-gray-900">
+          <p className="text-2xl font-bold text-gray-900 dark:text-white">
             {formatCurrency(
               (reporteUtilidad?.total_costo_adquisicion || 0) +
               (reporteUtilidad?.total_costos_directos || 0)
             )}
           </p>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             Adq: {formatCurrency(reporteUtilidad?.total_costo_adquisicion)}
           </p>
         </div>
 
         <div className="card">
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <TrendingUp className="w-5 h-5 text-green-600" />
+            <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
+              <TrendingUp className="w-5 h-5 text-green-600 dark:text-green-400" />
             </div>
-            <span className="text-sm text-gray-500">Utilidad Bruta</span>
+            <span className="text-sm text-gray-500 dark:text-gray-400">Utilidad Bruta</span>
           </div>
-          <p className="text-2xl font-bold text-green-600">
+          <p className="text-2xl font-bold text-green-600 dark:text-green-400">
             {formatCurrency(reporteUtilidad?.utilidad_bruta_total)}
           </p>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             Margen: {reporteUtilidad?.margen_bruto_promedio || 0}%
           </p>
         </div>
@@ -216,17 +216,17 @@ export default function Reportes() {
         <div className="card">
           <div className="flex items-center gap-3 mb-2">
             <div className="p-2 bg-purple-100 rounded-lg">
-              <DollarSign className="w-5 h-5 text-purple-600" />
+              <DollarSign className="w-5 h-5 text-purple-600 dark:text-purple-400" />
             </div>
-            <span className="text-sm text-gray-500">Utilidad Neta</span>
+            <span className="text-sm text-gray-500 dark:text-gray-400">Utilidad Neta</span>
           </div>
           <p className={clsx(
             'text-2xl font-bold',
-            (reporteUtilidad?.utilidad_neta || 0) >= 0 ? 'text-green-600' : 'text-red-600'
+            (reporteUtilidad?.utilidad_neta || 0) >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
           )}>
             {formatCurrency(reporteUtilidad?.utilidad_neta)}
           </p>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             Gastos fijos: {formatCurrency(reporteUtilidad?.total_gastos_fijos)}
           </p>
         </div>
@@ -235,7 +235,7 @@ export default function Reportes() {
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Gráfico de ventas mensuales */}
         <div className="card">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Ventas Mensuales</h3>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Ventas Mensuales</h3>
           {ventasMensuales?.meses && (
             <ResponsiveContainer width="100%" height={250}>
               <BarChart data={ventasMensuales.meses}>
@@ -258,7 +258,7 @@ export default function Reportes() {
 
         {/* Distribución de stock */}
         <div className="card">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Estado del Stock</h3>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Estado del Stock</h3>
           <div className="flex items-center justify-between">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
@@ -279,11 +279,11 @@ export default function Reportes() {
               </div>
             </div>
             <div className="text-right">
-              <p className="text-3xl font-bold text-primary-600">
+              <p className="text-3xl font-bold text-primary-600 dark:text-primary-400">
                 {reporteStock?.total_unidades}
               </p>
-              <p className="text-sm text-gray-500">unidades</p>
-              <p className="text-lg font-semibold text-gray-700 mt-2">
+              <p className="text-sm text-gray-500 dark:text-gray-400">unidades</p>
+              <p className="text-lg font-semibold text-gray-700 dark:text-gray-300 mt-2">
                 {formatCurrency(reporteStock?.valor_stock_costo)}
               </p>
               <p className="text-xs text-gray-400">inversión total</p>
@@ -294,7 +294,7 @@ export default function Reportes() {
 
       {/* Detalle de unidades vendidas */}
       <div className="card">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
           <FileText className="w-5 h-5" />
           Detalle de Ventas del Período
         </h3>
@@ -304,31 +304,31 @@ export default function Reportes() {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600" />
           </div>
         ) : reporteUtilidad?.unidades_vendidas?.length === 0 ? (
-          <p className="text-gray-500 text-center py-8">No hay ventas en este período</p>
+          <p className="text-gray-500 dark:text-gray-400 text-center py-8">No hay ventas en este período</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-gray-50">
+              <thead className="bg-gray-50 dark:bg-gray-800">
                 <tr>
-                  <th className="px-3 py-2 text-left font-medium text-gray-500">Unidad</th>
-                  <th className="px-3 py-2 text-left font-medium text-gray-500">Fecha</th>
-                  <th className="px-3 py-2 text-right font-medium text-gray-500">Costo</th>
-                  <th className="px-3 py-2 text-right font-medium text-gray-500">Venta</th>
-                  <th className="px-3 py-2 text-right font-medium text-gray-500">Utilidad</th>
-                  <th className="px-3 py-2 text-right font-medium text-gray-500">Margen</th>
+                  <th className="px-3 py-2 text-left font-medium text-gray-500 dark:text-gray-400">Unidad</th>
+                  <th className="px-3 py-2 text-left font-medium text-gray-500 dark:text-gray-400">Fecha</th>
+                  <th className="px-3 py-2 text-right font-medium text-gray-500 dark:text-gray-400">Costo</th>
+                  <th className="px-3 py-2 text-right font-medium text-gray-500 dark:text-gray-400">Venta</th>
+                  <th className="px-3 py-2 text-right font-medium text-gray-500 dark:text-gray-400">Utilidad</th>
+                  <th className="px-3 py-2 text-right font-medium text-gray-500 dark:text-gray-400">Margen</th>
                 </tr>
               </thead>
               <tbody className="divide-y">
                 {reporteUtilidad?.unidades_vendidas?.map((u) => (
-                  <tr key={u.id} className="hover:bg-gray-50">
+                  <tr key={u.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
                     <td className="px-3 py-2">
                       <p className="font-medium">{u.marca} {u.modelo}</p>
                       <p className="text-xs text-gray-500">{u.dominio}</p>
                     </td>
-                    <td className="px-3 py-2 text-gray-600">
+                    <td className="px-3 py-2 text-gray-600 dark:text-gray-400">
                       {format(new Date(u.fecha_venta), 'dd/MM/yyyy')}
                     </td>
-                    <td className="px-3 py-2 text-right text-gray-600">
+                    <td className="px-3 py-2 text-right text-gray-600 dark:text-gray-400">
                       {formatCurrency(u.costo_total)}
                     </td>
                     <td className="px-3 py-2 text-right font-medium">
@@ -336,20 +336,20 @@ export default function Reportes() {
                     </td>
                     <td className={clsx(
                       'px-3 py-2 text-right font-semibold',
-                      u.utilidad_bruta >= 0 ? 'text-green-600' : 'text-red-600'
+                      u.utilidad_bruta >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
                     )}>
                       {formatCurrency(u.utilidad_bruta)}
                     </td>
                     <td className={clsx(
                       'px-3 py-2 text-right',
-                      u.margen_porcentaje >= 10 ? 'text-green-600' : 'text-yellow-600'
+                      u.margen_porcentaje >= 10 ? 'text-green-600 dark:text-green-400' : 'text-yellow-600 dark:text-yellow-400'
                     )}>
                       {u.margen_porcentaje}%
                     </td>
                   </tr>
                 ))}
               </tbody>
-              <tfoot className="bg-gray-50 font-semibold">
+              <tfoot className="bg-gray-50 dark:bg-gray-800 font-semibold">
                 <tr>
                   <td colSpan="2" className="px-3 py-2">TOTALES</td>
                   <td className="px-3 py-2 text-right">
@@ -361,7 +361,7 @@ export default function Reportes() {
                   <td className="px-3 py-2 text-right">
                     {formatCurrency(reporteUtilidad?.total_ventas)}
                   </td>
-                  <td className="px-3 py-2 text-right text-green-600">
+                  <td className="px-3 py-2 text-right text-green-600 dark:text-green-400">
                     {formatCurrency(reporteUtilidad?.utilidad_bruta_total)}
                   </td>
                   <td className="px-3 py-2 text-right">

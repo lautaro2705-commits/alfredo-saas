@@ -63,11 +63,11 @@ export default function CostoRapido() {
   if (success) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center text-center p-6">
-        <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mb-4 animate-bounce">
-          <CheckCircle className="w-10 h-10 text-green-600" />
+        <div className="w-20 h-20 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center mb-4 animate-bounce">
+          <CheckCircle className="w-10 h-10 text-green-600 dark:text-green-400" />
         </div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">¡Gasto Registrado!</h2>
-        <p className="text-gray-500">El costo se agregó correctamente a la unidad</p>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">¡Gasto Registrado!</h2>
+        <p className="text-gray-500 dark:text-gray-400">El costo se agregó correctamente a la unidad</p>
       </div>
     )
   }
@@ -78,13 +78,13 @@ export default function CostoRapido() {
       <div className="flex items-center gap-4 mb-6">
         <button
           onClick={() => navigate(-1)}
-          className="p-2 hover:bg-gray-100 rounded-lg"
+          className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Cargar Gasto Rápido</h1>
-          <p className="text-gray-500">Registre un gasto directamente por patente</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Cargar Gasto Rápido</h1>
+          <p className="text-gray-500 dark:text-gray-400">Registre un gasto directamente por patente</p>
         </div>
       </div>
 
@@ -115,8 +115,8 @@ export default function CostoRapido() {
                   className={clsx(
                     'p-3 rounded-lg border text-sm font-medium transition-colors',
                     categoria === cat.value
-                      ? 'bg-primary-100 border-primary-500 text-primary-700'
-                      : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'
+                      ? 'bg-primary-100 dark:bg-primary-900 border-primary-500 text-primary-700 dark:text-primary-400'
+                      : 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                   )}
                 >
                   {cat.label}
@@ -141,7 +141,7 @@ export default function CostoRapido() {
           <div className="mb-4">
             <label className="label">Monto *</label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-lg">$</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 text-lg">$</span>
               <input
                 type="number"
                 step="0.01"
@@ -182,9 +182,9 @@ export default function CostoRapido() {
       </form>
 
       {/* Instrucciones */}
-      <div className="mt-8 p-4 bg-blue-50 rounded-lg">
+      <div className="mt-8 p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
         <h3 className="font-medium text-blue-800 mb-2">Instrucciones:</h3>
-        <ul className="text-blue-700 text-sm space-y-1">
+        <ul className="text-blue-700 dark:text-blue-400 text-sm space-y-1">
           <li>1. Ingrese la patente del vehículo</li>
           <li>2. Seleccione el tipo de gasto</li>
           <li>3. Describa brevemente el trabajo realizado</li>
