@@ -46,6 +46,7 @@ async def job_cheques_por_vencer():
             if await is_already_sent(key):
                 continue
 
+            # Build data dicts INSIDE session to avoid detached instance access
             async with admin_session_maker() as session:
                 # Cheques recibidos en cartera por vencer
                 result = await session.execute(
@@ -71,26 +72,26 @@ async def job_cheques_por_vencer():
                 )
                 cheques_emitidos = result.scalars().all()
 
-            if not cheques_recibidos and not cheques_emitidos:
-                continue
+                if not cheques_recibidos and not cheques_emitidos:
+                    continue
 
-            recibidos_data = [{
-                "banco": c.banco,
-                "numero": c.numero_cheque,
-                "monto": c.monto,
-                "emisor": c.emisor_nombre,
-                "vencimiento": c.fecha_vencimiento.isoformat(),
-                "dias": (c.fecha_vencimiento - hoy).days,
-            } for c in cheques_recibidos]
+                recibidos_data = [{
+                    "banco": c.banco,
+                    "numero": c.numero_cheque,
+                    "monto": c.monto,
+                    "emisor": c.emisor_nombre,
+                    "vencimiento": c.fecha_vencimiento.isoformat(),
+                    "dias": (c.fecha_vencimiento - hoy).days,
+                } for c in cheques_recibidos]
 
-            emitidos_data = [{
-                "banco": c.banco,
-                "numero": c.numero_cheque,
-                "monto": c.monto,
-                "beneficiario": c.beneficiario,
-                "fecha_pago": c.fecha_pago.isoformat(),
-                "dias": (c.fecha_pago - hoy).days,
-            } for c in cheques_emitidos]
+                emitidos_data = [{
+                    "banco": c.banco,
+                    "numero": c.numero_cheque,
+                    "monto": c.monto,
+                    "beneficiario": c.beneficiario,
+                    "fecha_pago": c.fecha_pago.isoformat(),
+                    "dias": (c.fecha_pago - hoy).days,
+                } for c in cheques_emitidos]
 
             admins = await get_tenant_admin_emails(tenant.id)
             for admin in admins:

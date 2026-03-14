@@ -42,6 +42,7 @@ async def job_stock_inmovilizado():
                 continue
 
             # Query directa con tenant_id explícito (bypass RLS)
+            # Build data dicts INSIDE session to avoid detached instance access
             async with admin_session_maker() as session:
                 result = await session.execute(
                     select(Unidad).where(
@@ -53,19 +54,19 @@ async def job_stock_inmovilizado():
                 )
                 unidades = result.scalars().all()
 
-            if not unidades:
-                continue
+                if not unidades:
+                    continue
 
-            # Armar datos del digest
-            items = []
-            for u in unidades:
-                dias = (date.today() - u.fecha_ingreso).days
-                items.append({
-                    "descripcion": f"{u.marca} {u.modelo} {u.anio}",
-                    "dominio": u.dominio,
-                    "dias_en_stock": dias,
-                    "precio_publicado": u.precio_publicado,
-                })
+                # Armar datos del digest dentro del scope de la sesión
+                items = []
+                for u in unidades:
+                    dias = (date.today() - u.fecha_ingreso).days
+                    items.append({
+                        "descripcion": f"{u.marca} {u.modelo} {u.anio}",
+                        "dominio": u.dominio,
+                        "dias_en_stock": dias,
+                        "precio_publicado": u.precio_publicado,
+                    })
 
             admins = await get_tenant_admin_emails(tenant.id)
             for admin in admins:

@@ -68,21 +68,12 @@ export default defineConfig({
         navigateFallbackDenylist: [/^\/api\//],
 
         runtimeCaching: [
-          // API calls: Network-First (always try fresh data, fall back to cache)
+          // API calls: Network-Only — do NOT cache authenticated API responses
+          // to prevent data leakage between users on shared devices.
+          // Offline support for API data should be handled at the app layer.
           {
             urlPattern: /^https?:\/\/.*\/api\//,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'api-cache',
-              expiration: {
-                maxEntries: 200,
-                maxAgeSeconds: 60 * 60,    // 1 hour
-              },
-              networkTimeoutSeconds: 5,
-              cacheableResponse: {
-                statuses: [0, 200],
-              },
-            },
+            handler: 'NetworkOnly',
           },
           // Google Fonts: Cache-First
           {

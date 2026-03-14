@@ -194,8 +194,11 @@ def _verify_mp_signature(request: Request, data_id: str) -> bool:
 
     webhook_secret = app_settings.MERCADOPAGO_WEBHOOK_SECRET
     if not webhook_secret:
-        logger.warning("MP webhook secret not configured — skipping signature verification")
-        return True  # Allow in dev; in prod, configure the secret
+        if app_settings.ENVIRONMENT == "production":
+            logger.error("MP webhook secret not configured in PRODUCTION — rejecting")
+            return False
+        logger.warning("MP webhook secret not configured — skipping verification (dev only)")
+        return True
 
     x_signature = request.headers.get("x-signature", "")
     x_request_id = request.headers.get("x-request-id", "")
@@ -272,8 +275,8 @@ async def mercadopago_webhook(
     try:
         await billing_service.process_webhook(db, notification_type, data_id)
     except Exception as e:
-        logger.error("Webhook processing error: %s", e)
-        # Always return 200 to MP to avoid retries
-        return {"status": "error", "detail": str(e)}
+        logger.error("Webhook processing error: %s", e, exc_info=True)
+        # Always return 200 to MP to avoid retries — don't expose error details
+        return {"status": "error"}
 
     return {"status": "ok"}

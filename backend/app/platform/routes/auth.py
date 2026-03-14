@@ -21,6 +21,7 @@ from app.core.security import (
     get_current_user_with_tenant,
     TokenContext,
 )
+from app.core.security.password_validator import validate_password_strength
 from app.core.security.failed_login_tracker import (
     is_locked_out, record_failed_login, reset_failed_logins,
 )
@@ -182,6 +183,14 @@ async def onboarding(data: OnboardingRequest, db: AsyncSession = Depends(get_db)
 
     # Set tenant context BEFORE inserting user/subscription (RLS requires it)
     await set_tenant_context(db, str(tenant.id))
+
+    # Validate password strength
+    pwd_errors = validate_password_strength(data.admin_password, email=data.admin_email)
+    if pwd_errors:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=pwd_errors[0],
+        )
 
     # 2. Crear usuario admin
     username = data.admin_email.split("@")[0]
@@ -407,7 +416,7 @@ async def request_password_reset(
 
     msg = "Si el email existe, recibirás instrucciones para restablecer tu contraseña."
     if settings.DEBUG:
-        msg += f" [DEBUG] Token: {reset_token}"
+        logger.debug("Password reset token for %s: %s", data.email, reset_token)
 
     return MessageResponse(message=msg)
 
@@ -440,6 +449,14 @@ async def confirm_password_reset(
 
         if not user:
             raise HTTPException(status_code=404, detail="Usuario no encontrado")
+
+        # Validate new password strength
+        pwd_errors = validate_password_strength(data.new_password, email=user.email)
+        if pwd_errors:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=pwd_errors[0],
+            )
 
         # Set tenant context BEFORE UPDATE (RLS requires it)
         await set_tenant_context(db, str(user.tenant_id))
@@ -479,6 +496,14 @@ async def change_password(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Contraseña actual incorrecta",
+        )
+
+    # Validate new password strength
+    pwd_errors = validate_password_strength(data.new_password, email=user.email)
+    if pwd_errors:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=pwd_errors[0],
         )
 
     user.hashed_password = get_password_hash(data.new_password)

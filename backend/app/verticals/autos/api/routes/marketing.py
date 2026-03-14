@@ -1,3 +1,5 @@
+import html as html_mod
+
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import HTMLResponse
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -7,6 +9,11 @@ from app.core.database import get_db
 from app.core.security import get_current_user_with_tenant, TokenContext
 from app.verticals.autos.models.unidad import Unidad, EstadoUnidad
 from app.verticals.autos.models.archivo import ArchivoUnidad, TipoDocumentoArchivo
+
+
+def _esc(value) -> str:
+    """HTML-escape user-controlled strings to prevent XSS."""
+    return html_mod.escape(str(value)) if value else ""
 
 router = APIRouter(prefix="/autos/marketing", tags=["autos-marketing"])
 
@@ -180,11 +187,14 @@ async def generar_ficha_venta_html(
     if unidad.kilometraje is not None:
         specs_html += f'<div class="spec"><span>📍</span> {format_km(unidad.kilometraje)}</div>'
     if unidad.combustible:
-        specs_html += f'<div class="spec"><span>⛽</span> {unidad.combustible}</div>'
+        specs_html += f'<div class="spec"><span>⛽</span> {_esc(unidad.combustible)}</div>'
     if unidad.transmision:
-        specs_html += f'<div class="spec"><span>🔧</span> {unidad.transmision}</div>'
+        specs_html += f'<div class="spec"><span>🔧</span> {_esc(unidad.transmision)}</div>'
     if unidad.color:
-        specs_html += f'<div class="spec"><span>🎨</span> {unidad.color}</div>'
+        specs_html += f'<div class="spec"><span>🎨</span> {_esc(unidad.color)}</div>'
+
+    marca_esc = _esc(unidad.marca)
+    modelo_esc = _esc(unidad.modelo)
 
     html = f"""
     <!DOCTYPE html>
@@ -192,7 +202,7 @@ async def generar_ficha_venta_html(
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>{unidad.marca} {unidad.modelo} - Ficha de Venta</title>
+        <title>{marca_esc} {modelo_esc} - Ficha de Venta</title>
         <style>
             * {{
                 margin: 0;
@@ -324,8 +334,8 @@ async def generar_ficha_venta_html(
                 <div class="badge">Disponible</div>
             </div>
             <div class="content">
-                <h1 class="title">{unidad.marca} {unidad.modelo}</h1>
-                <p class="subtitle">{unidad.version or ''}</p>
+                <h1 class="title">{marca_esc} {modelo_esc}</h1>
+                <p class="subtitle">{_esc(unidad.version) if unidad.version else ''}</p>
                 <span class="year">Año {unidad.anio}</span>
 
                 <div class="specs">
@@ -343,7 +353,7 @@ async def generar_ficha_venta_html(
                 </div>
             </div>
             <div class="footer">
-                Patente: {unidad.dominio}
+                Patente: {_esc(unidad.dominio)}
             </div>
         </div>
     </body>

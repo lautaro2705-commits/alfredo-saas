@@ -391,7 +391,7 @@ async def impersonate_tenant(
         rol="admin",
         plan=tenant.plan.value,
         permissions=PERMISOS_POR_ROL.get("admin", []),
-        is_platform_admin=True,  # keep admin powers
+        is_platform_admin=False,  # impersonated tokens must NOT have admin powers
         expires_delta=timedelta(hours=1),
     )
 

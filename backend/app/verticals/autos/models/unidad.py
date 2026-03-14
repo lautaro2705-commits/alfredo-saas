@@ -107,8 +107,8 @@ class Unidad(SoftDeleteMixin, TenantMixin, Base):
     @property
     def costo_total(self) -> float:
         """Costo total = Compra + Gastos Transferencia + Costos Directos"""
-        costos = sum(c.monto for c in self.costos_directos) if self.costos_directos else 0
-        return self.precio_compra + (self.gastos_transferencia or 0) + costos
+        costos = sum(c.monto or 0 for c in self.costos_directos) if self.costos_directos else 0
+        return (self.precio_compra or 0) + (self.gastos_transferencia or 0) + costos
 
     @property
     def stock_inmovilizado(self) -> bool:

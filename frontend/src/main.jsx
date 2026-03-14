@@ -45,10 +45,10 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <AuthProvider>
           <ErrorBoundary>
             <App />
+            <PWAUpdatePrompt />
+            <PWAInstallPrompt />
+            <OfflineIndicator />
           </ErrorBoundary>
-          <PWAUpdatePrompt />
-          <PWAInstallPrompt />
-          <OfflineIndicator />
           <Toaster
             position="top-center"
             gutter={8}

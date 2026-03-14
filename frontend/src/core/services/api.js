@@ -71,6 +71,11 @@ export function clearAuthData() {
   sessionStorage.removeItem(SK.ACCESS)
   sessionStorage.removeItem(SK.REFRESH)
   sessionStorage.removeItem(SK.TENANT)
+
+  // Clear any cached API data from service worker to prevent data leakage
+  if ('caches' in window) {
+    caches.delete('api-cache').catch(() => {})
+  }
 }
 
 // ── Tenant info helpers ──

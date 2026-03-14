@@ -49,7 +49,7 @@ async def _send(
 
     try:
         params = {
-            "from_": settings.EMAIL_FROM,
+            "from": settings.EMAIL_FROM,
             "to": [to],
             "subject": subject,
             "html": html,
@@ -57,7 +57,11 @@ async def _send(
         if reply_to:
             params["reply_to"] = reply_to
 
-        resend.Emails.send(params)
+        # resend.Emails.send() is synchronous — run in thread to avoid
+        # blocking the asyncio event loop
+        import asyncio
+        loop = asyncio.get_running_loop()
+        await loop.run_in_executor(None, resend.Emails.send, params)
         logger.info("Email sent: to=%s subject=%s", to, subject)
         return True
     except Exception as exc:

@@ -45,6 +45,7 @@ async def job_documentacion_digest():
             if await is_already_sent(key, ttl_hours=168):
                 continue
 
+            # Build data dicts INSIDE session to avoid detached instance access
             async with admin_session_maker() as session:
                 result = await session.execute(
                     select(Unidad)
@@ -57,30 +58,30 @@ async def job_documentacion_digest():
                 )
                 unidades = result.scalars().all()
 
-            docs_pendientes = []
-            vtv_alertas = []
+                docs_pendientes = []
+                vtv_alertas = []
 
-            for u in unidades:
-                doc = u.checklist_documentacion
-                if not doc:
-                    continue
+                for u in unidades:
+                    doc = u.checklist_documentacion
+                    if not doc:
+                        continue
 
-                # Documentación incompleta
-                if not doc.documentacion_completa:
-                    docs_pendientes.append({
-                        "unidad": f"{u.marca} {u.modelo} {u.anio} ({u.dominio})",
-                        "items": doc.items_pendientes[:5],
-                    })
+                    # Documentación incompleta
+                    if not doc.documentacion_completa:
+                        docs_pendientes.append({
+                            "unidad": f"{u.marca} {u.modelo} {u.anio} ({u.dominio})",
+                            "items": doc.items_pendientes[:5],
+                        })
 
-                # VTV por vencer o vencida
-                if doc.vtv_fecha_vencimiento and doc.vtv_fecha_vencimiento <= vtv_limite:
-                    dias = (doc.vtv_fecha_vencimiento - hoy).days
-                    vtv_alertas.append({
-                        "unidad": f"{u.marca} {u.modelo} {u.anio} ({u.dominio})",
-                        "fecha_vtv": doc.vtv_fecha_vencimiento.isoformat(),
-                        "dias": dias,
-                        "vencida": dias < 0,
-                    })
+                    # VTV por vencer o vencida
+                    if doc.vtv_fecha_vencimiento and doc.vtv_fecha_vencimiento <= vtv_limite:
+                        dias = (doc.vtv_fecha_vencimiento - hoy).days
+                        vtv_alertas.append({
+                            "unidad": f"{u.marca} {u.modelo} {u.anio} ({u.dominio})",
+                            "fecha_vtv": doc.vtv_fecha_vencimiento.isoformat(),
+                            "dias": dias,
+                            "vencida": dias < 0,
+                        })
 
             if not docs_pendientes and not vtv_alertas:
                 continue

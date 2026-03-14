@@ -56,22 +56,23 @@ async def is_already_sent(key: str, ttl_hours: int = 24) -> bool:
     Redis-based deduplication. Returns True if this email was already
     dispatched (key exists). If not, sets key with TTL.
 
+    Uses SET NX (atomic set-if-not-exists) to avoid TOCTOU race conditions.
     Fail-open: si Redis no responde, retorna False → mejor duplicar
     un email que perder una alerta importante.
     """
+    r = None
     try:
         r = aioredis.from_url(settings.REDIS_URL, decode_responses=True)
         full_key = f"alfredo:email_sent:{key}"
-        exists = await r.exists(full_key)
-        if not exists:
-            await r.setex(full_key, ttl_hours * 3600, "1")
-            await r.aclose()
-            return False
-        await r.aclose()
-        return True
+        # Atomic: SET key "1" EX ttl NX → returns True if key was set (new)
+        was_set = await r.set(full_key, "1", ex=ttl_hours * 3600, nx=True)
+        return not was_set  # True if key already existed (already sent)
     except Exception as exc:
         logger.warning("Redis dedup check failed (will send anyway): %s", exc)
         return False
+    finally:
+        if r:
+            await r.aclose()
 
 
 def dedup_key(job_id: str, tenant_id, extra: str = "") -> str:

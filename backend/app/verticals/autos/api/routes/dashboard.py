@@ -79,8 +79,8 @@ async def dashboard_resumen(
     )
     ventas_mes = result.scalars().all()
     cantidad_ventas_mes = len(ventas_mes)
-    ingresos_mes = sum(op.precio_venta for op in ventas_mes)
-    utilidad_bruta_mes = sum(op.utilidad_bruta for op in ventas_mes) if es_admin else None
+    ingresos_mes = sum(op.precio_venta or 0 for op in ventas_mes)
+    utilidad_bruta_mes = sum(op.utilidad_bruta or 0 for op in ventas_mes) if es_admin else None
 
     # Ventas del mes anterior
     result = await db.execute(
@@ -93,7 +93,7 @@ async def dashboard_resumen(
     )
     ventas_mes_ant = result.scalars().all()
     cantidad_ventas_mes_ant = len(ventas_mes_ant)
-    ingresos_mes_ant = sum(op.precio_venta for op in ventas_mes_ant)
+    ingresos_mes_ant = sum(op.precio_venta or 0 for op in ventas_mes_ant)
 
     # Caja del día
     result = await db.execute(
@@ -146,6 +146,7 @@ async def dashboard_resumen(
     alertas = _obtener_alertas(
         unidades_stock, cheques_por_vencer,
         cheques_emitidos_prox, seguimientos_pendientes,
+        hoy=hoy,
     )
 
     # Últimas operaciones
@@ -212,15 +213,19 @@ def _obtener_alertas(
     cheques_recibidos: list | None = None,
     cheques_emitidos: list | None = None,
     seguimientos: list | None = None,
+    *,
+    hoy: date | None = None,
 ) -> list:
     """Generar lista de alertas activas (sync — opera sobre objetos ya cargados)."""
+    if hoy is None:
+        hoy = date.today()
     alertas = []
     cheques_recibidos = cheques_recibidos or []
     cheques_emitidos = cheques_emitidos or []
     seguimientos = seguimientos or []
 
     for seg in seguimientos:
-        dias = (seg.fecha_vencimiento - date.today()).days
+        dias = (seg.fecha_vencimiento - hoy).days
         alertas.append({
             "tipo": "seguimiento_pendiente",
             "prioridad": "alta" if dias < 0 else ("media" if seg.prioridad != "alta" else "alta"),
@@ -276,12 +281,12 @@ def _obtener_alertas(
                 })
 
             vtv = unidad.checklist_documentacion.vtv_fecha_vencimiento
-            if vtv and vtv <= date.today() + timedelta(days=30):
-                dias = (vtv - date.today()).days
+            if vtv and vtv <= hoy + timedelta(days=30):
+                dias = (vtv - hoy).days
                 alertas.append({
                     "tipo": "vtv_vencimiento",
                     "prioridad": "alta" if dias <= 7 else "media",
-                    "mensaje": f"VTV vence en {dias} dias" if dias > 0 else "VTV VENCIDA",
+                    "mensaje": f"VTV vence en {dias} dias" if dias > 0 else ("VTV vence HOY" if dias == 0 else "VTV VENCIDA"),
                     "unidad_id": unidad.id,
                     "unidad_info": f"{unidad.marca} {unidad.modelo} ({unidad.dominio})",
                     "link": f"/unidades/{unidad.id}",
@@ -303,7 +308,8 @@ async def metricas_rapidas(
     Contadores livianos diseñados para renderizar rápido en la UI:
     ventas recientes, unidades nuevas, operaciones en curso, y total de clientes.
     """
-    hoy = date.today()
+    tz_argentina = ZoneInfo("America/Argentina/Buenos_Aires")
+    hoy = datetime.now(tz_argentina).date()
     hace_7_dias = hoy - timedelta(days=7)
 
     ventas_7d = (await db.execute(
