@@ -13,10 +13,12 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 import httpx
+import redis.asyncio as aioredis
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.main import app as fastapi_app
+from app.core.config import settings
 from app.core.database import admin_session_maker
 from app.core.security import create_access_token, get_password_hash
 from app.platform.models.tenant import Tenant, PlanTier, VERTICAL
@@ -35,6 +37,21 @@ def event_loop():
     loop = policy.new_event_loop()
     yield loop
     loop.close()
+
+
+# ── Rate limit cleanup ──
+
+@pytest.fixture(autouse=True)
+async def flush_rate_limits():
+    """Flush Redis rate-limit keys before each test to prevent 429s."""
+    try:
+        r = aioredis.from_url(settings.REDIS_URL, decode_responses=False)
+        keys = await r.keys("rl:*")
+        if keys:
+            await r.delete(*keys)
+        await r.aclose()
+    except Exception:
+        pass  # Redis may be unavailable in some test environments
 
 
 # ── App + HTTP Client ──

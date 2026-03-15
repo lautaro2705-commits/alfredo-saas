@@ -8,8 +8,8 @@ from app.core.security.password_validator import validate_password_strength
 
 # ── Login ──
 class LoginRequest(BaseModel):
-    email: str
-    password: str
+    email: str = Field(..., max_length=254)
+    password: str = Field(..., max_length=128)
 
 
 class TokenResponse(BaseModel):
@@ -101,8 +101,8 @@ class PasswordResetConfirm(BaseModel):
 
 
 class PasswordChangeRequest(BaseModel):
-    current_password: str
-    new_password: str = Field(..., min_length=12)
+    current_password: str = Field(..., max_length=128)
+    new_password: str = Field(..., min_length=12, max_length=128)
 
     @field_validator("new_password")
     @classmethod

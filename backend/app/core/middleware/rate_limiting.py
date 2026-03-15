@@ -24,7 +24,12 @@ logger = logging.getLogger("app.security")
 # Routes with stricter auth rate limits
 AUTH_PATHS = {"/api/v1/auth/login", "/api/v1/auth/onboarding",
               "/api/v1/auth/password-reset/request",
-              "/api/v1/auth/password-reset/confirm"}
+              "/api/v1/auth/password-reset/confirm",
+              "/api/v1/auth/password-change"}
+
+# Upload paths — rate limited per IP (tenant not available at middleware level)
+UPLOAD_PATH_PREFIX = "/api/v1/autos/archivos/unidad/"
+UPLOAD_PATH_SUFFIX = "/upload"
 
 # Routes excluded from rate limiting
 EXCLUDED_PATHS = {"/health", "/docs", "/redoc", "/openapi.json"}
@@ -132,6 +137,22 @@ class RateLimitMiddleware:
                     )
                     rate_limited = True
                     limit_detail = "Demasiados intentos. Intente más tarde."
+
+            # Check upload rate limit (per IP, 10/min)
+            if not rate_limited and UPLOAD_PATH_SUFFIX in path and UPLOAD_PATH_PREFIX in path:
+                allowed, retry_after = await _check_bucket(
+                    r,
+                    f"rl:upload:{client_ip}",
+                    settings.UPLOAD_RATE_LIMIT_REQUESTS,
+                    settings.UPLOAD_RATE_LIMIT_WINDOW,
+                )
+                if not allowed:
+                    logger.warning(
+                        "Upload rate limit exceeded",
+                        extra={"ip": client_ip, "path": path},
+                    )
+                    rate_limited = True
+                    limit_detail = "Demasiados uploads. Intente más tarde."
 
             # Check global rate limit (only if not already limited)
             if not rate_limited:

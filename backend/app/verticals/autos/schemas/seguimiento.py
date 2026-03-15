@@ -7,9 +7,9 @@ from pydantic import BaseModel, Field
 
 class SeguimientoCreate(BaseModel):
     titulo: str = Field(..., min_length=1, max_length=200)
-    descripcion: Optional[str] = None
-    tipo: str = "general"
-    prioridad: str = "media"
+    descripcion: Optional[str] = Field(None, max_length=5000)
+    tipo: str = Field("general", max_length=50)
+    prioridad: str = Field("media", max_length=20)
     fecha_vencimiento: date
     hora: Optional[time] = None
     cliente_id: Optional[int] = None
@@ -20,10 +20,10 @@ class SeguimientoCreate(BaseModel):
 
 
 class SeguimientoUpdate(BaseModel):
-    titulo: Optional[str] = None
-    descripcion: Optional[str] = None
-    tipo: Optional[str] = None
-    prioridad: Optional[str] = None
+    titulo: Optional[str] = Field(None, max_length=200)
+    descripcion: Optional[str] = Field(None, max_length=5000)
+    tipo: Optional[str] = Field(None, max_length=50)
+    prioridad: Optional[str] = Field(None, max_length=20)
     fecha_vencimiento: Optional[date] = None
     hora: Optional[time] = None
     cliente_id: Optional[int] = None
@@ -34,7 +34,7 @@ class SeguimientoUpdate(BaseModel):
 
 
 class SeguimientoCompletarRequest(BaseModel):
-    observaciones_cierre: Optional[str] = None
+    observaciones_cierre: Optional[str] = Field(None, max_length=5000)
 
 
 class SeguimientoResponse(BaseModel):

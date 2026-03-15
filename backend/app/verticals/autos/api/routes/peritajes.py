@@ -616,8 +616,8 @@ async def subir_foto(
             sector=sector.value,
             tipo_foto=tipo_foto
         )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    except Exception:
+        raise HTTPException(status_code=500, detail="Error al subir imagen. Intente nuevamente.")
 
     # Crear registro en DB
     foto = PeritajeFoto(
@@ -957,5 +957,5 @@ async def generar_pdf(
             status_code=500,
             detail="El servicio de generación de PDF no está disponible. Instale reportlab."
         )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error al generar PDF: {str(e)}")
+    except Exception:
+        raise HTTPException(status_code=500, detail="Error al generar PDF. Intente nuevamente.")

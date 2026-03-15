@@ -6,12 +6,18 @@ solo cambiás la implementación de _send(), el resto queda igual.
 """
 from __future__ import annotations
 
+import html as html_mod
 import logging
 from typing import Optional
 
 import resend
 
 from app.core.config import settings
+
+
+def _esc(value: str) -> str:
+    """HTML-escape user-controlled values for safe embedding in email templates."""
+    return html_mod.escape(str(value)) if value else ""
 
 logger = logging.getLogger(__name__)
 
@@ -106,10 +112,12 @@ async def send_welcome(
     trial_days: int,
 ) -> bool:
     """Email de bienvenida al registrarse (onboarding)."""
+    nombre_safe = _esc(nombre)
+    agencia_safe = _esc(nombre_agencia)
     html = _base_layout(f"""
-        <h2 style="margin:0 0 16px;color:#111827;font-size:22px;">¡Bienvenido a Alfredo, {nombre}!</h2>
+        <h2 style="margin:0 0 16px;color:#111827;font-size:22px;">¡Bienvenido a Alfredo, {nombre_safe}!</h2>
         <p style="color:#4b5563;line-height:1.6;">
-          Tu agencia <strong>{nombre_agencia}</strong> ya está activa.
+          Tu agencia <strong>{agencia_safe}</strong> ya está activa.
           Tenés <strong>{trial_days} días de prueba gratuita</strong> con acceso completo a todas las funcionalidades.
         </p>
         <div style="margin:24px 0;text-align:center;">
@@ -122,7 +130,7 @@ async def send_welcome(
           Si tenés dudas, respondé a este email o contactanos por WhatsApp.
         </p>
     """)
-    return await _send(to, f"¡Bienvenido a Alfredo, {nombre}!", html)
+    return await _send(to, f"¡Bienvenido a Alfredo, {nombre_safe}!", html)
 
 
 async def send_password_reset(
@@ -158,22 +166,25 @@ async def send_subscription_confirmed(
     amount: str,
 ) -> bool:
     """Email de confirmación de suscripción/pago."""
+    nombre_safe = _esc(nombre)
+    plan_safe = _esc(plan_name)
+    amount_safe = _esc(amount)
     html = _base_layout(f"""
         <h2 style="margin:0 0 16px;color:#111827;font-size:22px;">¡Suscripción activada!</h2>
         <p style="color:#4b5563;line-height:1.6;">
-          Hola {nombre}, tu plan <strong>{plan_name}</strong> está activo.
+          Hola {nombre_safe}, tu plan <strong>{plan_safe}</strong> está activo.
         </p>
         <div style="margin:20px 0;padding:16px;background:#f0fdf4;border-radius:8px;border:1px solid #bbf7d0;">
           <p style="margin:0;color:#166534;font-size:14px;">
-            ✅ Plan: <strong>{plan_name}</strong><br>
-            💰 Monto: <strong>{amount}</strong>/mes
+            ✅ Plan: <strong>{plan_safe}</strong><br>
+            💰 Monto: <strong>{amount_safe}</strong>/mes
           </p>
         </div>
         <p style="color:#6b7280;font-size:14px;">
           Tu factura estará disponible en la sección de facturación dentro de Alfredo.
         </p>
     """)
-    return await _send(to, f"Suscripción {plan_name} activada — Alfredo", html)
+    return await _send(to, f"Suscripción {plan_safe} activada — Alfredo", html)
 
 
 async def send_trial_expiring(
@@ -191,10 +202,11 @@ async def send_trial_expiring(
         subtitulo = f"Te quedan <strong>{days_left} días</strong> de prueba gratuita."
         subject = f"Tu prueba gratuita vence en {days_left} días — Alfredo"
 
+    nombre_safe = _esc(nombre)
     html = _base_layout(f"""
         <h2 style="margin:0 0 16px;color:#111827;font-size:22px;">{titulo}</h2>
         <p style="color:#4b5563;line-height:1.6;">
-          Hola {nombre}, {subtitulo}
+          Hola {nombre_safe}, {subtitulo}
           Para seguir usando Alfredo sin interrupciones, elegí un plan.
         </p>
         <div style="margin:24px 0;text-align:center;">
@@ -217,14 +229,16 @@ async def send_stock_inmovilizado_digest(
     threshold_days: int,
 ) -> bool:
     """Digest diario de unidades con stock inmovilizado."""
+    nombre = _esc(nombre)
+    nombre_agencia = _esc(nombre_agencia)
     filas = ""
     for u in unidades:
         precio = f"${u['precio_publicado']:,.0f}" if u.get("precio_publicado") else "—"
         color_dias = "#dc2626" if u["dias_en_stock"] > 90 else "#d97706"
         filas += f"""
         <tr>
-          <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;">{u['descripcion']}</td>
-          <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;">{u['dominio']}</td>
+          <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;">{_esc(u['descripcion'])}</td>
+          <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;">{_esc(u['dominio'])}</td>
           <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;color:{color_dias};font-weight:600;">{u['dias_en_stock']} días</td>
           <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;">{precio}</td>
         </tr>"""
@@ -268,6 +282,8 @@ async def send_cheques_digest(
     cheques_emitidos: list[dict],
 ) -> bool:
     """Digest diario de cheques por vencer (recibidos y emitidos)."""
+    nombre = _esc(nombre)
+    nombre_agencia = _esc(nombre_agencia)
     secciones = ""
 
     if cheques_recibidos:
@@ -341,6 +357,8 @@ async def send_documentacion_digest(
     vtv_alertas: list[dict],
 ) -> bool:
     """Digest semanal de documentación pendiente y VTV por vencer."""
+    nombre = _esc(nombre)
+    nombre_agencia = _esc(nombre_agencia)
     secciones = ""
 
     if docs_pendientes:

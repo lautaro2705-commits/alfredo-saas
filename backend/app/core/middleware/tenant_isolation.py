@@ -25,6 +25,8 @@ class TenantIsolationMiddleware(BaseHTTPMiddleware):
             db = getattr(request.state, "db", None)
             if db:
                 from uuid import UUID
+                # UUID() validation prevents SQL injection in the f-string below.
+                # PostgreSQL does not support bind params in SET LOCAL.
                 validated = str(UUID(str(tenant_id)))
                 await db.execute(
                     text(f"SET LOCAL app.current_tenant_id = '{validated}'")

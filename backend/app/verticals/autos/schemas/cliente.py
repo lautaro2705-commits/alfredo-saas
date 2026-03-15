@@ -13,7 +13,7 @@ class ClienteBase(BaseModel):
     localidad: Optional[str] = Field(None, max_length=100)
     provincia: Optional[str] = Field(None, max_length=100)
     codigo_postal: Optional[str] = Field(None, max_length=20)
-    observaciones: Optional[str] = None
+    observaciones: Optional[str] = Field(None, max_length=5000)
 
 
 class ClienteCreate(ClienteBase):
@@ -21,15 +21,15 @@ class ClienteCreate(ClienteBase):
 
 
 class ClienteUpdate(BaseModel):
-    nombre: Optional[str] = None
-    apellido: Optional[str] = None
-    telefono: Optional[str] = None
-    email: Optional[str] = None
-    direccion: Optional[str] = None
-    localidad: Optional[str] = None
-    provincia: Optional[str] = None
-    codigo_postal: Optional[str] = None
-    observaciones: Optional[str] = None
+    nombre: Optional[str] = Field(None, max_length=100)
+    apellido: Optional[str] = Field(None, max_length=100)
+    telefono: Optional[str] = Field(None, max_length=50)
+    email: Optional[str] = Field(None, max_length=100)
+    direccion: Optional[str] = Field(None, max_length=200)
+    localidad: Optional[str] = Field(None, max_length=100)
+    provincia: Optional[str] = Field(None, max_length=100)
+    codigo_postal: Optional[str] = Field(None, max_length=20)
+    observaciones: Optional[str] = Field(None, max_length=5000)
 
 
 class ClienteResponse(ClienteBase):

@@ -45,6 +45,7 @@ async def gastos_mensuales(
     result = await db.execute(
         select(CajaDiaria)
         .where(
+            CajaDiaria.active(),
             CajaDiaria.fecha >= primer_dia,
             CajaDiaria.fecha <= ultimo_dia,
             CajaDiaria.tipo == TipoMovimiento.EGRESO,
@@ -58,6 +59,7 @@ async def gastos_mensuales(
         select(CostoDirecto)
         .options(selectinload(CostoDirecto.unidad))
         .where(
+            CostoDirecto.active(),
             CostoDirecto.fecha >= primer_dia,
             CostoDirecto.fecha <= ultimo_dia,
         )

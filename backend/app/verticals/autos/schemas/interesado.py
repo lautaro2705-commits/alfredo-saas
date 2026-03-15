@@ -15,8 +15,8 @@ class InteresadoBase(BaseModel):
     precio_maximo: Optional[float] = Field(None, ge=0)
     combustible: Optional[str] = Field(None, max_length=50)
     transmision: Optional[str] = Field(None, max_length=50)
-    otras_preferencias: Optional[str] = None
-    observaciones: Optional[str] = None
+    otras_preferencias: Optional[str] = Field(None, max_length=2000)
+    observaciones: Optional[str] = Field(None, max_length=5000)
 
     @field_validator('email', 'marca_buscada', 'modelo_buscado', 'combustible',
                      'transmision', 'otras_preferencias', 'observaciones', mode='before')
@@ -43,8 +43,8 @@ class InteresadoUpdate(BaseModel):
     precio_maximo: Optional[float] = Field(None, ge=0)
     combustible: Optional[str] = Field(None, max_length=50)
     transmision: Optional[str] = Field(None, max_length=50)
-    otras_preferencias: Optional[str] = None
-    observaciones: Optional[str] = None
+    otras_preferencias: Optional[str] = Field(None, max_length=2000)
+    observaciones: Optional[str] = Field(None, max_length=5000)
     activo: Optional[bool] = None
     fecha_contacto: Optional[date] = None
 
@@ -97,8 +97,8 @@ class NotificacionMatchCreate(NotificacionMatchBase):
 class NotificacionMatchUpdate(BaseModel):
     leida: Optional[bool] = None
     contactado: Optional[bool] = None
-    resultado_contacto: Optional[str] = None
-    observaciones: Optional[str] = None
+    resultado_contacto: Optional[str] = Field(None, max_length=1000)
+    observaciones: Optional[str] = Field(None, max_length=5000)
 
 
 class UnidadMatchSimple(BaseModel):

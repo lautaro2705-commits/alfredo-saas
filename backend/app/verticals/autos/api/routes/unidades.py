@@ -346,17 +346,17 @@ async def eliminar_unidad(
         await soft_delete(db, db_unidad, deleted_by=token.user_id)
         return {"mensaje": "Unidad eliminada correctamente"}
 
-    except IntegrityError as e:
+    except IntegrityError:
         await db.rollback()
         raise HTTPException(
             status_code=400,
-            detail=f"No se puede eliminar: hay registros relacionados. Detalle: {str(e.orig)[:200]}"
+            detail="No se puede eliminar: hay registros relacionados."
         )
-    except Exception as e:
+    except Exception:
         await db.rollback()
         raise HTTPException(
             status_code=500,
-            detail=f"Error al eliminar: {str(e)[:200]}"
+            detail="Error al eliminar la unidad. Intente nuevamente."
         )
 
 
@@ -420,7 +420,7 @@ async def ocr_titulo_automotor(
     if not settings.OPENAI_API_KEY:
         raise HTTPException(
             status_code=500,
-            detail="OCR no disponible: OPENAI_API_KEY no está configurada"
+            detail="OCR no disponible: servicio no configurado"
         )
 
     # Validar tipo de archivo
@@ -452,10 +452,10 @@ async def ocr_titulo_automotor(
 
     except HTTPException:
         raise
-    except Exception as e:
+    except Exception:
         raise HTTPException(
             status_code=500,
-            detail=f"Error al procesar OCR: {str(e)}"
+            detail="Error al procesar OCR. Intente nuevamente."
         )
 
 
@@ -559,10 +559,10 @@ async def subir_foto_unidad(
             "total_fotos": len(fotos_actuales)
         }
 
-    except Exception as e:
+    except Exception:
         raise HTTPException(
             status_code=500,
-            detail=f"Error al subir foto: {str(e)}"
+            detail="Error al subir foto. Intente nuevamente."
         )
 
 

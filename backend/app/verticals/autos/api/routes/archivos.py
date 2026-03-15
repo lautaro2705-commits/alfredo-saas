@@ -24,14 +24,28 @@ UPLOAD_DIR = os.environ.get("UPLOAD_DIR", "./uploads")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 
-def get_upload_path(unidad_id: int, filename: str) -> str:
-    """Generar ruta de almacenamiento para un archivo"""
+# Map MIME types to safe file extensions (L6: don't trust user-controlled filename)
+MIME_TO_EXT = {
+    "image/jpeg": ".jpg",
+    "image/png": ".png",
+    "image/gif": ".gif",
+    "image/webp": ".webp",
+    "application/pdf": ".pdf",
+    "application/msword": ".doc",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document": ".docx",
+}
+
+
+def get_upload_path(unidad_id: int, mime_type: str) -> str:
+    """Generar ruta de almacenamiento para un archivo.
+    Extension derived from validated MIME type, not user-controlled filename.
+    """
     # Crear subdirectorio por unidad
     unidad_dir = os.path.join(UPLOAD_DIR, f"unidad_{unidad_id}")
     os.makedirs(unidad_dir, exist_ok=True)
 
-    # Generar nombre unico
-    ext = os.path.splitext(filename)[1]
+    # Generar nombre unico con extension basada en MIME type
+    ext = MIME_TO_EXT.get(mime_type, ".bin")
     unique_name = f"{uuid.uuid4().hex}{ext}"
 
     return os.path.join(unidad_dir, unique_name)
@@ -70,7 +84,11 @@ async def obtener_archivo(
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
     """Obtener detalle de un archivo"""
-    result = await db.execute(select(ArchivoUnidad).where(ArchivoUnidad.active(), ArchivoUnidad.id == archivo_id))
+    result = await db.execute(
+        select(ArchivoUnidad)
+        .join(Unidad, ArchivoUnidad.unidad_id == Unidad.id)
+        .where(ArchivoUnidad.active(), ArchivoUnidad.id == archivo_id, Unidad.active())
+    )
     archivo = result.scalar_one_or_none()
     if not archivo:
         raise HTTPException(status_code=404, detail="Archivo no encontrado")
@@ -84,7 +102,11 @@ async def descargar_archivo(
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
     """Descargar un archivo"""
-    result = await db.execute(select(ArchivoUnidad).where(ArchivoUnidad.active(), ArchivoUnidad.id == archivo_id))
+    result = await db.execute(
+        select(ArchivoUnidad)
+        .join(Unidad, ArchivoUnidad.unidad_id == Unidad.id)
+        .where(ArchivoUnidad.active(), ArchivoUnidad.id == archivo_id, Unidad.active())
+    )
     archivo = result.scalar_one_or_none()
     if not archivo:
         raise HTTPException(status_code=404, detail="Archivo no encontrado")
@@ -143,16 +165,20 @@ async def subir_archivo(
     if len(file_content) > max_size:
         raise HTTPException(status_code=400, detail="Archivo muy grande. Maximo 10MB")
 
-    # Guardar archivo
-    ruta = get_upload_path(unidad_id, file.filename)
+    # Guardar archivo (extension from MIME type, not filename)
+    ruta = get_upload_path(unidad_id, file.content_type)
     with open(ruta, "wb") as f:
         f.write(file_content)
+
+    # Sanitize filename to prevent path traversal
+    import re
+    safe_filename = re.sub(r'[^\w\s\-.]', '_', os.path.basename(file.filename or "archivo"))
 
     # Crear registro en BD
     db_archivo = ArchivoUnidad(
         unidad_id=unidad_id,
         tipo_documento=tipo_documento,
-        nombre_archivo=file.filename,
+        nombre_archivo=safe_filename,
         ruta_archivo=ruta,
         mime_type=file.content_type,
         tamano_bytes=len(file_content),
@@ -207,14 +233,18 @@ async def subir_multiples_archivos(
                 errores.append({"archivo": file.filename, "error": "Muy grande (max 10MB)"})
                 continue
 
-            ruta = get_upload_path(unidad_id, file.filename)
+            ruta = get_upload_path(unidad_id, file.content_type)
             with open(ruta, "wb") as f:
                 f.write(file_content)
+
+            # Sanitize filename for DB record
+            import re
+            safe_name = re.sub(r'[^\w\s\-.]', '_', os.path.basename(file.filename or "archivo"))
 
             db_archivo = ArchivoUnidad(
                 unidad_id=unidad_id,
                 tipo_documento=tipo_documento,
-                nombre_archivo=file.filename,
+                nombre_archivo=safe_name,
                 ruta_archivo=ruta,
                 mime_type=file.content_type,
                 tamano_bytes=len(file_content),
@@ -223,8 +253,8 @@ async def subir_multiples_archivos(
             db.add(db_archivo)
             subidos.append(file.filename)
 
-        except Exception as e:
-            errores.append({"archivo": file.filename, "error": str(e)})
+        except Exception:
+            errores.append({"archivo": file.filename, "error": "Error al procesar archivo"})
 
     await db.commit()
 
@@ -242,7 +272,11 @@ async def eliminar_archivo(
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
     """Eliminar un archivo"""
-    result = await db.execute(select(ArchivoUnidad).where(ArchivoUnidad.id == archivo_id))
+    result = await db.execute(
+        select(ArchivoUnidad)
+        .join(Unidad, ArchivoUnidad.unidad_id == Unidad.id)
+        .where(ArchivoUnidad.active(), ArchivoUnidad.id == archivo_id, Unidad.active())
+    )
     archivo = result.scalar_one_or_none()
     if not archivo:
         raise HTTPException(status_code=404, detail="Archivo no encontrado")
@@ -256,7 +290,9 @@ async def eliminar_archivo(
 # ==================== TIPOS DE DOCUMENTO ====================
 
 @router.get("/tipos-documento")
-async def listar_tipos_documento():
+async def listar_tipos_documento(
+    _token: TokenContext = Depends(get_current_user_with_tenant),
+):
     """Listar tipos de documento disponibles"""
     tipos = []
     for tipo in TipoDocumentoArchivo:

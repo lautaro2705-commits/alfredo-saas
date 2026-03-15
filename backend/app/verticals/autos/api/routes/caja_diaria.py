@@ -51,7 +51,9 @@ async def listar_movimientos(
 
 
 @router.get("/categorias")
-async def listar_categorias_caja():
+async def listar_categorias_caja(
+    _token: TokenContext = Depends(get_current_user_with_tenant),
+):
     """Listar categorías de movimientos de caja"""
     ingresos = []
     egresos = []

@@ -23,13 +23,16 @@ async def busqueda_global(
     Búsqueda global en unidades, clientes y operaciones.
     Retorna resultados agrupados por categoría.
     """
-    termino = f"%{q.lower()}%"
+    # Escape LIKE wildcards to prevent search manipulation
+    safe_q = q.lower().replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+    termino = f"%{safe_q}%"
     resultados = []
 
     # Buscar en Unidades
     result = await db.execute(
         select(Unidad)
         .where(
+            Unidad.active(),
             or_(
                 Unidad.marca.ilike(termino),
                 Unidad.modelo.ilike(termino),
@@ -63,6 +66,7 @@ async def busqueda_global(
     result = await db.execute(
         select(Cliente)
         .where(
+            Cliente.active(),
             or_(
                 Cliente.nombre.ilike(termino),
                 Cliente.apellido.ilike(termino),
@@ -95,6 +99,7 @@ async def busqueda_global(
         .join(Cliente, Operacion.cliente_id == Cliente.id, isouter=True)
         .join(Unidad, Operacion.unidad_id == Unidad.id, isouter=True)
         .where(
+            Operacion.active(),
             or_(
                 Cliente.nombre.ilike(termino),
                 Cliente.apellido.ilike(termino),

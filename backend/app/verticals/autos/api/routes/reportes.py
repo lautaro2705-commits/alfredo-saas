@@ -38,6 +38,7 @@ async def reporte_utilidad(
     # Operaciones completadas en el período
     result = await db.execute(
         select(Operacion).where(
+            Operacion.active(),
             Operacion.fecha_operacion >= fecha_desde,
             Operacion.fecha_operacion <= fecha_hasta,
             Operacion.estado == EstadoOperacion.COMPLETADA
@@ -56,9 +57,9 @@ async def reporte_utilidad(
         if not unidad:
             continue
 
-        costos_directos = sum(c.monto for c in unidad.costos_directos)
+        costos_directos = sum(c.monto or 0 for c in unidad.costos_directos)
         costo_total = unidad.costo_total
-        utilidad_bruta = op.precio_venta - costo_total
+        utilidad_bruta = (op.precio_venta or 0) - costo_total
         margen = (utilidad_bruta / op.precio_venta * 100) if op.precio_venta > 0 else 0
 
         unidades_vendidas.append(UnidadVendida(
@@ -85,6 +86,7 @@ async def reporte_utilidad(
     # Gastos fijos del período (caja diaria - egresos)
     result = await db.execute(
         select(func.sum(CajaDiaria.monto)).where(
+            CajaDiaria.active(),
             CajaDiaria.fecha >= fecha_desde,
             CajaDiaria.fecha <= fecha_hasta,
             CajaDiaria.tipo == TipoMovimiento.EGRESO
@@ -131,6 +133,7 @@ async def reporte_stock(
 
     result = await db.execute(
         select(Unidad).where(
+            Unidad.active(),
             Unidad.estado != EstadoUnidad.VENDIDO
         )
     )
@@ -227,6 +230,7 @@ async def reporte_ventas_mensuales(
 
         result = await db.execute(
             select(Operacion).where(
+                Operacion.active(),
                 Operacion.fecha_operacion >= primer_dia,
                 Operacion.fecha_operacion <= ultimo_dia,
                 Operacion.estado == EstadoOperacion.COMPLETADA
@@ -234,8 +238,8 @@ async def reporte_ventas_mensuales(
         )
         operaciones = result.scalars().all()
 
-        total_ventas = sum(op.precio_venta for op in operaciones)
-        total_utilidad = sum(op.utilidad_bruta for op in operaciones)
+        total_ventas = sum((op.precio_venta or 0) for op in operaciones)
+        total_utilidad = sum((op.utilidad_bruta or 0) for op in operaciones)
 
         resultados.append({
             "mes": mes,
@@ -263,7 +267,7 @@ async def reporte_costos_por_unidad(
     if token.rol != RolUsuario.ADMIN:
         raise HTTPException(status_code=403, detail="Acceso denegado")
 
-    stmt = select(Unidad)
+    stmt = select(Unidad).where(Unidad.active())
     if unidad_id:
         stmt = stmt.where(Unidad.id == unidad_id)
 
@@ -317,6 +321,7 @@ async def reporte_rentabilidad_vendedores(
     # Operaciones completadas en el período
     result = await db.execute(
         select(Operacion).where(
+            Operacion.active(),
             Operacion.fecha_operacion >= fecha_desde,
             Operacion.fecha_operacion <= fecha_hasta,
             Operacion.estado == EstadoOperacion.COMPLETADA
@@ -432,6 +437,7 @@ async def reporte_rentabilidad_vendedores(
     # Egresos operativos (alquiler, sueldos, servicios, etc.)
     result = await db.execute(
         select(CajaDiaria).where(
+            CajaDiaria.active(),
             CajaDiaria.fecha >= fecha_desde,
             CajaDiaria.fecha <= fecha_hasta,
             CajaDiaria.tipo == TipoMovimiento.EGRESO,
@@ -442,6 +448,7 @@ async def reporte_rentabilidad_vendedores(
     # Costos directos de unidades (reparaciones, chapa, mecánica, etc.)
     result = await db.execute(
         select(CostoDirecto).where(
+            CostoDirecto.active(),
             CostoDirecto.fecha >= fecha_desde,
             CostoDirecto.fecha <= fecha_hasta,
         )
@@ -506,6 +513,7 @@ async def reporte_antiguedad_stock(
     """
     result = await db.execute(
         select(Unidad).where(
+            Unidad.active(),
             Unidad.estado != EstadoUnidad.VENDIDO
         )
     )
@@ -603,6 +611,7 @@ async def reporte_comparativo_mensual(
         # Ventas completadas
         result = await db.execute(
             select(Operacion).where(
+                Operacion.active(),
                 Operacion.fecha_operacion >= primer_dia,
                 Operacion.fecha_operacion <= ultimo_dia,
                 Operacion.estado == EstadoOperacion.COMPLETADA
@@ -610,7 +619,7 @@ async def reporte_comparativo_mensual(
         )
         operaciones = result.scalars().all()
 
-        ventas_total = sum(op.precio_venta for op in operaciones)
+        ventas_total = sum((op.precio_venta or 0) for op in operaciones)
         utilidad_bruta = sum(
             (op.precio_venta - op.unidad_vendida.costo_total)
             for op in operaciones if op.unidad_vendida
@@ -619,6 +628,7 @@ async def reporte_comparativo_mensual(
         # Gastos operativos
         result = await db.execute(
             select(func.sum(CajaDiaria.monto)).where(
+                CajaDiaria.active(),
                 CajaDiaria.fecha >= primer_dia,
                 CajaDiaria.fecha <= ultimo_dia,
                 CajaDiaria.tipo == TipoMovimiento.EGRESO
@@ -629,6 +639,7 @@ async def reporte_comparativo_mensual(
         # Costos directos del período
         result = await db.execute(
             select(func.sum(CostoDirecto.monto)).where(
+                CostoDirecto.active(),
                 CostoDirecto.fecha >= primer_dia,
                 CostoDirecto.fecha <= ultimo_dia
             )
@@ -640,6 +651,7 @@ async def reporte_comparativo_mensual(
         # Unidades ingresadas en el mes
         result = await db.execute(
             select(func.count()).select_from(Unidad).where(
+                Unidad.active(),
                 Unidad.fecha_ingreso >= primer_dia,
                 Unidad.fecha_ingreso <= ultimo_dia
             )

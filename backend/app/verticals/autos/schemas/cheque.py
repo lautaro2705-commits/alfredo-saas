@@ -14,7 +14,7 @@ class ChequeRecibidoBase(BaseModel):
     emisor_cuit: Optional[str] = Field(None, max_length=20)
     fecha_recepcion: Optional[date] = None
     fecha_vencimiento: date
-    observaciones: Optional[str] = None
+    observaciones: Optional[str] = Field(None, max_length=5000)
 
 
 class ChequeRecibidoCreate(ChequeRecibidoBase):
@@ -28,7 +28,7 @@ class ChequeRecibidoUpdate(BaseModel):
     emisor_nombre: Optional[str] = None
     emisor_cuit: Optional[str] = None
     fecha_vencimiento: Optional[date] = None
-    observaciones: Optional[str] = None
+    observaciones: Optional[str] = Field(None, max_length=5000)
 
 
 class DepositarChequeRequest(BaseModel):
@@ -81,7 +81,7 @@ class ChequeEmitidoBase(BaseModel):
     beneficiario_cuit: Optional[str] = Field(None, max_length=20)
     fecha_emision: Optional[date] = None
     fecha_pago: date
-    observaciones: Optional[str] = None
+    observaciones: Optional[str] = Field(None, max_length=5000)
 
 
 class ChequeEmitidoCreate(ChequeEmitidoBase):
@@ -96,7 +96,7 @@ class ChequeEmitidoUpdate(BaseModel):
     beneficiario: Optional[str] = None
     beneficiario_cuit: Optional[str] = None
     fecha_pago: Optional[date] = None
-    observaciones: Optional[str] = None
+    observaciones: Optional[str] = Field(None, max_length=5000)
 
 
 class PagarChequeRequest(BaseModel):

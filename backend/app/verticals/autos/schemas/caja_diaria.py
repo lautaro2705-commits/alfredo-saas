@@ -12,7 +12,7 @@ class CajaDiariaBase(BaseModel):
     fecha: Optional[date] = None
     medio_pago: Optional[str] = Field(default=None, max_length=50)
     numero_comprobante: Optional[str] = Field(default=None, max_length=50)
-    observaciones: Optional[str] = None
+    observaciones: Optional[str] = Field(default=None, max_length=5000)
 
     @field_validator('tipo', mode='before')
     @classmethod
@@ -88,7 +88,7 @@ class CajaDiariaResponse(CajaDiariaBase):
 class CierreCajaCreate(BaseModel):
     mes: int = Field(..., ge=1, le=12)
     anio: int = Field(..., ge=2000, le=2100)
-    observaciones: Optional[str] = None
+    observaciones: Optional[str] = Field(None, max_length=5000)
 
 
 class CierreCajaResponse(BaseModel):

@@ -11,7 +11,7 @@ class CostoDirectoBase(BaseModel):
     proveedor: Optional[str] = Field(None, max_length=100)
     fecha: Optional[date] = None
     numero_comprobante: Optional[str] = Field(None, max_length=50)
-    observaciones: Optional[str] = None
+    observaciones: Optional[str] = Field(None, max_length=5000)
 
 
 class CostoDirectoCreate(CostoDirectoBase):
@@ -20,12 +20,12 @@ class CostoDirectoCreate(CostoDirectoBase):
 
 class CostoDirectoUpdate(BaseModel):
     categoria: Optional[CategoriaCosto] = None
-    descripcion: Optional[str] = None
+    descripcion: Optional[str] = Field(None, max_length=255)
     monto: Optional[float] = None
-    proveedor: Optional[str] = None
+    proveedor: Optional[str] = Field(None, max_length=100)
     fecha: Optional[date] = None
-    numero_comprobante: Optional[str] = None
-    observaciones: Optional[str] = None
+    numero_comprobante: Optional[str] = Field(None, max_length=50)
+    observaciones: Optional[str] = Field(None, max_length=5000)
 
 
 class CostoDirectoResponse(CostoDirectoBase):

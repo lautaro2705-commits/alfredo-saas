@@ -43,7 +43,9 @@ async def listar_costos(
 
 
 @router.get("/categorias")
-async def listar_categorias():
+async def listar_categorias(
+    _token: TokenContext = Depends(get_current_user_with_tenant),
+):
     """Listar categorías de costos disponibles"""
     return [
         {"value": c.value, "label": c.value.replace("_", " ").title()}

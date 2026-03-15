@@ -11,8 +11,8 @@ class UnidadBase(BaseModel):
     anio: int = Field(..., ge=1900, le=2100)
     color: Optional[str] = Field(None, max_length=50)
     kilometraje: Optional[int] = Field(None, ge=0)
-    combustible: Optional[str] = None
-    transmision: Optional[str] = None
+    combustible: Optional[str] = Field(None, max_length=50)
+    transmision: Optional[str] = Field(None, max_length=50)
     dominio: str = Field(..., max_length=20)
     numero_chasis: Optional[str] = Field(None, max_length=50)
     numero_motor: Optional[str] = Field(None, max_length=50)
@@ -62,8 +62,8 @@ class UnidadCreate(UnidadBase):
     precio_publicado: Optional[float] = Field(None, ge=0)
     precio_minimo: Optional[float] = Field(None, ge=0)
     fecha_ingreso: Optional[date] = None
-    observaciones: Optional[str] = None
-    ubicacion: Optional[str] = None
+    observaciones: Optional[str] = Field(None, max_length=5000)
+    ubicacion: Optional[str] = Field(None, max_length=200)
     fotos: Optional[str] = None
 
     @field_validator('estado', mode='before')
@@ -133,25 +133,25 @@ class UnidadCreate(UnidadBase):
 
 
 class UnidadUpdate(BaseModel):
-    marca: Optional[str] = None
-    modelo: Optional[str] = None
-    version: Optional[str] = None
+    marca: Optional[str] = Field(None, max_length=100)
+    modelo: Optional[str] = Field(None, max_length=100)
+    version: Optional[str] = Field(None, max_length=100)
     anio: Optional[int] = None
-    color: Optional[str] = None
+    color: Optional[str] = Field(None, max_length=50)
     kilometraje: Optional[int] = None
-    combustible: Optional[str] = None
-    transmision: Optional[str] = None
-    dominio: Optional[str] = None
-    numero_chasis: Optional[str] = None
-    numero_motor: Optional[str] = None
+    combustible: Optional[str] = Field(None, max_length=50)
+    transmision: Optional[str] = Field(None, max_length=50)
+    dominio: Optional[str] = Field(None, max_length=20)
+    numero_chasis: Optional[str] = Field(None, max_length=50)
+    numero_motor: Optional[str] = Field(None, max_length=50)
     estado: Optional[EstadoUnidad] = None
     origen: Optional[OrigenUnidad] = None
     precio_compra: Optional[float] = None
     gastos_transferencia: Optional[float] = None
     precio_publicado: Optional[float] = None
     precio_minimo: Optional[float] = None
-    observaciones: Optional[str] = None
-    ubicacion: Optional[str] = None
+    observaciones: Optional[str] = Field(None, max_length=5000)
+    ubicacion: Optional[str] = Field(None, max_length=200)
     fotos: Optional[str] = None
 
     @field_validator('estado', mode='before')

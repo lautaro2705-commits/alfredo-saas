@@ -58,6 +58,10 @@ class Settings(BaseSettings):
     AUTH_RATE_LIMIT_REQUESTS: int = 5
     AUTH_RATE_LIMIT_WINDOW: int = 60  # 5 per minute
 
+    # ── Upload Rate Limiting (per tenant) ──
+    UPLOAD_RATE_LIMIT_REQUESTS: int = 10
+    UPLOAD_RATE_LIMIT_WINDOW: int = 60  # 10 per minute
+
     # ── Scheduler ──
     SCHEDULER_ENABLED: bool = True
 

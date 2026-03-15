@@ -2,10 +2,13 @@
 Rutas de autenticación: login, onboarding, /me, password reset/change.
 """
 import json
+import logging
 import secrets
 from datetime import datetime, timedelta, timezone
 
 import redis.asyncio as aioredis
+
+logger = logging.getLogger(__name__)
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -475,7 +478,7 @@ async def confirm_password_reset(
 @router.post("/password-change", response_model=MessageResponse, responses={**error_400, **error_401})
 async def change_password(
     data: PasswordChangeRequest,
-    token: TokenContext = Depends(get_current_token),
+    token: TokenContext = Depends(get_current_user_with_tenant),
     db: AsyncSession = Depends(get_db),
 ):
     """
@@ -505,6 +508,34 @@ async def change_password(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=pwd_errors[0],
         )
+
+    # Check password history — prevent reuse of last N passwords
+    from app.platform.models.user import PasswordHistory, PASSWORD_HISTORY_LIMIT
+
+    history_result = await db.execute(
+        select(PasswordHistory)
+        .where(PasswordHistory.user_id == user.id)
+        .order_by(PasswordHistory.created_at.desc())
+        .limit(PASSWORD_HISTORY_LIMIT)
+    )
+    past_passwords = history_result.scalars().all()
+
+    for past in past_passwords:
+        if verify_password(data.new_password, past.hashed_password):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"No puede reusar una de las últimas {PASSWORD_HISTORY_LIMIT} contraseñas.",
+            )
+
+    # Also check against current password (already verified above, but be explicit)
+    if verify_password(data.new_password, user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="La nueva contraseña no puede ser igual a la actual.",
+        )
+
+    # Save current password to history before changing
+    db.add(PasswordHistory(user_id=user.id, hashed_password=user.hashed_password))
 
     user.hashed_password = get_password_hash(data.new_password)
     await db.commit()

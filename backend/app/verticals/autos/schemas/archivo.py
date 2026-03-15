@@ -6,7 +6,7 @@ from app.verticals.autos.models.archivo import TipoDocumentoArchivo
 
 class ArchivoBase(BaseModel):
     tipo_documento: TipoDocumentoArchivo
-    descripcion: Optional[str] = None
+    descripcion: Optional[str] = Field(None, max_length=1000)
 
 
 class ArchivoCreate(ArchivoBase):

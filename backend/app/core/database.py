@@ -70,9 +70,17 @@ async def set_tenant_context(session: AsyncSession, tenant_id: str):
     1. La app conecta como saas_app (no-superuser) → RLS aplica
     2. SET LOCAL vive dentro de la transacción autobegin de SQLAlchemy
     3. Al cerrar la sesión, la transacción termina y el SET LOCAL desaparece
+
+    SEGURIDAD — f-string en SET LOCAL:
+    Se usa f-string en lugar de parámetro bind porque PostgreSQL no permite
+    parámetros ($1) en SET LOCAL. La inyección SQL se previene validando
+    estrictamente el valor como UUID canónico (uuid.UUID() rechaza cualquier
+    valor que no sea un UUID válido). Esta es la mitigación deliberada.
     """
     from uuid import UUID
-    # Validar UUID estricto para prevenir SQL injection
+    # Validar UUID estricto para prevenir SQL injection.
+    # UUID() rechaza cualquier input que no sea un UUID válido,
+    # garantizando que solo valores de la forma xxxxxxxx-xxxx-... llegan al SQL.
     validated = str(UUID(str(tenant_id)))
     await session.execute(
         text(f"SET LOCAL app.current_tenant_id = '{validated}'")

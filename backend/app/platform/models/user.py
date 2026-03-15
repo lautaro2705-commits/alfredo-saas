@@ -1,10 +1,11 @@
 """
 Modelo de usuario — Alfredo.
 Multi-tenant con UUID PK. Cada usuario pertenece a un tenant.
+Includes PasswordHistory to prevent password reuse.
 """
 import uuid
 import enum
-from sqlalchemy import Column, String, Boolean, DateTime, Enum, ForeignKey, Text
+from sqlalchemy import Column, String, Boolean, DateTime, Enum, ForeignKey, Text, Integer
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -143,3 +144,25 @@ class PlatformUser(Base):
 
     def __repr__(self):
         return f"<PlatformUser {self.username} @ tenant={self.tenant_id}>"
+
+
+# ── Password History (L8: prevent password reuse) ──
+# Stores last N password hashes per user to prevent re-use of compromised passwords.
+
+PASSWORD_HISTORY_LIMIT = 5  # Number of previous passwords to check against
+
+
+class PasswordHistory(Base):
+    __tablename__ = "password_history"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("platform_users.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    hashed_password = Column(String(255), nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    user = relationship("PlatformUser", backref="password_history")

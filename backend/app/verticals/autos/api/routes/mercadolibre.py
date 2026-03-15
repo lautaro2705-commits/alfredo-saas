@@ -173,9 +173,9 @@ async def ml_callback(
             url=f"{frontend_url}/mercadolibre/callback?success=true"
         )
 
-    except Exception as e:
+    except Exception:
         return RedirectResponse(
-            url=f"{frontend_url}/mercadolibre/callback?error={str(e)[:100]}"
+            url=f"{frontend_url}/mercadolibre/callback?error=auth_failed"
         )
 
 
@@ -209,7 +209,9 @@ async def disconnect_ml(
 # ============== Publicación Endpoints ==============
 
 @router.get("/categories")
-async def get_categories():
+async def get_categories(
+    _token: TokenContext = Depends(get_current_user_with_tenant),
+):
     """
     Obtiene las categorías de autos disponibles en MercadoLibre.
     """
@@ -221,7 +223,9 @@ async def get_categories():
 
 
 @router.get("/listing-types")
-async def get_listing_types():
+async def get_listing_types(
+    _token: TokenContext = Depends(get_current_user_with_tenant),
+):
     """
     Obtiene los tipos de publicación disponibles.
     """
@@ -253,7 +257,7 @@ async def publish_unidad(
         )
 
     # Obtener la unidad
-    result = await db.execute(select(Unidad).where(Unidad.id == unidad_id))
+    result = await db.execute(select(Unidad).where(Unidad.active(), Unidad.id == unidad_id))
     unidad = result.scalar_one_or_none()
     if not unidad:
         raise HTTPException(status_code=404, detail="Unidad no encontrada")
@@ -306,10 +310,10 @@ async def publish_unidad(
             status=result_ml["status"]
         )
 
-    except Exception as e:
+    except Exception:
         raise HTTPException(
             status_code=400,
-            detail=f"Error al publicar: {str(e)}"
+            detail="Error al publicar en MercadoLibre. Intente nuevamente."
         )
 
 
@@ -329,7 +333,7 @@ async def sync_unidad(
             detail="Debes conectar tu cuenta de MercadoLibre primero"
         )
 
-    result = await db.execute(select(Unidad).where(Unidad.id == unidad_id))
+    result = await db.execute(select(Unidad).where(Unidad.active(), Unidad.id == unidad_id))
     unidad = result.scalar_one_or_none()
     if not unidad:
         raise HTTPException(status_code=404, detail="Unidad no encontrada")
@@ -354,10 +358,10 @@ async def sync_unidad(
             new_price=unidad.precio_publicado
         )
 
-    except Exception as e:
+    except Exception:
         raise HTTPException(
             status_code=400,
-            detail=f"Error al sincronizar: {str(e)}"
+            detail="Error al sincronizar con MercadoLibre. Intente nuevamente."
         )
 
 
@@ -374,7 +378,7 @@ async def pause_unidad(
     if not ml_token:
         raise HTTPException(status_code=400, detail="ML no conectado")
 
-    result = await db.execute(select(Unidad).where(Unidad.id == unidad_id))
+    result = await db.execute(select(Unidad).where(Unidad.active(), Unidad.id == unidad_id))
     unidad = result.scalar_one_or_none()
     if not unidad or not unidad.mercadolibre_id:
         raise HTTPException(status_code=404, detail="Publicación no encontrada")
@@ -384,8 +388,8 @@ async def pause_unidad(
         unidad.mercadolibre_status = "paused"
         await db.commit()
         return {"success": True, "status": "paused"}
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except Exception:
+        raise HTTPException(status_code=400, detail="Error al pausar publicación")
 
 
 @router.post("/unidades/{unidad_id}/activate")
@@ -401,7 +405,7 @@ async def activate_unidad(
     if not ml_token:
         raise HTTPException(status_code=400, detail="ML no conectado")
 
-    result = await db.execute(select(Unidad).where(Unidad.id == unidad_id))
+    result = await db.execute(select(Unidad).where(Unidad.active(), Unidad.id == unidad_id))
     unidad = result.scalar_one_or_none()
     if not unidad or not unidad.mercadolibre_id:
         raise HTTPException(status_code=404, detail="Publicación no encontrada")
@@ -411,8 +415,8 @@ async def activate_unidad(
         unidad.mercadolibre_status = "active"
         await db.commit()
         return {"success": True, "status": "active"}
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except Exception:
+        raise HTTPException(status_code=400, detail="Error al reactivar publicación")
 
 
 @router.delete("/unidades/{unidad_id}")
@@ -428,7 +432,7 @@ async def close_unidad(
     if not ml_token:
         raise HTTPException(status_code=400, detail="ML no conectado")
 
-    result = await db.execute(select(Unidad).where(Unidad.id == unidad_id))
+    result = await db.execute(select(Unidad).where(Unidad.active(), Unidad.id == unidad_id))
     unidad = result.scalar_one_or_none()
     if not unidad or not unidad.mercadolibre_id:
         raise HTTPException(status_code=404, detail="Publicación no encontrada")
@@ -440,8 +444,8 @@ async def close_unidad(
         unidad.mercadolibre_url = None
         await db.commit()
         return {"success": True, "message": "Publicación cerrada"}
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except Exception:
+        raise HTTPException(status_code=400, detail="Error al cerrar publicación")
 
 
 @router.get("/unidades/{unidad_id}/status")
@@ -453,7 +457,7 @@ async def get_unidad_ml_status(
     """
     Obtiene el estado actual de la publicación en MercadoLibre.
     """
-    result = await db.execute(select(Unidad).where(Unidad.id == unidad_id))
+    result = await db.execute(select(Unidad).where(Unidad.active(), Unidad.id == unidad_id))
     unidad = result.scalar_one_or_none()
     if not unidad:
         raise HTTPException(status_code=404, detail="Unidad no encontrada")

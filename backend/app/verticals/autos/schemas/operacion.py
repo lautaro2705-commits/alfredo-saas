@@ -22,12 +22,12 @@ class OperacionBase(BaseModel):
     forma_pago: FormaPago = FormaPago.CONTADO
     monto_contado: Optional[float] = Field(0, ge=0)
     monto_financiado: Optional[float] = Field(0, ge=0)
-    entidad_financiera: Optional[str] = None
+    entidad_financiera: Optional[str] = Field(None, max_length=200)
     fecha_operacion: Optional[date] = None
     fecha_entrega: Optional[date] = None
     vendedor_id: Optional[UUID] = None
     comision: Optional[float] = Field(0, ge=0)
-    observaciones: Optional[str] = None
+    observaciones: Optional[str] = Field(None, max_length=5000)
     costo_transferencia_venta: Optional[float] = Field(0, ge=0)  # Costo de transferencia desglosado
 
 
@@ -41,13 +41,13 @@ class OperacionUpdate(BaseModel):
     forma_pago: Optional[FormaPago] = None
     monto_contado: Optional[float] = None
     monto_financiado: Optional[float] = None
-    entidad_financiera: Optional[str] = None
+    entidad_financiera: Optional[str] = Field(None, max_length=200)
     fecha_entrega: Optional[date] = None
     comision: Optional[float] = None
     boleto_compraventa: Optional[bool] = None
     form_08_firmado: Optional[bool] = None
     transferencia_realizada: Optional[bool] = None
-    observaciones: Optional[str] = None
+    observaciones: Optional[str] = Field(None, max_length=5000)
     costo_transferencia_venta: Optional[float] = None
     km_entrega: Optional[int] = None
 

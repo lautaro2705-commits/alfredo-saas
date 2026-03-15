@@ -20,7 +20,9 @@ from app.core.database import get_db, set_tenant_context
 
 
 # ── Password Hashing ──
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Explicitly set bcrypt rounds (default is 12, we use 13 for stronger hashing).
+# Higher rounds = slower hash = harder brute-force, but also slower login.
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__rounds=13)
 security_scheme = HTTPBearer()
 
 
