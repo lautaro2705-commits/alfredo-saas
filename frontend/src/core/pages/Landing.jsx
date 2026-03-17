@@ -546,7 +546,7 @@ function Footer() {
 
 // ── WhatsApp Floating Button ──
 function WhatsAppButton() {
-  const phone = '543512055411'
+  const phone = '543518567543'
   const message = encodeURIComponent('Hola! Me interesa Alfredo para mi agencia de autos.')
 
   return (
