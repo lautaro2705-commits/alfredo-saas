@@ -25,6 +25,7 @@ export default function Login() {
     const result = await login(email, password)
 
     if (result.success) {
+      window.dataLayer?.push({ event: 'login', method: 'email' })
       navigate('/')
     } else {
       setError(result.error)

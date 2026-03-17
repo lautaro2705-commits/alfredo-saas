@@ -46,6 +46,11 @@ export default function Onboarding() {
     const result = await onboarding(data)
 
     if (result.success) {
+      window.dataLayer?.push({
+        event: 'sign_up',
+        method: 'email',
+        agency_name: data.nombre_agencia,
+      })
       navigate('/')
     } else {
       setError(result.error)

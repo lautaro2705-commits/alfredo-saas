@@ -189,6 +189,7 @@ function Hero() {
         <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link
             to="/registro"
+            onClick={() => window.dataLayer?.push({ event: 'cta_click', cta_location: 'hero', cta_text: 'Empezar gratis' })}
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-primary-600 text-white px-8 py-3.5 rounded-xl text-base font-semibold hover:bg-primary-700 transition-all shadow-lg shadow-primary-600/25 hover:shadow-xl hover:shadow-primary-600/30"
           >
             Empezar gratis
