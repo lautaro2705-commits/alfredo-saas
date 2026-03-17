@@ -32,10 +32,17 @@ sentry-sdk[fastapi]==2.54.0
 # Scheduler
 APScheduler==3.10.4
 
+# Cloud storage
+cloudinary==1.38.0
+
+# Extra deps
+python-dateutil==2.8.2
+PyJWT==2.8.0
+
 # Utils
 python-multipart==0.0.7
 python-dotenv==1.0.1
 
-# Dev
-pytest==8.0.0
+# Dev (pinned compatible versions)
+pytest==7.4.4
 pytest-asyncio==0.23.4
