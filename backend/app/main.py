@@ -238,7 +238,7 @@ async def health():
 
 
 # ── Seed endpoint (temporal, protegido por SECRET_KEY) ──
-@app.post("/api/v1/admin/seed")
+@app.post("/internal/seed")
 async def run_seed(secret: str = ""):
     """Inicializar DB con datos de seed. Requiere SECRET_KEY como parámetro."""
     from fastapi.responses import JSONResponse
