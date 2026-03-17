@@ -336,10 +336,10 @@ function SocialProof() {
         {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 text-center mb-16">
           {[
-            { value: '50+', label: 'Agencias activas' },
-            { value: '10.000+', label: 'Vehículos gestionados' },
+            { value: '500+', label: 'Autos gestionados' },
+            { value: '24/7', label: 'Soporte activo' },
             { value: '99.9%', label: 'Uptime' },
-            { value: '4.8/5', label: 'Satisfacción' },
+            { value: '2 min', label: 'Setup inicial' },
           ].map((stat) => (
             <div key={stat.label}>
               <div className="text-2xl sm:text-3xl font-extrabold text-primary-600 dark:text-primary-400">{stat.value}</div>
