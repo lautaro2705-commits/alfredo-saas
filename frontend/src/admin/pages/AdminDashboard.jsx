@@ -346,15 +346,22 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* Revenue + breakdown */}
+      {/* Revenue + MRR + breakdown */}
       {metrics && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border border-green-200 p-5">
+            <p className="text-sm text-green-600 font-medium">MRR Estimado</p>
+            <p className="text-2xl font-bold text-green-700 mt-1">
+              ${(metrics.mrr_estimated || 0).toLocaleString('es-AR')}
+            </p>
+            <p className="text-xs text-green-500 mt-1">Ingreso mensual recurrente</p>
+          </div>
           <div className="bg-white rounded-xl border p-5">
-            <p className="text-sm text-gray-500">Revenue total</p>
+            <p className="text-sm text-gray-500">Revenue cobrado</p>
             <p className="text-2xl font-bold text-gray-900 mt-1">
               ${metrics.total_revenue_ars.toLocaleString('es-AR')}
             </p>
-            <p className="text-xs text-gray-400 mt-1">ARS acumulado</p>
+            <p className="text-xs text-gray-400 mt-1">ARS acumulado real</p>
           </div>
           <div className="bg-white rounded-xl border p-5">
             <p className="text-sm text-gray-500">Signups ultimos 7 dias</p>
@@ -363,11 +370,11 @@ export default function AdminDashboard() {
             </p>
           </div>
           <div className="bg-white rounded-xl border p-5">
-            <p className="text-sm text-gray-500">Por vertical</p>
+            <p className="text-sm text-gray-500">Por plan</p>
             <div className="mt-2 space-y-1">
-              {Object.entries(metrics.tenants_by_vertical).map(([v, count]) => (
-                <div key={v} className="flex justify-between text-sm">
-                  <span className="capitalize text-gray-700">{v}</span>
+              {Object.entries(metrics.tenants_by_plan || {}).map(([plan, count]) => (
+                <div key={plan} className="flex justify-between text-sm">
+                  <span className="capitalize text-gray-700">{plan}</span>
                   <span className="font-medium">{count}</span>
                 </div>
               ))}

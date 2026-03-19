@@ -104,6 +104,7 @@ class PlatformMetrics(BaseModel):
     tenants_by_plan: dict[str, int]
     total_users: int
     total_revenue_ars: float
+    mrr_estimated: float = 0  # MRR estimado basado en planes activos
     recent_signups: int  # last 7 days
 
 

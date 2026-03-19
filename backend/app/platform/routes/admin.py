@@ -98,6 +98,17 @@ async def get_metrics(
     )
     recent_signups = recent_q.scalar() or 0
 
+    # MRR estimado (basado en planes activos de tenants que pagan)
+    plan_prices = {
+        "basico": 49000,
+        "profesional": 69000,
+        "premium": 170000,
+    }
+    mrr = sum(
+        plan_prices.get(plan, 0) * count
+        for plan, count in tenants_by_plan.items()
+    )
+
     return PlatformMetrics(
         total_tenants=total_tenants,
         active_tenants=active_tenants,
@@ -107,6 +118,7 @@ async def get_metrics(
         tenants_by_plan=tenants_by_plan,
         total_users=total_users,
         total_revenue_ars=total_revenue,
+        mrr_estimated=mrr,
         recent_signups=recent_signups,
     )
 
