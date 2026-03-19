@@ -128,6 +128,7 @@ function AutosVertical() {
         <Route path="mi-perfil" element={<L><MiPerfil /></L>} />
         <Route path="billing" element={<AdminRoute><L><Billing /></L></AdminRoute>} />
         <Route path="mercadolibre/callback" element={<L><MercadoLibreCallback /></L>} />
+        <Route path="admin" element={<PlatformAdminRoute><L><AdminDashboard /></L></PlatformAdminRoute>} />
         <Route path="*" element={<Navigate to="/" />} />
       </Route>
     </Routes>
@@ -152,7 +153,6 @@ export default function App() {
       {/* Legal pages — public, no auth required */}
       <Route path="/terminos" element={<L><Legal /></L>} />
       <Route path="/privacidad" element={<L><Legal /></L>} />
-      <Route path="/admin/*" element={<PlatformAdminRoute><L><AdminDashboard /></L></PlatformAdminRoute>} />
       {/* Home: Landing (visitor) or Dashboard (authenticated) */}
       <Route path="/" element={<HomePage />} />
       {/* All other routes require auth */}
