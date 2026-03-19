@@ -35,7 +35,8 @@ import {
   AlertTriangle,
   Sun,
   Moon,
-  Keyboard
+  Keyboard,
+  Shield,
 } from 'lucide-react'
 import clsx from 'clsx'
 
@@ -93,6 +94,14 @@ const sidebarSections = [
     items: [
       { name: 'Usuarios', href: '/usuarios', icon: Settings },
       { name: 'Facturacion', href: '/billing', icon: CreditCard },
+    ],
+  },
+  {
+    id: 'platform',
+    label: 'Plataforma',
+    platformAdminOnly: true,
+    items: [
+      { name: 'Admin Panel', href: '/admin', icon: Shield },
     ],
   },
 ]
@@ -167,7 +176,7 @@ export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [collapsedSections, setCollapsedSections] = useState({})
-  const { user, logout, isAdmin, sessionExpired, dismissSessionExpired } = useAuth()
+  const { user, logout, isAdmin, isPlatformAdmin, sessionExpired, dismissSessionExpired } = useAuth()
   const { theme, toggleTheme, isDark } = useTheme()
   const { showHelp, setShowHelp } = useKeyboardShortcuts({ onOpenSearch: () => setSearchOpen(true) })
   const navigate = useNavigate()
@@ -198,7 +207,11 @@ export default function Layout() {
   }
 
   const visibleSections = sidebarSections.filter(
-    section => !section.adminOnly || isAdmin
+    section => {
+      if (section.platformAdminOnly) return isPlatformAdmin
+      if (section.adminOnly) return isAdmin
+      return true
+    }
   )
 
   const renderSidebarNav = (onNavClick) => (
