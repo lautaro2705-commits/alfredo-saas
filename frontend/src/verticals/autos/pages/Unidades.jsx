@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { unidadesAPI } from '../services/api'
@@ -18,7 +18,13 @@ import {
   Users,
   CheckCircle,
   TrendingUp,
-  TrendingDown
+  TrendingDown,
+  CheckSquare,
+  Square,
+  X,
+  Tag,
+  Percent,
+  ArrowDownToLine,
 } from 'lucide-react'
 import clsx from 'clsx'
 import BadgeCompetitividad from '../components/BadgeCompetitividad'
@@ -55,6 +61,92 @@ export default function Unidades() {
   const [filtroOrigen, setFiltroOrigen] = useState('')
   const [soloInmovilizados, setSoloInmovilizados] = useState(false)
   const [showValorizacion, setShowValorizacion] = useState(false)
+
+  // ── Bulk selection ──
+  const [selectionMode, setSelectionMode] = useState(false)
+  const [selected, setSelected] = useState(new Set())
+  const [bulkAction, setBulkAction] = useState(null) // 'estado' | 'precio' | 'delete'
+  const [bulkEstado, setBulkEstado] = useState('disponible')
+  const [bulkPrecioPercent, setBulkPrecioPercent] = useState('')
+
+  const toggleSelect = useCallback((id, e) => {
+    if (e) { e.preventDefault(); e.stopPropagation() }
+    setSelected(prev => {
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      return next
+    })
+  }, [])
+
+  // selectAll is defined after unidadesFiltradas — see below
+
+  const exitSelectionMode = useCallback(() => {
+    setSelectionMode(false)
+    setSelected(new Set())
+    setBulkAction(null)
+  }, [])
+
+  // Bulk mutations
+  const bulkUpdateMutation = useMutation({
+    mutationFn: async ({ ids, updates }) => {
+      const promises = ids.map(id => unidadesAPI.update(id, updates))
+      return Promise.allSettled(promises)
+    },
+    onSuccess: (results) => {
+      const ok = results.filter(r => r.status === 'fulfilled').length
+      const fail = results.filter(r => r.status === 'rejected').length
+      queryClient.invalidateQueries(['unidades'])
+      queryClient.invalidateQueries(['valorizacion-stock'])
+      if (fail === 0) toast.success(`${ok} unidades actualizadas`)
+      else toast.success(`${ok} actualizadas, ${fail} con error`)
+      exitSelectionMode()
+    },
+    onError: () => toast.error('Error en operacion masiva')
+  })
+
+  const bulkDeleteMutation = useMutation({
+    mutationFn: async (ids) => {
+      const promises = ids.map(id => unidadesAPI.delete(id, true))
+      return Promise.allSettled(promises)
+    },
+    onSuccess: (results) => {
+      const ok = results.filter(r => r.status === 'fulfilled').length
+      queryClient.invalidateQueries(['unidades'])
+      queryClient.invalidateQueries(['valorizacion-stock'])
+      toast.success(`${ok} unidades eliminadas`)
+      exitSelectionMode()
+    },
+    onError: () => toast.error('Error al eliminar')
+  })
+
+  const handleBulkApply = () => {
+    const ids = Array.from(selected)
+    if (ids.length === 0) return
+
+    if (bulkAction === 'estado') {
+      bulkUpdateMutation.mutate({ ids, updates: { estado: bulkEstado } })
+    } else if (bulkAction === 'precio') {
+      const pct = parseFloat(bulkPrecioPercent)
+      if (isNaN(pct)) { toast.error('Porcentaje invalido'); return }
+      // Apply percentage to each unit individually
+      const promises = ids.map(id => {
+        const unidad = unidadesFiltradas?.find(u => u.id === id)
+        if (!unidad?.precio_publicado) return Promise.resolve()
+        const newPrice = Math.round(unidad.precio_publicado * (1 + pct / 100))
+        return unidadesAPI.update(id, { precio_publicado: newPrice })
+      })
+      Promise.allSettled(promises).then(results => {
+        const ok = results.filter(r => r.status === 'fulfilled').length
+        queryClient.invalidateQueries(['unidades'])
+        toast.success(`Precio ajustado en ${ok} unidades`)
+        exitSelectionMode()
+      })
+    } else if (bulkAction === 'delete') {
+      if (window.confirm(`Eliminar ${ids.length} unidades? Esta accion no se puede deshacer.`)) {
+        bulkDeleteMutation.mutate(ids)
+      }
+    }
+  }
 
   const { data: unidades, isLoading } = useQuery({
     queryKey: ['unidades', buscar, filtroEstado, soloInmovilizados],
@@ -117,6 +209,15 @@ export default function Unidades() {
     return true
   })
 
+  const selectAll = () => {
+    if (!unidadesFiltradas) return
+    if (selected.size === unidadesFiltradas.length) {
+      setSelected(new Set())
+    } else {
+      setSelected(new Set(unidadesFiltradas.map(u => u.id)))
+    }
+  }
+
   return (
     <div className="space-y-6 pb-20 lg:pb-0">
       {/* Header */}
@@ -126,6 +227,25 @@ export default function Unidades() {
           <p className="text-gray-500 dark:text-gray-400">{unidadesFiltradas?.length || 0} unidades</p>
         </div>
         <div className="flex gap-2">
+          {isAdmin && !selectionMode && (
+            <button
+              onClick={() => setSelectionMode(true)}
+              className="btn btn-secondary flex items-center gap-2"
+              title="Seleccion multiple"
+            >
+              <CheckSquare className="w-5 h-5" />
+              <span className="hidden sm:inline">Seleccionar</span>
+            </button>
+          )}
+          {selectionMode && (
+            <button
+              onClick={exitSelectionMode}
+              className="btn btn-secondary flex items-center gap-2 text-red-600 border-red-200 hover:bg-red-50"
+            >
+              <X className="w-5 h-5" />
+              Cancelar
+            </button>
+          )}
           <Link to="/vendidos" className="btn btn-secondary flex items-center gap-2">
             <CheckCircle className="w-5 h-5" />
             Vendidos
@@ -304,18 +424,50 @@ export default function Unidades() {
           secondaryHref={buscar || filtroEstado ? undefined : '/vendidos'}
         />
       ) : (
+        <>
+        {/* Select all bar */}
+        {selectionMode && (
+          <div className="flex items-center gap-3 px-4 py-2 bg-primary-50 dark:bg-primary-950/30 border border-primary-200 dark:border-primary-800 rounded-lg">
+            <button onClick={selectAll} className="flex items-center gap-2 text-sm text-primary-700 dark:text-primary-300 hover:text-primary-900 transition-colors">
+              {selected.size === unidadesFiltradas?.length
+                ? <CheckSquare className="w-4 h-4" />
+                : <Square className="w-4 h-4" />
+              }
+              {selected.size === unidadesFiltradas?.length ? 'Deseleccionar todo' : 'Seleccionar todo'}
+            </button>
+            <span className="text-sm text-primary-600 dark:text-primary-400">
+              {selected.size} de {unidadesFiltradas?.length} seleccionadas
+            </span>
+          </div>
+        )}
+
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {unidadesFiltradas?.map((unidad) => (
             <Link
               key={unidad.id}
-              to={`/unidades/${unidad.id}`}
+              to={selectionMode ? '#' : `/unidades/${unidad.id}`}
+              onClick={selectionMode ? (e) => toggleSelect(unidad.id, e) : undefined}
               className={clsx(
                 'card hover:border-primary-300 dark:hover:border-primary-600 transition-all relative',
-                unidad.origen === 'consignacion' && 'border-l-4 border-l-purple-500'
+                unidad.origen === 'consignacion' && 'border-l-4 border-l-purple-500',
+                selectionMode && selected.has(unidad.id) && 'ring-2 ring-primary-500 border-primary-400'
               )}
             >
+              {/* Selection checkbox */}
+              {selectionMode && (
+                <button
+                  onClick={(e) => toggleSelect(unidad.id, e)}
+                  className="absolute top-2 left-2 p-1 z-10"
+                >
+                  {selected.has(unidad.id)
+                    ? <CheckSquare className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+                    : <Square className="w-5 h-5 text-gray-400" />
+                  }
+                </button>
+              )}
+
               {/* Boton eliminar */}
-              {isAdmin && (
+              {isAdmin && !selectionMode && (
                 <button
                   onClick={(e) => handleDelete(e, unidad)}
                   disabled={deleteMutation.isPending}
@@ -392,6 +544,114 @@ export default function Unidades() {
               </div>
             </Link>
           ))}
+        </div>
+        </>
+      )}
+
+      {/* Floating bulk action bar */}
+      {selectionMode && selected.size > 0 && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 p-4 w-[90vw] max-w-xl animate-page-in">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-sm font-medium text-gray-900 dark:text-white">
+              {selected.size} unidad{selected.size > 1 ? 'es' : ''} seleccionada{selected.size > 1 ? 's' : ''}
+            </span>
+            <button onClick={exitSelectionMode} className="p-1 text-gray-400 hover:text-gray-600">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Action buttons */}
+          {!bulkAction && (
+            <div className="flex gap-2">
+              <button
+                onClick={() => setBulkAction('estado')}
+                className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl text-sm font-medium transition-colors"
+              >
+                <Tag className="w-4 h-4" />
+                Cambiar estado
+              </button>
+              <button
+                onClick={() => setBulkAction('precio')}
+                className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 bg-green-50 hover:bg-green-100 text-green-700 rounded-xl text-sm font-medium transition-colors"
+              >
+                <Percent className="w-4 h-4" />
+                Ajustar precio
+              </button>
+              <button
+                onClick={() => setBulkAction('delete')}
+                className="flex items-center justify-center gap-2 px-3 py-2.5 bg-red-50 hover:bg-red-100 text-red-700 rounded-xl text-sm font-medium transition-colors"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+
+          {/* Estado form */}
+          {bulkAction === 'estado' && (
+            <div className="flex gap-2">
+              <button onClick={() => setBulkAction(null)} className="p-2 text-gray-400 hover:text-gray-600">
+                <X className="w-4 h-4" />
+              </button>
+              <select
+                value={bulkEstado}
+                onChange={(e) => setBulkEstado(e.target.value)}
+                className="input flex-1"
+              >
+                <option value="disponible">Disponible</option>
+                <option value="reservado">Reservado</option>
+                <option value="en_reparacion">En reparacion</option>
+              </select>
+              <button
+                onClick={handleBulkApply}
+                disabled={bulkUpdateMutation.isPending}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium transition-colors disabled:opacity-50"
+              >
+                Aplicar
+              </button>
+            </div>
+          )}
+
+          {/* Precio form */}
+          {bulkAction === 'precio' && (
+            <div className="flex gap-2">
+              <button onClick={() => setBulkAction(null)} className="p-2 text-gray-400 hover:text-gray-600">
+                <X className="w-4 h-4" />
+              </button>
+              <div className="flex-1 relative">
+                <input
+                  type="number"
+                  placeholder="Ej: -10 para bajar 10%"
+                  value={bulkPrecioPercent}
+                  onChange={(e) => setBulkPrecioPercent(e.target.value)}
+                  className="input pr-8"
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">%</span>
+              </div>
+              <button
+                onClick={handleBulkApply}
+                className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm font-medium transition-colors"
+              >
+                Aplicar
+              </button>
+            </div>
+          )}
+
+          {/* Delete confirm */}
+          {bulkAction === 'delete' && (
+            <div className="flex gap-2">
+              <button onClick={() => setBulkAction(null)} className="p-2 text-gray-400 hover:text-gray-600">
+                <X className="w-4 h-4" />
+              </button>
+              <p className="flex-1 text-sm text-red-600 flex items-center">Eliminar {selected.size} unidades?</p>
+              <button
+                onClick={handleBulkApply}
+                disabled={bulkDeleteMutation.isPending}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-sm font-medium transition-colors disabled:opacity-50"
+              >
+                Confirmar
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>

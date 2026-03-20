@@ -17,14 +17,17 @@ import {
   XCircle,
   Clock,
   Trash2,
-  Eye
+  Eye,
+  MessageCircle,
 } from 'lucide-react'
 import clsx from 'clsx'
+import WhatsAppTemplates from '../components/WhatsAppTemplates'
 
 export default function Interesados() {
   const queryClient = useQueryClient()
   const [modalOpen, setModalOpen] = useState(false)
   const [notifModalOpen, setNotifModalOpen] = useState(false)
+  const [waInteresado, setWaInteresado] = useState(null) // for WhatsApp templates modal
   const [filtroActivos, setFiltroActivos] = useState(true)
   const [busqueda, setBusqueda] = useState('')
 
@@ -244,10 +247,19 @@ export default function Interesados() {
                     </div>
                   </div>
                   <div className="flex gap-2">
+                    {interesado.activo && interesado.telefono && (
+                      <button
+                        onClick={() => setWaInteresado(interesado)}
+                        className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 dark:hover:bg-green-950/30 rounded-lg transition-colors"
+                        title="Enviar WhatsApp"
+                      >
+                        <MessageCircle className="w-5 h-5" />
+                      </button>
+                    )}
                     {interesado.activo && (
                       <button
                         onClick={() => handleDesactivar(interesado)}
-                        className="p-2 text-gray-400 hover:text-red-600"
+                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                         title="Desactivar"
                       >
                         <XCircle className="w-5 h-5" />
@@ -440,6 +452,18 @@ export default function Interesados() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* WhatsApp Templates Modal */}
+      {waInteresado && (
+        <WhatsAppTemplates
+          telefono={waInteresado.telefono}
+          nombre={waInteresado.nombre_completo}
+          vehiculo={[waInteresado.marca_buscada, waInteresado.modelo_buscado].filter(Boolean).join(' ') || 'vehiculo'}
+          precio={waInteresado.precio_maximo ? formatCurrency(waInteresado.precio_maximo) : null}
+          agencia="nuestra agencia"
+          onClose={() => setWaInteresado(null)}
+        />
       )}
     </div>
   )

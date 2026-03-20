@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { dashboardAPI } from '../services/api'
+import { dashboardAPI, unidadesAPI } from '../services/api'
 import { useAuth } from '../context/AuthContext'
 import { useNotifications } from '@/core/hooks/useNotifications'
 import { Link } from 'react-router-dom'
@@ -30,6 +30,7 @@ import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import clsx from 'clsx'
 import { DashboardSkeleton } from '../components/Skeletons'
+import SmartAlerts from '../components/SmartAlerts'
 
 // ── Dashboard widget visibility (persisted in localStorage) ──
 const WIDGET_STORAGE_KEY = 'alfredo_dashboard_widgets'
@@ -249,6 +250,17 @@ export default function Dashboard() {
     retry: 2,
   })
 
+  // Fetch units for smart alerts (only for admin)
+  const { data: stockUnidades } = useQuery({
+    queryKey: ['unidades-smart-alerts'],
+    queryFn: async () => {
+      const res = await unidadesAPI.list({ excluir_vendidos: true })
+      return res.data
+    },
+    enabled: isAdmin,
+    staleTime: 5 * 60 * 1000, // 5 min cache
+  })
+
   if (isLoading) {
     return <DashboardSkeleton />
   }
@@ -466,6 +478,9 @@ export default function Dashboard() {
           <p className="text-sm text-gray-500 dark:text-gray-400">Clientes registrados</p>
         </div>
       </div>}
+
+      {/* Smart Alerts - intelligent stock suggestions */}
+      {isAdmin && stockUnidades && <SmartAlerts unidades={stockUnidades} />}
 
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Alertas */}
