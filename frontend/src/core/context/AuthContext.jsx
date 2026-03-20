@@ -61,7 +61,7 @@ export function AuthProvider({ children }) {
           if (res.data) {
             setUser(res.data)
           }
-        } catch {
+        } catch (e) {
           // If even the refresh fails, interceptor calls handleSessionEnd
         }
       }
@@ -193,7 +193,7 @@ export function AuthProvider({ children }) {
     if (rt) {
       try {
         await authAPI.logout(rt)
-      } catch {
+      } catch (e) {
         // Ignore — we're logging out regardless
       }
     }

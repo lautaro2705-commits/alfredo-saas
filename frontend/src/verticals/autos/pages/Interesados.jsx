@@ -219,7 +219,7 @@ export default function Interesados() {
                 key={interesado.id}
                 className={clsx(
                   "p-4 rounded-lg border",
-                  interesado.activo ? "bg-white border-gray-200 dark:border-gray-700" : "bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-800"
+                  interesado.activo ? "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700" : "bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-800"
                 )}
               >
                 <div className="flex items-start justify-between">

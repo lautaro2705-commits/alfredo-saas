@@ -5,9 +5,10 @@ from fastapi.responses import HTMLResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from typing import Optional
-from app.core.database import get_db
+from app.core.database import get_db, admin_session_maker
 from app.core.security import get_current_user_with_tenant, TokenContext
 from app.verticals.autos.models.unidad import Unidad, EstadoUnidad
+from app.verticals.autos.models.configuracion import ConfiguracionNegocio
 from app.verticals.autos.models.archivo import ArchivoUnidad, TipoDocumentoArchivo
 
 
@@ -399,3 +400,87 @@ async def datos_compartir(
         "ficha_html_url": f"/api/v1/marketing/ficha-venta/{unidad_id}/html",
         "ficha_json_url": f"/api/v1/marketing/ficha-venta/{unidad_id}"
     }
+
+
+@router.get("/ficha-publica/{dominio}")
+async def ficha_publica(dominio: str):
+    """
+    Ficha publica de un vehiculo — no requiere autenticacion.
+    Busca por dominio (patente) y devuelve datos para la pagina publica.
+    Usa admin_session_maker para saltear RLS (endpoint publico, no hay tenant context).
+    """
+    async with admin_session_maker() as session:
+        result = await session.execute(
+            select(Unidad).where(
+                Unidad.dominio == dominio.upper(),
+                Unidad.deleted_at.is_(None),
+                Unidad.estado.in_([EstadoUnidad.DISPONIBLE, EstadoUnidad.RESERVADO]),
+            )
+        )
+        unidad = result.scalar_one_or_none()
+
+        if not unidad:
+            raise HTTPException(status_code=404, detail="Vehiculo no encontrado")
+
+        # Obtener fotos de la unidad
+        fotos_result = await session.execute(
+            select(ArchivoUnidad).where(
+                ArchivoUnidad.unidad_id == unidad.id,
+                ArchivoUnidad.tipo_documento.in_([
+                    TipoDocumentoArchivo.FOTO_FRENTE,
+                    TipoDocumentoArchivo.FOTO_LATERAL,
+                    TipoDocumentoArchivo.FOTO_INTERIOR,
+                    TipoDocumentoArchivo.FOTO_MOTOR,
+                ])
+            )
+        )
+        fotos = fotos_result.scalars().all()
+        fotos_urls = [f"/api/v1/autos/archivos/{f.id}/download" for f in fotos]
+
+        # Obtener datos de la agencia desde ConfiguracionNegocio (mismo tenant)
+        whatsapp_agencia = None
+        nombre_agencia = None
+        direccion_agencia = None
+        try:
+            # Query ConfiguracionNegocio for the unit's tenant
+            for clave, attr in [
+                ("whatsapp_agencia", "whatsapp_agencia"),
+                ("nombre_agencia", "nombre_agencia"),
+                ("direccion_agencia", "direccion_agencia"),
+            ]:
+                cfg_result = await session.execute(
+                    select(ConfiguracionNegocio).where(
+                        ConfiguracionNegocio.tenant_id == unidad.tenant_id,
+                        ConfiguracionNegocio.clave == clave,
+                    )
+                )
+                cfg = cfg_result.scalar_one_or_none()
+                if cfg:
+                    if clave == "whatsapp_agencia":
+                        whatsapp_agencia = cfg.valor
+                    elif clave == "nombre_agencia":
+                        nombre_agencia = cfg.valor
+                    elif clave == "direccion_agencia":
+                        direccion_agencia = cfg.valor
+        except Exception:
+            pass  # Agency info is optional
+
+        return {
+            "marca": unidad.marca,
+            "modelo": unidad.modelo,
+            "version": unidad.version,
+            "anio": unidad.anio,
+            "color": unidad.color,
+            "kilometraje": unidad.kilometraje,
+            "combustible": unidad.combustible,
+            "transmision": unidad.transmision,
+            "dominio": unidad.dominio,
+            "precio_publicado": unidad.precio_publicado,
+            "estado": unidad.estado.value if unidad.estado else "disponible",
+            "observaciones": unidad.observaciones,
+            "fotos": fotos_urls,
+            "whatsapp_agencia": whatsapp_agencia,
+            "nombre_agencia": nombre_agencia,
+            "direccion_agencia": direccion_agencia,
+            "telefono_agencia": whatsapp_agencia,  # Fallback: use WhatsApp as phone
+        }

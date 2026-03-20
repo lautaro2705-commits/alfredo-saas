@@ -64,7 +64,7 @@ export default function FichaPublica() {
     try {
       await navigator.clipboard.writeText(`${title}\n${text}\n${url}`)
       alert('Link copiado al portapapeles')
-    } catch {
+    } catch (e) {
       // ignore
     }
   }

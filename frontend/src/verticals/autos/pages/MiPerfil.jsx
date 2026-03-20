@@ -81,7 +81,7 @@ export default function MiPerfil() {
         ['direccion_agencia', agencyAddress],
       ]
       for (const [clave, valor] of updates) {
-        if (valor) await inteligenciaAPI.actualizarConfiguracion(clave, valor)
+        await inteligenciaAPI.actualizarConfiguracion(clave, valor || '')
       }
       queryClient.invalidateQueries(['agency-config'])
       toast.success('Datos de la agencia guardados')
@@ -200,7 +200,7 @@ export default function MiPerfil() {
         <div className="flex items-center gap-4 mb-6">
           <div className={clsx(
             "w-16 h-16 rounded-full flex items-center justify-center",
-            perfil?.rol === 'admin' ? "bg-purple-100" : "bg-blue-100 dark:bg-blue-900"
+            perfil?.rol === 'admin' ? "bg-purple-100 dark:bg-purple-900" : "bg-blue-100 dark:bg-blue-900"
           )}>
             {perfil?.rol === 'admin' ? (
               <ShieldCheck className="w-8 h-8 text-purple-600 dark:text-purple-400" />
@@ -212,7 +212,7 @@ export default function MiPerfil() {
             <h2 className="text-xl font-bold text-gray-900 dark:text-white">{perfil?.nombre_completo}</h2>
             <span className={clsx(
               "text-sm px-3 py-1 rounded-full",
-              perfil?.rol === 'admin' ? "bg-purple-100 text-purple-700" : "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-400"
+              perfil?.rol === 'admin' ? "bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-400" : "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-400"
             )}>
               {perfil?.rol === 'admin' ? 'Administrador' : 'Vendedor'}
             </span>
@@ -262,14 +262,14 @@ export default function MiPerfil() {
             <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-xl text-center">
               <TrendingUp className="w-8 h-8 text-blue-500 mx-auto mb-2" />
               <p className="text-sm text-blue-600 dark:text-blue-400 mb-1">Ventas este mes</p>
-              <p className="text-3xl font-bold text-blue-900">{perfil.estadisticas.ventas_mes}</p>
+              <p className="text-3xl font-bold text-blue-900 dark:text-blue-100">{perfil.estadisticas.ventas_mes}</p>
               <p className="text-sm text-blue-600 dark:text-blue-400 mt-1">{formatCurrency(perfil.estadisticas.monto_mes)}</p>
             </div>
 
             <div className="p-4 bg-green-50 dark:bg-green-950 rounded-xl text-center">
               <DollarSign className="w-8 h-8 text-green-500 mx-auto mb-2" />
               <p className="text-sm text-green-600 dark:text-green-400 mb-1">Ventas trimestre</p>
-              <p className="text-3xl font-bold text-green-900">{perfil.estadisticas.ventas_trimestre}</p>
+              <p className="text-3xl font-bold text-green-900 dark:text-green-100">{perfil.estadisticas.ventas_trimestre}</p>
               <p className="text-sm text-green-600 dark:text-green-400 mt-1">{formatCurrency(perfil.estadisticas.monto_trimestre)}</p>
             </div>
           </div>

@@ -87,7 +87,7 @@ export default function WhatsAppTemplates({ telefono, nombre, vehiculo, precio, 
     try {
       await navigator.clipboard.writeText(customText)
       toast.success('Mensaje copiado')
-    } catch {
+    } catch (e) {
       toast.error('No se pudo copiar')
     }
   }

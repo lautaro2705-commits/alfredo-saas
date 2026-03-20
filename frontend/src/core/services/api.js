@@ -83,7 +83,7 @@ export function getTenantInfo() {
   try {
     const raw = sessionStorage.getItem(SK.TENANT)
     return raw ? JSON.parse(raw) : null
-  } catch {
+  } catch (e) {
     return null
   }
 }
@@ -133,7 +133,7 @@ export function getTokenExpiry() {
   try {
     const payload = JSON.parse(atob(token.split('.')[1]))
     return payload.exp ? payload.exp * 1000 : null // ms
-  } catch {
+  } catch (e) {
     return null
   }
 }
@@ -167,7 +167,7 @@ async function tryRefresh() {
       rol: data.rol,
     })
     return true
-  } catch {
+  } catch (e) {
     return false
   }
 }

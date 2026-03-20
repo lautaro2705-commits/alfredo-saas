@@ -67,7 +67,7 @@ function AlertCard({ unidad, suggestion }) {
       await unidadesAPI.update(unidad.id, { precio_publicado: newPrice })
       queryClient.invalidateQueries(['unidades'])
       toast.success(`Precio actualizado a ${formatCurrency(newPrice)}`)
-    } catch {
+    } catch (e) {
       toast.error('Error al actualizar precio')
     } finally {
       setApplying(false)

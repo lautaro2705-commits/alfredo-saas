@@ -35,7 +35,7 @@ const iconMap = {
 
 // ── Quick actions: commands available without typing ──
 const QUICK_ACTIONS = [
-  { id: 'new-unit', label: 'Nueva Unidad', desc: 'Agregar vehiculo al stock', icon: Plus, color: 'blue', path: '/unidades/nueva', category: 'crear' },
+  { id: 'new-unit', label: 'Nueva Unidad', desc: 'Agregar vehiculo al stock', icon: Plus, color: 'blue', path: '/unidades/nuevo', category: 'crear' },
   { id: 'new-expense', label: 'Cargar Gasto', desc: 'Registrar gasto rapido', icon: DollarSign, color: 'red', path: '/costo-rapido', category: 'crear' },
   { id: 'new-sale', label: 'Nueva Operacion', desc: 'Crear venta o permuta', icon: ShoppingCart, color: 'green', path: '/operaciones/nueva', category: 'crear' },
   { id: 'new-client', label: 'Nuevo Cliente', desc: 'Registrar cliente', icon: UserPlus, color: 'purple', path: '/clientes?nuevo=1', category: 'crear' },

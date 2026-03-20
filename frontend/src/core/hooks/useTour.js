@@ -17,7 +17,7 @@ export function useTour(userEmail) {
   const hasCompleted = useCallback(() => {
     try {
       return localStorage.getItem(storageKey) === 'true'
-    } catch {
+    } catch (e) {
       return false
     }
   }, [storageKey])
@@ -49,7 +49,7 @@ export function useTour(userEmail) {
     setCurrentStep(0)
     try {
       localStorage.setItem(storageKey, 'true')
-    } catch { /* ignore */ }
+    } catch (e) { /* ignore */ }
   }, [storageKey])
 
   const skipTour = useCallback(() => {

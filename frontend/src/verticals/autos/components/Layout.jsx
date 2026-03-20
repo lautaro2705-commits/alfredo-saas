@@ -249,7 +249,7 @@ export default function Layout() {
   )
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-800 dark:bg-gray-950 transition-colors duration-300">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-300">
       {/* Sidebar movil — overlay */}
       <div className={clsx(
         "fixed inset-0 z-50 lg:hidden transition-opacity duration-300",
@@ -270,7 +270,7 @@ export default function Layout() {
             </div>
             <button
               onClick={() => setSidebarOpen(false)}
-              className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 dark:hover:bg-gray-800 rounded-lg transition-colors"
+              className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -303,7 +303,7 @@ export default function Layout() {
           <img src="/logo-alfredo.png" alt="Alfredo" className="w-10 h-10 rounded-lg" />
           <div>
             <span className="text-lg font-bold text-primary-600 dark:text-primary-400">Alfredo</span>
-            <p className="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-500">Smart Dealer OS</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">Smart Dealer OS</p>
           </div>
         </div>
 
@@ -315,7 +315,7 @@ export default function Layout() {
           >
             <Search className="w-4 h-4" />
             <span className="flex-1 text-left text-sm">Buscar...</span>
-            <kbd className="px-1.5 py-0.5 text-[10px] bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-700 dark:border-gray-600 rounded text-gray-400">⌘K</kbd>
+            <kbd className="px-1.5 py-0.5 text-[10px] bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded text-gray-400">⌘K</kbd>
           </button>
           <NotificacionesBadge />
         </div>
@@ -339,7 +339,7 @@ export default function Layout() {
               </span>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 dark:text-white dark:text-gray-100 truncate">
+              <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
                 {user?.nombre} {user?.apellido}
               </p>
               <p className="text-xs text-gray-400 capitalize">{user?.rol}</p>
@@ -398,7 +398,7 @@ export default function Layout() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setSidebarOpen(true)}
-              className="p-2 -ml-2 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 dark:hover:bg-gray-800 rounded-lg transition-colors"
+              className="p-2 -ml-2 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
             >
               <Menu className="w-5 h-5" />
             </button>
@@ -408,14 +408,14 @@ export default function Layout() {
           <div className="flex items-center gap-1">
             <button
               onClick={toggleTheme}
-              className="p-2 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 dark:hover:bg-gray-800 rounded-lg transition-colors"
+              className="p-2 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
             >
               {isDark ? <Sun className="w-5 h-5 text-yellow-500" /> : <Moon className="w-5 h-5" />}
             </button>
             <NotificacionesBadge />
             <button
               onClick={() => setSearchOpen(true)}
-              className="p-2 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 dark:hover:bg-gray-800 rounded-lg transition-colors"
+              className="p-2 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
             >
               <Search className="w-5 h-5" />
             </button>
@@ -425,7 +425,7 @@ export default function Layout() {
         {/* Session expired banner */}
         {sessionExpired && (
           <div className="mx-4 mt-4 lg:mx-8 lg:mt-8 p-4 bg-yellow-50 dark:bg-yellow-950/50 border border-yellow-200 dark:border-yellow-800 rounded-xl flex items-center gap-3 animate-page-in">
-            <AlertTriangle className="w-5 h-5 text-yellow-600 dark:text-yellow-400 dark:text-yellow-500 flex-shrink-0" />
+            <AlertTriangle className="w-5 h-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0" />
             <div className="flex-1">
               <p className="font-medium text-yellow-800 dark:text-yellow-200 text-sm">Tu sesion ha expirado</p>
               <p className="text-yellow-600 dark:text-yellow-400 text-xs mt-0.5">Inicia sesion nuevamente para continuar trabajando.</p>
