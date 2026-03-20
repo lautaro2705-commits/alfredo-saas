@@ -40,6 +40,7 @@ const Proveedores = lazy(() => import('@/verticals/autos/pages/Proveedores'))
 const AntiguedadStock = lazy(() => import('@/verticals/autos/pages/AntiguedadStock'))
 const ComparativoMensual = lazy(() => import('@/verticals/autos/pages/ComparativoMensual'))
 const MercadoLibreCallback = lazy(() => import('@/verticals/autos/pages/MercadoLibreCallback'))
+const Manual = lazy(() => import('@/core/pages/Manual'))
 
 // ── Suspense fallback (shown while lazy chunk loads) ──
 function PageLoader() {
@@ -128,6 +129,7 @@ function AutosVertical() {
         <Route path="mi-perfil" element={<L><MiPerfil /></L>} />
         <Route path="billing" element={<AdminRoute><L><Billing /></L></AdminRoute>} />
         <Route path="mercadolibre/callback" element={<L><MercadoLibreCallback /></L>} />
+        <Route path="manual" element={<L><Manual /></L>} />
         <Route path="admin" element={<PlatformAdminRoute><L><AdminDashboard /></L></PlatformAdminRoute>} />
         <Route path="*" element={<Navigate to="/" />} />
       </Route>

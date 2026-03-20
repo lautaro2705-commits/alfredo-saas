@@ -6,6 +6,8 @@ import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts'
 import SearchModal from './SearchModal'
 import KeyboardShortcutsModal from './KeyboardShortcutsModal'
 import NotificacionesBadge from './NotificacionesBadge'
+import AppTour from '@/core/components/AppTour'
+import { useTour } from '@/core/hooks/useTour'
 import {
   Car,
   Users,
@@ -37,6 +39,8 @@ import {
   Moon,
   Keyboard,
   Shield,
+  BookOpen,
+  Play,
 } from 'lucide-react'
 import clsx from 'clsx'
 
@@ -94,6 +98,13 @@ const sidebarSections = [
     items: [
       { name: 'Usuarios', href: '/usuarios', icon: Settings },
       { name: 'Facturacion', href: '/billing', icon: CreditCard },
+    ],
+  },
+  {
+    id: 'ayuda',
+    label: 'Ayuda',
+    items: [
+      { name: 'Manual de Uso', href: '/manual', icon: BookOpen },
     ],
   },
   {
@@ -179,6 +190,7 @@ export default function Layout() {
   const { user, logout, isAdmin, isPlatformAdmin, sessionExpired, dismissSessionExpired } = useAuth()
   const { theme, toggleTheme, isDark } = useTheme()
   const { showHelp, setShowHelp } = useKeyboardShortcuts({ onOpenSearch: () => setSearchOpen(true) })
+  const tour = useTour(user?.email)
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -269,6 +281,17 @@ export default function Layout() {
       <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
       <KeyboardShortcutsModal isOpen={showHelp} onClose={() => setShowHelp(false)} />
 
+      {/* Tour interactivo */}
+      <AppTour
+        isActive={tour.isActive}
+        currentStep={tour.currentStep}
+        onNext={tour.nextStep}
+        onPrev={tour.prevStep}
+        onSkip={tour.skipTour}
+        onEnd={tour.endTour}
+        isAdmin={isAdmin}
+      />
+
       {/* Sidebar desktop */}
       <nav className="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:w-64 lg:flex lg:flex-col lg:bg-white lg:border-r lg:border-gray-200 dark:lg:bg-gray-900 dark:lg:border-gray-800 transition-colors duration-300">
         <div className="flex items-center gap-3 h-16 px-4 border-b border-gray-100 dark:border-gray-800">
@@ -330,6 +353,13 @@ export default function Layout() {
                 : <Moon className="w-4 h-4" />
               }
               <span className="text-xs">{isDark ? 'Claro' : 'Oscuro'}</span>
+            </button>
+            <button
+              onClick={() => tour.startTour()}
+              className="p-2 text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-950 rounded-lg transition-colors"
+              title="Recorrido del sistema"
+            >
+              <Play className="w-4 h-4" />
             </button>
             <button
               onClick={() => setShowHelp(true)}
