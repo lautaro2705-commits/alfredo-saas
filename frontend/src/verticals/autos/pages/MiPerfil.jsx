@@ -85,7 +85,7 @@ export default function MiPerfil() {
       }
       queryClient.invalidateQueries(['agency-config'])
       toast.success('Datos de la agencia guardados')
-    } catch {
+    } catch (e) {
       toast.error('Error al guardar')
     } finally {
       setAgencySaving(false)

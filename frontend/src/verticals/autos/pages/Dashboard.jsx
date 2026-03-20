@@ -1,8 +1,7 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useCallback } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { dashboardAPI, unidadesAPI } from '../services/api'
 import { useAuth } from '../context/AuthContext'
-import { useNotifications } from '@/core/hooks/useNotifications'
 import { Link } from 'react-router-dom'
 import {
   Car,
@@ -24,7 +23,6 @@ import {
   X,
   Eye,
   EyeOff,
-  GripVertical,
 } from 'lucide-react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
@@ -59,23 +57,23 @@ function useWidgetPrefs() {
   const [widgets, setWidgets] = useState(() => {
     try {
       const stored = localStorage.getItem(WIDGET_STORAGE_KEY)
-      return stored ? { ...DEFAULT_WIDGETS, ...JSON.parse(stored) } : DEFAULT_WIDGETS
-    } catch {
-      return DEFAULT_WIDGETS
+      return stored ? { ...DEFAULT_WIDGETS, ...JSON.parse(stored) } : { ...DEFAULT_WIDGETS }
+    } catch (e) {
+      return { ...DEFAULT_WIDGETS }
     }
   })
 
   const toggle = useCallback((key) => {
     setWidgets(prev => {
       const next = { ...prev, [key]: !prev[key] }
-      try { localStorage.setItem(WIDGET_STORAGE_KEY, JSON.stringify(next)) } catch { /* ignore */ }
+      try { localStorage.setItem(WIDGET_STORAGE_KEY, JSON.stringify(next)) } catch (e) { /* ignore */ }
       return next
     })
   }, [])
 
   const resetAll = useCallback(() => {
-    setWidgets(DEFAULT_WIDGETS)
-    try { localStorage.removeItem(WIDGET_STORAGE_KEY) } catch { /* ignore */ }
+    setWidgets({ ...DEFAULT_WIDGETS })
+    try { localStorage.removeItem(WIDGET_STORAGE_KEY) } catch (e) { /* ignore */ }
   }, [])
 
   return { widgets, toggle, resetAll }
@@ -229,7 +227,6 @@ export default function Dashboard() {
   const { isAdmin, user } = useAuth()
   const [showConfig, setShowConfig] = useState(false)
   const { widgets, toggle, resetAll } = useWidgetPrefs()
-  const { isGranted, isSupported, requestPermission, showNotification, permission } = useNotifications()
 
   const { data: resumen, isLoading, error } = useQuery({
     queryKey: ['dashboard-resumen'],
@@ -264,24 +261,6 @@ export default function Dashboard() {
   if (isLoading) {
     return <DashboardSkeleton />
   }
-
-  // Send browser notifications for high-priority alerts
-  useEffect(() => {
-    try {
-      if (!isGranted || !Array.isArray(resumen?.alertas) || resumen.alertas.length === 0) return
-      const highPriority = resumen.alertas.filter(a => a?.prioridad === 'alta')
-      if (highPriority.length > 0) {
-        showNotification(
-          `${highPriority.length} alerta${highPriority.length > 1 ? 's' : ''} importante${highPriority.length > 1 ? 's' : ''}`,
-          {
-            body: highPriority.slice(0, 3).map(a => a?.mensaje || 'Alerta').join('\n'),
-            tag: 'alfredo-alertas',
-            url: '/',
-          }
-        )
-      }
-    } catch { /* ignore notification errors */ }
-  }, [resumen?.alertas, isGranted, showNotification])
 
   if (error) {
     return (
@@ -333,25 +312,6 @@ export default function Dashboard() {
           {format(new Date(), "EEEE d 'de' MMMM, yyyy", { locale: es })}
         </p>
       </div>
-
-      {/* Notification permission request */}
-      {isSupported && permission === 'default' && (
-        <div className="card flex items-center gap-4 bg-primary-50 border-primary-200 dark:bg-primary-950/30 dark:border-primary-800">
-          <div className="p-2 rounded-lg bg-primary-100 dark:bg-primary-900/40">
-            <AlertTriangle className="w-5 h-5 text-primary-600 dark:text-primary-400" />
-          </div>
-          <div className="flex-1">
-            <p className="text-sm font-medium text-primary-800 dark:text-primary-200">Activar notificaciones?</p>
-            <p className="text-xs text-primary-600 dark:text-primary-400">Te avisamos cuando haya cheques por vencer, stock inmovilizado o tareas pendientes.</p>
-          </div>
-          <button
-            onClick={requestPermission}
-            className="px-3 py-1.5 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors"
-          >
-            Activar
-          </button>
-        </div>
-      )}
 
       {/* Widget config panel */}
       {showConfig && (

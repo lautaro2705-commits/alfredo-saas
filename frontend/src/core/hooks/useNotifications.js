@@ -31,7 +31,7 @@ export function useNotifications() {
       const result = await Notification.requestPermission()
       setPermission(result)
       return result
-    } catch {
+    } catch (e) {
       return 'denied'
     }
   }, [isSupported, permission])
@@ -59,7 +59,7 @@ export function useNotifications() {
       }
 
       return notification
-    } catch {
+    } catch (e) {
       return null
     }
   }, [isSupported, isGranted])
