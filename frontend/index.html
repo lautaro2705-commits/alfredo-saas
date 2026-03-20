@@ -27,9 +27,75 @@
     <meta property="og:image" content="https://alfredoapp.com.ar/og-image.png" />
     <meta name="twitter:card" content="summary_large_image" />
 
+    <!-- SEO: Canonical + Robots -->
+    <link rel="canonical" href="https://alfredoapp.com.ar" />
+    <meta name="robots" content="index, follow" />
+    <meta name="googlebot" content="index, follow" />
+    <meta name="author" content="Alfredo" />
+    <meta name="keywords" content="software agencia autos, gestión agencia automotor, sistema stock vehiculos, software concesionaria argentina, gestión automotriz" />
+
     <!-- Icons -->
     <link rel="icon" type="image/png" href="/logo-alfredo.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <!-- Structured Data: JSON-LD -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Alfredo",
+      "description": "Software de gestión integral para agencias de autos en Argentina. Stock, operaciones, caja, clientes, reportes y más.",
+      "url": "https://alfredoapp.com.ar",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web, Android, iOS",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "ARS",
+        "description": "14 días de prueba gratis"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "24",
+        "bestRating": "5"
+      },
+      "author": {
+        "@type": "Organization",
+        "name": "Alfredo",
+        "url": "https://alfredoapp.com.ar"
+      },
+      "featureList": [
+        "Gestión de stock de vehículos",
+        "Operaciones de compra, venta y permuta",
+        "Caja diaria con cierres",
+        "Control de cheques",
+        "Reportes de rentabilidad",
+        "Peritajes con checklist y fotos",
+        "Inteligencia de negocio",
+        "Publicación en MercadoLibre"
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Alfredo",
+      "url": "https://alfredoapp.com.ar",
+      "logo": "https://alfredoapp.com.ar/logo-alfredo.png",
+      "description": "Plataforma SaaS de gestión para agencias de autos argentinas",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": "+54-351-856-7543",
+        "contactType": "customer support",
+        "availableLanguage": "Spanish"
+      },
+      "sameAs": [
+        "https://wa.me/543518567543"
+      ]
+    }
+    </script>
 
     <title>Alfredo — Gestión para agencias de autos</title>
   </head>

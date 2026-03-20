@@ -11,6 +11,7 @@ import AutosLayout from '@/verticals/autos/components/Layout'
 const Billing = lazy(() => import('@/core/pages/Billing'))
 const Legal = lazy(() => import('@/core/pages/Legal'))
 const Landing = lazy(() => import('@/core/pages/Landing'))
+const FichaPublica = lazy(() => import('@/core/pages/FichaPublica'))
 const AdminDashboard = lazy(() => import('@/admin/pages/AdminDashboard'))
 
 const Dashboard = lazy(() => import('@/verticals/autos/pages/Dashboard'))
@@ -155,6 +156,8 @@ export default function App() {
       {/* Legal pages — public, no auth required */}
       <Route path="/terminos" element={<L><Legal /></L>} />
       <Route path="/privacidad" element={<L><Legal /></L>} />
+      {/* Public vehicle listing — shareable without login */}
+      <Route path="/u/:dominio" element={<L><FichaPublica /></L>} />
       {/* Home: Landing (visitor) or Dashboard (authenticated) */}
       <Route path="/" element={<HomePage />} />
       {/* All other routes require auth */}

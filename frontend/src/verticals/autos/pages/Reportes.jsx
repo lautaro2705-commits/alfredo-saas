@@ -21,11 +21,30 @@ import {
   DollarSign,
   Car,
   Calendar,
-  FileText
+  FileText,
+  Printer,
 } from 'lucide-react'
 import clsx from 'clsx'
 import ExportButton from '../components/ExportButton'
 import { exportToExcel } from '../utils/exportExcel'
+
+function handleExportPDF() {
+  // Use browser print with CSS to generate PDF
+  const printStyles = document.createElement('style')
+  printStyles.textContent = `
+    @media print {
+      body * { visibility: hidden; }
+      .print-area, .print-area * { visibility: visible; }
+      .print-area { position: absolute; left: 0; top: 0; width: 100%; }
+      .no-print { display: none !important; }
+      .card { break-inside: avoid; border: 1px solid #e5e7eb; }
+      @page { margin: 1.5cm; }
+    }
+  `
+  document.head.appendChild(printStyles)
+  window.print()
+  setTimeout(() => document.head.removeChild(printStyles), 1000)
+}
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899']
 
@@ -113,16 +132,26 @@ export default function Reportes() {
   }
 
   return (
-    <div className="space-y-6 pb-20 lg:pb-0">
+    <div className="space-y-6 pb-20 lg:pb-0 print-area">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 no-print">
         <div className="flex items-center gap-3">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Reportes</h1>
             <p className="text-gray-500 dark:text-gray-400">Análisis de utilidad y rendimiento</p>
           </div>
           {reporteUtilidad?.unidades_vendidas?.length > 0 && (
-            <ExportButton onClick={handleExportar} />
+            <div className="flex items-center gap-2">
+              <ExportButton onClick={handleExportar} />
+              <button
+                onClick={handleExportPDF}
+                className="no-print flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                title="Exportar a PDF"
+              >
+                <Printer className="w-4 h-4" />
+                PDF
+              </button>
+            </div>
           )}
         </div>
         <div className="flex gap-2">
@@ -144,7 +173,7 @@ export default function Reportes() {
       </div>
 
       {/* Selector de fechas */}
-      <div className="card flex flex-wrap items-center gap-4">
+      <div className="card flex flex-wrap items-center gap-4 no-print">
         <Calendar className="w-5 h-5 text-gray-400" />
         <div className="flex items-center gap-2">
           <input

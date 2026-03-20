@@ -1,6 +1,8 @@
+import { useState, useEffect, useCallback } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { dashboardAPI } from '../services/api'
 import { useAuth } from '../context/AuthContext'
+import { useNotifications } from '@/core/hooks/useNotifications'
 import { Link } from 'react-router-dom'
 import {
   Car,
@@ -17,12 +19,66 @@ import {
   CreditCard,
   FileText,
   Calendar,
-  CalendarCheck
+  CalendarCheck,
+  SlidersHorizontal,
+  X,
+  Eye,
+  EyeOff,
+  GripVertical,
 } from 'lucide-react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import clsx from 'clsx'
 import { DashboardSkeleton } from '../components/Skeletons'
+
+// ── Dashboard widget visibility (persisted in localStorage) ──
+const WIDGET_STORAGE_KEY = 'alfredo_dashboard_widgets'
+
+const DEFAULT_WIDGETS = {
+  stats: true,
+  cheques: true,
+  seguimientos: true,
+  metricas: true,
+  alertas: true,
+  ventas: true,
+  acciones_movil: true,
+}
+
+const WIDGET_LABELS = {
+  stats: 'Estadisticas principales',
+  cheques: 'Cheques pendientes',
+  seguimientos: 'Tareas pendientes',
+  metricas: 'Metricas rapidas',
+  alertas: 'Alertas activas',
+  ventas: 'Ultimas ventas',
+  acciones_movil: 'Acciones rapidas (movil)',
+}
+
+function useWidgetPrefs() {
+  const [widgets, setWidgets] = useState(() => {
+    try {
+      const stored = localStorage.getItem(WIDGET_STORAGE_KEY)
+      return stored ? { ...DEFAULT_WIDGETS, ...JSON.parse(stored) } : DEFAULT_WIDGETS
+    } catch {
+      return DEFAULT_WIDGETS
+    }
+  })
+
+  const toggle = useCallback((key) => {
+    setWidgets(prev => {
+      const next = { ...prev, [key]: !prev[key] }
+      try { localStorage.setItem(WIDGET_STORAGE_KEY, JSON.stringify(next)) } catch { /* ignore */ }
+      return next
+    })
+  }, [])
+
+  const resetAll = useCallback(() => {
+    setWidgets(DEFAULT_WIDGETS)
+    try { localStorage.removeItem(WIDGET_STORAGE_KEY) } catch { /* ignore */ }
+  }, [])
+
+  return { widgets, toggle, resetAll }
+}
 
 function StatCard({ title, value, subtitle, icon: Icon, color = 'primary', link }) {
   const colors = {
@@ -124,8 +180,55 @@ function getGreeting() {
   return 'Buenas noches'
 }
 
+function WidgetConfigPanel({ widgets, onToggle, onReset, onClose }) {
+  return (
+    <div className="card mb-6 animate-page-in">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <SlidersHorizontal className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+          <h3 className="font-semibold text-gray-900 dark:text-white">Personalizar Dashboard</h3>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={onReset}
+            className="text-xs text-gray-500 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+          >
+            Restaurar
+          </button>
+          <button
+            onClick={onClose}
+            className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+        {Object.entries(WIDGET_LABELS).map(([key, label]) => (
+          <button
+            key={key}
+            onClick={() => onToggle(key)}
+            className={clsx(
+              'flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors border',
+              widgets[key]
+                ? 'bg-primary-50 border-primary-200 text-primary-700 dark:bg-primary-950 dark:border-primary-800 dark:text-primary-400'
+                : 'bg-gray-50 border-gray-200 text-gray-400 dark:bg-gray-800 dark:border-gray-700'
+            )}
+          >
+            {widgets[key] ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+            <span className="truncate">{label}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export default function Dashboard() {
   const { isAdmin, user } = useAuth()
+  const [showConfig, setShowConfig] = useState(false)
+  const { widgets, toggle, resetAll } = useWidgetPrefs()
+  const { isGranted, isSupported, requestPermission, showNotification, permission } = useNotifications()
 
   const { data: resumen, isLoading, error } = useQuery({
     queryKey: ['dashboard-resumen'],
@@ -149,6 +252,22 @@ export default function Dashboard() {
   if (isLoading) {
     return <DashboardSkeleton />
   }
+
+  // Send browser notifications for high-priority alerts
+  useEffect(() => {
+    if (!isGranted || !resumen?.alertas?.length) return
+    const highPriority = resumen.alertas.filter(a => a.prioridad === 'alta')
+    if (highPriority.length > 0) {
+      showNotification(
+        `${highPriority.length} alerta${highPriority.length > 1 ? 's' : ''} importante${highPriority.length > 1 ? 's' : ''}`,
+        {
+          body: highPriority.slice(0, 3).map(a => a.mensaje).join('\n'),
+          tag: 'alfredo-alertas',
+          url: '/',
+        }
+      )
+    }
+  }, [resumen?.alertas, isGranted, showNotification])
 
   if (error) {
     return (
@@ -182,7 +301,14 @@ export default function Dashboard() {
   return (
     <div className="space-y-6 pb-20 lg:pb-0">
       {/* Header with Alfredo greeting */}
-      <div className="bg-gradient-to-r from-primary-600 to-primary-500 rounded-2xl p-6 shadow-lg">
+      <div className="bg-gradient-to-r from-primary-600 to-primary-500 rounded-2xl p-6 shadow-lg relative">
+        <button
+          onClick={() => setShowConfig(prev => !prev)}
+          className="absolute top-4 right-4 p-2 text-white/60 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+          title="Personalizar dashboard"
+        >
+          <SlidersHorizontal className="w-5 h-5" />
+        </button>
         <h1 className="text-2xl font-bold text-white">
           {getGreeting()}, {user?.nombre || 'Usuario'}
         </h1>
@@ -194,8 +320,37 @@ export default function Dashboard() {
         </p>
       </div>
 
+      {/* Notification permission request */}
+      {isSupported && permission === 'default' && (
+        <div className="card flex items-center gap-4 bg-primary-50 border-primary-200 dark:bg-primary-950/30 dark:border-primary-800">
+          <div className="p-2 rounded-lg bg-primary-100 dark:bg-primary-900/40">
+            <AlertTriangle className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-medium text-primary-800 dark:text-primary-200">Activar notificaciones?</p>
+            <p className="text-xs text-primary-600 dark:text-primary-400">Te avisamos cuando haya cheques por vencer, stock inmovilizado o tareas pendientes.</p>
+          </div>
+          <button
+            onClick={requestPermission}
+            className="px-3 py-1.5 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors"
+          >
+            Activar
+          </button>
+        </div>
+      )}
+
+      {/* Widget config panel */}
+      {showConfig && (
+        <WidgetConfigPanel
+          widgets={widgets}
+          onToggle={toggle}
+          onReset={resetAll}
+          onClose={() => setShowConfig(false)}
+        />
+      )}
+
       {/* Stats principales */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      {widgets.stats && <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title="Stock Total"
           value={resumen?.stock?.total_unidades || 0}
@@ -246,10 +401,10 @@ export default function Dashboard() {
             link="/operaciones"
           />
         )}
-      </div>
+      </div>}
 
       {/* Cheques - si hay pendientes */}
-      {(resumen?.cheques?.por_cobrar_7_dias > 0 || resumen?.cheques?.por_pagar_7_dias > 0) && (
+      {widgets.cheques && (resumen?.cheques?.por_cobrar_7_dias > 0 || resumen?.cheques?.por_pagar_7_dias > 0) && (
         <div className="grid grid-cols-2 gap-4">
           <Link to="/cheques" className="card flex items-center gap-4 hover:border-primary-300 transition-all bg-primary-50 border-primary-200 dark:bg-primary-950/30 dark:border-primary-800">
             <div className="p-3 rounded-xl bg-primary-100 text-primary-600 dark:bg-primary-900/40 dark:text-primary-400">
@@ -275,7 +430,7 @@ export default function Dashboard() {
       )}
 
       {/* Seguimientos pendientes */}
-      {resumen?.seguimientos_pendientes > 0 && (
+      {widgets.seguimientos && resumen?.seguimientos_pendientes > 0 && (
         <Link
           to="/agenda"
           className="card flex items-center gap-4 hover:border-orange-300 transition-all bg-orange-50 border-orange-200 dark:bg-orange-950/30 dark:border-orange-800"
@@ -293,7 +448,7 @@ export default function Dashboard() {
       )}
 
       {/* Metricas rapidas */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      {widgets.metricas && <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="card text-center">
           <p className="text-3xl font-bold text-primary-600 dark:text-primary-400">{metricas?.ventas_7_dias || 0}</p>
           <p className="text-sm text-gray-500 dark:text-gray-400">Ventas ultima semana</p>
@@ -310,11 +465,11 @@ export default function Dashboard() {
           <p className="text-3xl font-bold text-primary-600 dark:text-primary-400">{metricas?.total_clientes || 0}</p>
           <p className="text-sm text-gray-500 dark:text-gray-400">Clientes registrados</p>
         </div>
-      </div>
+      </div>}
 
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Alertas */}
-        <div className="card">
+        {widgets.alertas && <div className="card">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
               <AlertTriangle className="w-5 h-5 text-yellow-500" />
@@ -332,10 +487,10 @@ export default function Dashboard() {
               ))}
             </div>
           )}
-        </div>
+        </div>}
 
         {/* Ultimas ventas */}
-        <div className="card">
+        {widgets.ventas && <div className="card">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Ultimas Ventas</h2>
             <Link to="/operaciones" className="text-primary-600 dark:text-primary-400 text-sm hover:text-primary-700 dark:hover:text-primary-300 transition-colors">
@@ -369,11 +524,11 @@ export default function Dashboard() {
               ))}
             </div>
           )}
-        </div>
+        </div>}
       </div>
 
       {/* Acciones rapidas - solo movil */}
-      <div className="lg:hidden grid grid-cols-2 gap-4">
+      {widgets.acciones_movil && <div className="lg:hidden grid grid-cols-2 gap-4">
         <Link
           to="/unidades/nuevo"
           className="card flex flex-col items-center justify-center py-6 text-center hover:border-primary-300 dark:hover:border-primary-600 transition-all"
@@ -388,7 +543,7 @@ export default function Dashboard() {
           <DollarSign className="w-8 h-8 text-primary-600 dark:text-primary-400 mb-2" />
           <span className="font-medium text-gray-900 dark:text-white">Cargar Gasto</span>
         </Link>
-      </div>
+      </div>}
     </div>
   )
 }
