@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { usuariosAPI, authAPI, mercadolibreAPI } from '../services/api'
+import { usuariosAPI, authAPI, mercadolibreAPI, inteligenciaAPI } from '../services/api'
 import { useAuth } from '../context/AuthContext'
 import toast from 'react-hot-toast'
 import {
@@ -21,7 +21,9 @@ import {
   CheckCircle2,
   XCircle,
   Loader2,
-  Link2Off
+  Link2Off,
+  Building2,
+  MessageCircle,
 } from 'lucide-react'
 import clsx from 'clsx'
 
@@ -37,6 +39,12 @@ export default function MiPerfil() {
     confirmPassword: ''
   })
 
+  // Agency config
+  const [agencyWhatsApp, setAgencyWhatsApp] = useState('')
+  const [agencyName, setAgencyName] = useState('')
+  const [agencyAddress, setAgencyAddress] = useState('')
+  const [agencySaving, setAgencySaving] = useState(false)
+
   const { data: perfil, isLoading } = useQuery({
     queryKey: ['mi-perfil'],
     queryFn: async () => {
@@ -44,6 +52,45 @@ export default function MiPerfil() {
       return res.data
     }
   })
+
+  // Agency config (admin only) — loads from ConfiguracionNegocio
+  const { data: agencyConfig } = useQuery({
+    queryKey: ['agency-config'],
+    queryFn: async () => {
+      const res = await inteligenciaAPI.configuracion()
+      return res.data
+    },
+    enabled: isAdmin,
+  })
+
+  // Load saved values when config arrives
+  useEffect(() => {
+    if (agencyConfig) {
+      setAgencyWhatsApp(agencyConfig.whatsapp_agencia || '')
+      setAgencyName(agencyConfig.nombre_agencia || '')
+      setAgencyAddress(agencyConfig.direccion_agencia || '')
+    }
+  }, [agencyConfig])
+
+  const handleSaveAgency = async () => {
+    setAgencySaving(true)
+    try {
+      const updates = [
+        ['whatsapp_agencia', agencyWhatsApp],
+        ['nombre_agencia', agencyName],
+        ['direccion_agencia', agencyAddress],
+      ]
+      for (const [clave, valor] of updates) {
+        if (valor) await inteligenciaAPI.actualizarConfiguracion(clave, valor)
+      }
+      queryClient.invalidateQueries(['agency-config'])
+      toast.success('Datos de la agencia guardados')
+    } catch {
+      toast.error('Error al guardar')
+    } finally {
+      setAgencySaving(false)
+    }
+  }
 
   // Estado de MercadoLibre
   const { data: mlStatus, isLoading: mlLoading, refetch: refetchML } = useQuery({
@@ -225,6 +272,73 @@ export default function MiPerfil() {
               <p className="text-3xl font-bold text-green-900">{perfil.estadisticas.ventas_trimestre}</p>
               <p className="text-sm text-green-600 dark:text-green-400 mt-1">{formatCurrency(perfil.estadisticas.monto_trimestre)}</p>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Datos de la Agencia - solo admin */}
+      {isAdmin && (
+        <div className="card">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+            <Building2 className="w-5 h-5 text-primary-500" />
+            Datos de la Agencia
+          </h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+            Esta informacion se usa en las fichas publicas de vehiculos y los mensajes de WhatsApp.
+          </p>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Nombre de la agencia
+              </label>
+              <input
+                type="text"
+                className="input w-full"
+                placeholder="Ej: Automotores Rodriguez"
+                value={agencyName}
+                onChange={(e) => setAgencyName(e.target.value)}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-2">
+                <MessageCircle className="w-4 h-4 text-green-600" />
+                WhatsApp de la agencia
+              </label>
+              <input
+                type="tel"
+                className="input w-full"
+                placeholder="Ej: 5493518567543 (con codigo de pais)"
+                value={agencyWhatsApp}
+                onChange={(e) => setAgencyWhatsApp(e.target.value.replace(/\D/g, ''))}
+              />
+              <p className="text-xs text-gray-400 mt-1">
+                Formato internacional sin + ni espacios. Ej: 5493515551234. Este numero se usa para los botones de WhatsApp en fichas publicas y mensajes a interesados.
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Direccion
+              </label>
+              <input
+                type="text"
+                className="input w-full"
+                placeholder="Ej: Av. Colon 1234, Cordoba"
+                value={agencyAddress}
+                onChange={(e) => setAgencyAddress(e.target.value)}
+              />
+            </div>
+
+            <button
+              onClick={handleSaveAgency}
+              disabled={agencySaving}
+              className="btn btn-primary flex items-center gap-2"
+            >
+              <Save className="w-4 h-4" />
+              {agencySaving ? 'Guardando...' : 'Guardar datos de agencia'}
+            </button>
           </div>
         </div>
       )}

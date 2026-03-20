@@ -65,7 +65,7 @@ function fillTemplate(template, vars) {
     .replace(/\{agencia\}/g, vars.agencia || 'nuestra agencia')
 }
 
-export default function WhatsAppTemplates({ telefono, nombre, vehiculo, precio, agencia, onClose }) {
+export default function WhatsAppTemplates({ telefono, nombre, vehiculo, precio, agencia, whatsappAgencia, onClose }) {
   const [customText, setCustomText] = useState('')
   const [selectedId, setSelectedId] = useState(null)
 

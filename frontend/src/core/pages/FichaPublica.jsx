@@ -120,7 +120,8 @@ export default function FichaPublica() {
   const whatsappText = encodeURIComponent(
     `Hola! Vi el ${unidad.marca} ${unidad.modelo} ${unidad.anio} (${unidad.dominio}) y me interesa. Me podes pasar mas info?`
   )
-  const whatsappUrl = `https://wa.me/${unidad.telefono_agencia || '543518567543'}?text=${whatsappText}`
+  // Use agency WhatsApp from backend config, fall back to hardcoded
+  const whatsappUrl = `https://wa.me/${unidad.whatsapp_agencia || unidad.telefono_agencia || '543518567543'}?text=${whatsappText}`
 
   return (
     <div className="min-h-screen bg-gray-50">

@@ -42,7 +42,11 @@ async def obtener_configuracion(
     return ConfiguracionNegocioResponse(
         tasa_costo_oportunidad_anual=await ConfiguracionNegocio.get_valor(db, "tasa_costo_oportunidad_anual", 30),
         dias_alerta_repricing=int(await ConfiguracionNegocio.get_valor(db, "dias_alerta_repricing", 45)),
-        dias_stock_inmovilizado=int(await ConfiguracionNegocio.get_valor(db, "dias_stock_inmovilizado", 60))
+        dias_stock_inmovilizado=int(await ConfiguracionNegocio.get_valor(db, "dias_stock_inmovilizado", 60)),
+        # Agency profile
+        whatsapp_agencia=await ConfiguracionNegocio.get_valor(db, "whatsapp_agencia"),
+        nombre_agencia=await ConfiguracionNegocio.get_valor(db, "nombre_agencia"),
+        direccion_agencia=await ConfiguracionNegocio.get_valor(db, "direccion_agencia"),
     )
 
 

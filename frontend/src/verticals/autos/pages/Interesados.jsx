@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
-import { interesadosAPI } from '../services/api'
+import { interesadosAPI, inteligenciaAPI } from '../services/api'
 import toast from 'react-hot-toast'
 import {
   Plus,
@@ -42,6 +42,16 @@ export default function Interesados() {
       })
       return res.data
     }
+  })
+
+  // Agency config for WhatsApp number
+  const { data: agencyConfig } = useQuery({
+    queryKey: ['agency-config'],
+    queryFn: async () => {
+      const res = await inteligenciaAPI.configuracion()
+      return res.data
+    },
+    staleTime: 5 * 60 * 1000,
   })
 
   const { data: estadisticas } = useQuery({
@@ -461,7 +471,8 @@ export default function Interesados() {
           nombre={waInteresado.nombre_completo}
           vehiculo={[waInteresado.marca_buscada, waInteresado.modelo_buscado].filter(Boolean).join(' ') || 'vehiculo'}
           precio={waInteresado.precio_maximo ? formatCurrency(waInteresado.precio_maximo) : null}
-          agencia="nuestra agencia"
+          agencia={agencyConfig?.nombre_agencia || 'nuestra agencia'}
+          whatsappAgencia={agencyConfig?.whatsapp_agencia}
           onClose={() => setWaInteresado(null)}
         />
       )}

@@ -27,3 +27,7 @@ class ConfiguracionNegocioResponse(BaseModel):
     tasa_costo_oportunidad_anual: float
     dias_alerta_repricing: int
     dias_stock_inmovilizado: int
+    # Agency profile
+    whatsapp_agencia: Optional[str] = None
+    nombre_agencia: Optional[str] = None
+    direccion_agencia: Optional[str] = None
