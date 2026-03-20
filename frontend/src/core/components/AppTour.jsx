@@ -1,6 +1,5 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
-import { useNavigate, useLocation } from 'react-router-dom'
 import {
   X,
   ChevronRight,
@@ -115,8 +114,6 @@ const TOUR_STEPS = [
 
 // ── Tour Overlay Component ──
 export default function AppTour({ isActive, currentStep, onNext, onPrev, onSkip, onEnd, isAdmin }) {
-  const navigate = useNavigate()
-  const location = useLocation()
   const [animating, setAnimating] = useState(false)
   const [visible, setVisible] = useState(false)
 
@@ -135,13 +132,6 @@ export default function AppTour({ isActive, currentStep, onNext, onPrev, onSkip,
       setVisible(false)
     }
   }, [isActive])
-
-  // Navigate to step route
-  useEffect(() => {
-    if (isActive && step?.route && location.pathname !== step.route) {
-      navigate(step.route)
-    }
-  }, [isActive, currentStep, step, navigate, location.pathname])
 
   // Keyboard navigation
   useEffect(() => {
