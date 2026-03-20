@@ -42,14 +42,14 @@ class ErrorBoundary extends React.Component {
                 Cerrar sesión
               </button>
             </div>
-            {import.meta.env.DEV && (
-              <details className="mt-4 text-left text-sm text-gray-500 dark:text-gray-400">
-                <summary>Detalles del error (solo dev)</summary>
-                <pre className="mt-2 p-2 bg-gray-100 dark:bg-gray-800 rounded overflow-auto text-xs">
-                  {this.state.error?.toString()}
-                </pre>
-              </details>
-            )}
+            <details className="mt-4 text-left text-sm text-gray-500 dark:text-gray-400">
+              <summary>Detalles del error</summary>
+              <pre className="mt-2 p-2 bg-gray-100 dark:bg-gray-800 rounded overflow-auto text-xs max-w-md mx-auto">
+                {this.state.error?.toString()}
+                {'\n'}
+                {this.state.error?.stack?.split('\n').slice(0, 5).join('\n')}
+              </pre>
+            </details>
           </div>
         </div>
       )
