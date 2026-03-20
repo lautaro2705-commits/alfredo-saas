@@ -267,18 +267,20 @@ export default function Dashboard() {
 
   // Send browser notifications for high-priority alerts
   useEffect(() => {
-    if (!isGranted || !resumen?.alertas?.length) return
-    const highPriority = resumen.alertas.filter(a => a.prioridad === 'alta')
-    if (highPriority.length > 0) {
-      showNotification(
-        `${highPriority.length} alerta${highPriority.length > 1 ? 's' : ''} importante${highPriority.length > 1 ? 's' : ''}`,
-        {
-          body: highPriority.slice(0, 3).map(a => a.mensaje).join('\n'),
-          tag: 'alfredo-alertas',
-          url: '/',
-        }
-      )
-    }
+    try {
+      if (!isGranted || !Array.isArray(resumen?.alertas) || resumen.alertas.length === 0) return
+      const highPriority = resumen.alertas.filter(a => a?.prioridad === 'alta')
+      if (highPriority.length > 0) {
+        showNotification(
+          `${highPriority.length} alerta${highPriority.length > 1 ? 's' : ''} importante${highPriority.length > 1 ? 's' : ''}`,
+          {
+            body: highPriority.slice(0, 3).map(a => a?.mensaje || 'Alerta').join('\n'),
+            tag: 'alfredo-alertas',
+            url: '/',
+          }
+        )
+      }
+    } catch { /* ignore notification errors */ }
   }, [resumen?.alertas, isGranted, showNotification])
 
   if (error) {
