@@ -6,6 +6,7 @@ import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts'
 import SearchModal from './SearchModal'
 import KeyboardShortcutsModal from './KeyboardShortcutsModal'
 import NotificacionesBadge from './NotificacionesBadge'
+import ActivityFeed from './ActivityFeed'
 import AppTour from '@/core/components/AppTour'
 import { useTour } from '@/core/hooks/useTour'
 import {
@@ -41,6 +42,8 @@ import {
   Shield,
   BookOpen,
   Play,
+  Bell,
+  Activity,
 } from 'lucide-react'
 import clsx from 'clsx'
 
@@ -186,6 +189,7 @@ function SidebarItem({ item, onNavClick }) {
 export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
+  const [activityOpen, setActivityOpen] = useState(false)
   const [collapsedSections, setCollapsedSections] = useState({})
   const { user, logout, isAdmin, isPlatformAdmin, sessionExpired, dismissSessionExpired } = useAuth()
   const { theme, toggleTheme, isDark } = useTheme()
@@ -280,6 +284,7 @@ export default function Layout() {
       {/* Modales */}
       <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
       <KeyboardShortcutsModal isOpen={showHelp} onClose={() => setShowHelp(false)} />
+      <ActivityFeed isOpen={activityOpen} onClose={() => setActivityOpen(false)} />
 
       {/* Tour interactivo */}
       <AppTour
@@ -353,6 +358,13 @@ export default function Layout() {
                 : <Moon className="w-4 h-4" />
               }
               <span className="text-xs">{isDark ? 'Claro' : 'Oscuro'}</span>
+            </button>
+            <button
+              onClick={() => setActivityOpen(true)}
+              className="p-2 text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-950 rounded-lg transition-colors"
+              title="Actividad reciente"
+            >
+              <Activity className="w-4 h-4" />
             </button>
             <button
               onClick={() => tour.startTour()}
