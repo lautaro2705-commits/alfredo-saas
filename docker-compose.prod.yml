@@ -103,12 +103,13 @@ services:
         limits:
           memory: 128M
 
-  # ── Database Backups (daily cron) ──
+  # ── Database Backups (scheduled via crond) ──
   backup:
     image: postgres:16-alpine
     restart: unless-stopped
     volumes:
       - ./scripts/backup-db.sh:/usr/local/bin/backup-db.sh:ro
+      - ./scripts/check-backup-health.sh:/usr/local/bin/check-backup-health.sh:ro
       - backup_data:/backups
     environment:
       PGHOST: db
@@ -116,21 +117,39 @@ services:
       PGPASSWORD: ${POSTGRES_PASSWORD}
       PGDATABASE: ${POSTGRES_DB}
       BACKUP_DIR: /backups
-      BACKUP_RETAIN_DAYS: 7
+      BACKUP_RETAIN_DAYS: ${BACKUP_RETAIN_DAYS:-7}
       S3_BUCKET: ${BACKUP_S3_BUCKET:-}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
+      ALERT_WEBHOOK_URL: ${ALERT_WEBHOOK_URL:-}
     depends_on:
       db:
         condition: service_healthy
-    # Run backup daily at 3 AM, then sleep
+    # Use crond for precise scheduling instead of sleep loops
     entrypoint: ["/bin/sh", "-c"]
     command:
       - |
-        echo "Backup scheduler starting..."
-        while true; do
-          /usr/local/bin/backup-db.sh
-          echo "Next backup in 24h..."
-          sleep 86400
-        done
+        chmod +x /usr/local/bin/backup-db.sh /usr/local/bin/check-backup-health.sh
+
+        # Schedule: backup at 03:00 and 15:00 daily (twice a day)
+        echo "0  3 * * * /usr/local/bin/backup-db.sh >> /var/log/backup.log 2>&1" > /etc/crontabs/root
+        echo "0 15 * * * /usr/local/bin/backup-db.sh >> /var/log/backup.log 2>&1" >> /etc/crontabs/root
+        # Health check every 6 hours
+        echo "0 */6 * * * /usr/local/bin/check-backup-health.sh >> /var/log/backup.log 2>&1" >> /etc/crontabs/root
+
+        # Run initial backup on startup
+        echo "Running initial backup..."
+        /usr/local/bin/backup-db.sh
+
+        # Start cron daemon in foreground
+        echo "Starting cron scheduler (backups at 03:00, 15:00 daily)..."
+        crond -f -l 2
+    healthcheck:
+      test: ["CMD-SHELL", "/usr/local/bin/check-backup-health.sh"]
+      interval: 6h
+      timeout: 30s
+      retries: 1
+      start_period: 60s
     deploy:
       resources:
         limits:
