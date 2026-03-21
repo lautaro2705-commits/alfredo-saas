@@ -172,7 +172,7 @@ export default function CajaDiaria() {
           <input
             type="date"
             value={fechaStr}
-            onChange={(e) => setFecha(new Date(e.target.value))}
+            onChange={(e) => setFecha(new Date(e.target.value + 'T12:00:00'))}
             className="input w-auto"
           />
           <button

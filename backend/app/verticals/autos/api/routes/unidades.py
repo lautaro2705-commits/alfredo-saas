@@ -30,8 +30,8 @@ async def listar_unidades(
     buscar: Optional[str] = None,
     solo_inmovilizados: bool = False,
     excluir_vendidos: bool = False,
-    skip: int = 0,
-    limit: int = 100,
+    skip: int = Query(0, ge=0),
+    limit: int = Query(100, ge=1, le=500),
     db: AsyncSession = Depends(get_db),
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
@@ -66,8 +66,8 @@ async def listar_unidades(
 @router.get("/vendidos", response_model=List[UnidadListResponse])
 async def listar_vendidos(
     buscar: Optional[str] = None,
-    skip: int = 0,
-    limit: int = 100,
+    skip: int = Query(0, ge=0),
+    limit: int = Query(100, ge=1, le=500),
     db: AsyncSession = Depends(get_db),
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
@@ -647,6 +647,10 @@ async def reordenar_fotos_unidad(
     # Validar que el nuevo orden tiene la misma cantidad
     if len(nuevo_orden) != len(fotos_actuales):
         raise HTTPException(status_code=400, detail="El orden no coincide con la cantidad de fotos")
+
+    # Validar que los indices son validos y no se repiten
+    if sorted(nuevo_orden) != list(range(len(fotos_actuales))):
+        raise HTTPException(status_code=400, detail="Indices de orden invalidos o duplicados")
 
     # Reordenar
     fotos_reordenadas = [fotos_actuales[i] for i in nuevo_orden]

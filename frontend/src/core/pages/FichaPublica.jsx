@@ -117,6 +117,13 @@ export default function FichaPublica() {
   const formatCurrency = (v) =>
     new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', minimumFractionDigits: 0 }).format(v || 0)
 
+  // Normalize fotos to always be an array
+  const fotos = Array.isArray(unidad.fotos)
+    ? unidad.fotos
+    : typeof unidad.fotos === 'string'
+      ? unidad.fotos.split(',').map(f => f.trim()).filter(Boolean)
+      : []
+
   const whatsappText = encodeURIComponent(
     `Hola! Vi el ${unidad.marca} ${unidad.modelo} ${unidad.anio} (${unidad.dominio}) y me interesa. Me podes pasar mas info?`
   )
@@ -135,7 +142,7 @@ export default function FichaPublica() {
           <button
             onClick={handleShare}
             className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-            title="Compartir"
+            aria-label="Compartir vehiculo"
           >
             <Share2 className="w-5 h-5" />
           </button>
@@ -144,10 +151,10 @@ export default function FichaPublica() {
 
       <main className="max-w-3xl mx-auto px-4 py-6 pb-32">
         {/* Photos */}
-        {unidad.fotos?.length > 0 && (
+        {fotos?.length > 0 && (
           <div className="mb-6 rounded-xl overflow-hidden bg-gray-200 aspect-video">
             <img
-              src={unidad.fotos[0]}
+              src={fotos[0]}
               alt={`${unidad.marca} ${unidad.modelo}`}
               className="w-full h-full object-cover"
             />
@@ -199,11 +206,11 @@ export default function FichaPublica() {
         )}
 
         {/* More photos */}
-        {unidad.fotos?.length > 1 && (
+        {fotos?.length > 1 && (
           <div className="mb-6">
             <h3 className="font-semibold text-gray-900 mb-3">Fotos</h3>
             <div className="grid grid-cols-3 gap-2">
-              {unidad.fotos.slice(1).map((foto, i) => (
+              {fotos.slice(1).map((foto, i) => (
                 <div key={i} className="aspect-square rounded-lg overflow-hidden bg-gray-200">
                   <img src={foto} alt={`Foto ${i + 2}`} className="w-full h-full object-cover" />
                 </div>

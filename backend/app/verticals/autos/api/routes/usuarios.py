@@ -105,6 +105,7 @@ async def mi_perfil(
     # Operaciones del mes
     result = await db.execute(
         select(Operacion).where(
+            Operacion.active(),
             Operacion.vendedor_id == token.user_id,
             Operacion.estado == EstadoOperacion.COMPLETADA,
             Operacion.fecha_operacion >= fecha_mes
@@ -115,6 +116,7 @@ async def mi_perfil(
     # Operaciones del trimestre
     result = await db.execute(
         select(Operacion).where(
+            Operacion.active(),
             Operacion.vendedor_id == token.user_id,
             Operacion.estado == EstadoOperacion.COMPLETADA,
             Operacion.fecha_operacion >= fecha_trimestre
@@ -329,6 +331,7 @@ async def estadisticas_vendedor(
     # Operaciones totales
     result = await db.execute(
         select(Operacion).where(
+            Operacion.active(),
             Operacion.vendedor_id == usuario_id,
             Operacion.estado == EstadoOperacion.COMPLETADA
         )

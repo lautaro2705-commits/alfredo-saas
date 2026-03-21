@@ -31,8 +31,8 @@ async def listar_operaciones(
     fecha_desde: Optional[date] = None,
     fecha_hasta: Optional[date] = None,
     cliente_id: Optional[int] = None,
-    skip: int = 0,
-    limit: int = 100,
+    skip: int = Query(0, ge=0),
+    limit: int = Query(100, ge=1, le=500),
     db: AsyncSession = Depends(get_db),
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
@@ -197,18 +197,19 @@ async def corregir_fechas_caja(
     Actualiza la fecha del movimiento para que coincida con la fecha de la operacion.
     Solo admin.
     """
-    # Buscar movimientos de caja vinculados a operaciones
+    # Buscar movimientos de caja vinculados a operaciones (eager-load operacion)
     result = await db.execute(
-        select(CajaDiaria).where(CajaDiaria.active(), CajaDiaria.operacion_id.isnot(None))
+        select(CajaDiaria)
+        .options(joinedload(CajaDiaria.operacion))
+        .where(CajaDiaria.active(), CajaDiaria.operacion_id.isnot(None))
     )
     movimientos = result.scalars().all()
 
     corregidos = []
 
     for mov in movimientos:
-        result = await db.execute(select(Operacion).where(Operacion.active(), Operacion.id == mov.operacion_id))
-        operacion = result.scalar_one_or_none()
-        if operacion and mov.fecha != operacion.fecha_operacion:
+        operacion = mov.operacion
+        if operacion and operacion.deleted_at is None and mov.fecha != operacion.fecha_operacion:
             fecha_anterior = mov.fecha
             mov.fecha = operacion.fecha_operacion
             corregidos.append({
@@ -510,7 +511,7 @@ async def marcar_boleto_impreso(
         raise HTTPException(status_code=404, detail="Operacion no encontrada")
 
     operacion.boleto_impreso = True
-    operacion.fecha_boleto = datetime.now()
+    operacion.fecha_boleto = datetime.now(timezone.utc)
     operacion.boleto_compraventa = True
 
     await db.commit()

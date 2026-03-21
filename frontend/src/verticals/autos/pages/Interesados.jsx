@@ -89,6 +89,9 @@ export default function Interesados() {
       queryClient.invalidateQueries({ queryKey: ['interesados'] })
       queryClient.invalidateQueries({ queryKey: ['interesados-stats'] })
       toast.success('Interesado desactivado')
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.detail || 'Error al desactivar')
     }
   })
 
@@ -96,6 +99,9 @@ export default function Interesados() {
     mutationFn: (id) => interesadosAPI.marcarLeida(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notificaciones-pendientes'] })
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.detail || 'Error al marcar como leida')
     }
   })
 

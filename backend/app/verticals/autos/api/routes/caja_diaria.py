@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, and_
+from sqlalchemy.orm import selectinload
 from typing import List, Optional
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from zoneinfo import ZoneInfo
 from app.core.database import get_db
 from app.core.security import get_current_user_with_tenant, require_role, TokenContext
@@ -28,8 +29,8 @@ async def listar_movimientos(
     categoria: Optional[CategoriaGasto] = None,
     fecha_desde: Optional[date] = None,
     fecha_hasta: Optional[date] = None,
-    skip: int = 0,
-    limit: int = 100,
+    skip: int = Query(0, ge=0),
+    limit: int = Query(100, ge=1, le=500),
     db: AsyncSession = Depends(get_db),
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
@@ -207,7 +208,9 @@ async def calcular_cierre(
 
     # Operaciones completadas del mes
     result = await db.execute(
-        select(Operacion).where(
+        select(Operacion)
+        .options(selectinload(Operacion.unidad_vendida))
+        .where(
             Operacion.active(),
             Operacion.fecha_operacion >= primer_dia,
             Operacion.fecha_operacion <= ultimo_dia,
@@ -286,7 +289,9 @@ async def crear_cierre(
 
     # Operaciones del mes
     result = await db.execute(
-        select(Operacion).where(
+        select(Operacion)
+        .options(selectinload(Operacion.unidad_vendida))
+        .where(
             Operacion.active(),
             Operacion.fecha_operacion >= primer_dia,
             Operacion.fecha_operacion <= ultimo_dia,
@@ -321,12 +326,13 @@ async def crear_cierre(
         utilidad_bruta=utilidad_bruta,
         utilidad_neta=utilidad_neta,
         cerrado=True,
-        fecha_cierre=datetime.now(),
+        fecha_cierre=datetime.now(timezone.utc),
         cerrado_by=token.user_id,
         observaciones=cierre.observaciones
     )
 
     db.add(db_cierre)
+    await db.flush()  # Generate db_cierre.id before linking
 
     # Vincular movimientos al cierre
     for mov in movimientos:

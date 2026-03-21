@@ -473,6 +473,15 @@ async def gift_access(
             detail=f"Plan '{body.plan}' no válido. Opciones: trial, basico, profesional, premium",
         )
 
+    # Validate password strength
+    from app.core.security.password_validator import validate_password_strength
+    pwd_errors = validate_password_strength(body.admin_password, email=body.admin_email)
+    if pwd_errors:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=pwd_errors[0],
+        )
+
     acceso_hasta = datetime.now(timezone.utc) + timedelta(days=body.dias)
 
     # 1. Crear tenant

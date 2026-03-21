@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { unidadesAPI, documentacionAPI, costosAPI, marketingAPI, archivosAPI, mercadolibreAPI } from '../services/api'
+import { unidadesAPI, documentacionAPI, marketingAPI, archivosAPI, mercadolibreAPI } from '../services/api'
 import { useAuth } from '../context/AuthContext'
 import toast from 'react-hot-toast'
 import { format } from 'date-fns'
@@ -117,7 +117,7 @@ export default function UnidadDetalle() {
     mutationFn: (file) => unidadesAPI.subirFoto(id, file),
     onSuccess: () => {
       toast.success('Foto subida correctamente')
-      queryClient.invalidateQueries(['unidad-fotos', id])
+      queryClient.invalidateQueries({ queryKey: ['unidad-fotos', id] })
     },
     onError: (error) => {
       toast.error(error.response?.data?.detail || 'Error al subir foto')
@@ -129,7 +129,7 @@ export default function UnidadDetalle() {
     mutationFn: (fotoIndex) => unidadesAPI.eliminarFoto(id, fotoIndex),
     onSuccess: () => {
       toast.success('Foto eliminada')
-      queryClient.invalidateQueries(['unidad-fotos', id])
+      queryClient.invalidateQueries({ queryKey: ['unidad-fotos', id] })
     },
     onError: (error) => {
       toast.error(error.response?.data?.detail || 'Error al eliminar foto')
@@ -141,7 +141,7 @@ export default function UnidadDetalle() {
     mutationFn: () => mercadolibreAPI.pause(id),
     onSuccess: () => {
       toast.success('Publicación pausada')
-      queryClient.invalidateQueries(['unidad', id])
+      queryClient.invalidateQueries({ queryKey: ['unidad', id] })
     },
     onError: (error) => toast.error(error.response?.data?.detail || 'Error')
   })
@@ -150,7 +150,7 @@ export default function UnidadDetalle() {
     mutationFn: () => mercadolibreAPI.activate(id),
     onSuccess: () => {
       toast.success('Publicación reactivada')
-      queryClient.invalidateQueries(['unidad', id])
+      queryClient.invalidateQueries({ queryKey: ['unidad', id] })
     },
     onError: (error) => toast.error(error.response?.data?.detail || 'Error')
   })
@@ -159,7 +159,7 @@ export default function UnidadDetalle() {
     mutationFn: () => mercadolibreAPI.sync(id),
     onSuccess: () => {
       toast.success('Precio sincronizado')
-      queryClient.invalidateQueries(['unidad', id])
+      queryClient.invalidateQueries({ queryKey: ['unidad', id] })
     },
     onError: (error) => toast.error(error.response?.data?.detail || 'Error')
   })
@@ -228,7 +228,7 @@ export default function UnidadDetalle() {
           <p className="text-gray-500 dark:text-gray-400">{unidad.version || ''} • {unidad.anio}</p>
         </div>
         <span className={clsx('badge', estadoColors[unidad.estado])}>
-          {unidad.estado.replace('_', ' ')}
+          {unidad.estado.replaceAll('_', ' ')}
         </span>
         {unidad.mercadolibre_id && (
           <span className={clsx(
@@ -360,7 +360,7 @@ export default function UnidadDetalle() {
       </div>
 
       {/* Tabs */}
-      <div className="border-b">
+      <div className="border-b border-gray-200 dark:border-gray-700">
         <nav className="flex gap-4 overflow-x-auto">
           {['info', 'fotos', 'costos', 'documentacion', 'archivos'].map((tab) => (
             <button
@@ -435,7 +435,7 @@ export default function UnidadDetalle() {
             <dl className="space-y-3">
               <div className="flex justify-between">
                 <dt className="text-gray-500 dark:text-gray-400">Fecha Ingreso</dt>
-                <dd>{format(new Date(unidad.fecha_ingreso), 'dd/MM/yyyy')}</dd>
+                <dd>{unidad.fecha_ingreso ? format(new Date(unidad.fecha_ingreso), 'dd/MM/yyyy') : '-'}</dd>
               </div>
               <div className="flex justify-between">
                 <dt className="text-gray-500 dark:text-gray-400">Días en Stock</dt>
@@ -698,7 +698,7 @@ export default function UnidadDetalle() {
 
           {/* Nota sobre MercadoLibre */}
           {fotosData?.total > 0 && (
-            <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 rounded-lg text-sm text-yellow-800">
+            <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-lg text-sm text-yellow-800 dark:text-yellow-300">
               <span className="font-medium">💡 Tip:</span> MercadoLibre acepta hasta 12 fotos por publicación.
               La primera foto será la principal.
             </div>
@@ -714,7 +714,8 @@ export default function UnidadDetalle() {
         >
           <button
             onClick={() => setFotoExpandida(null)}
-            className="absolute top-4 right-4 p-2 bg-white dark:bg-gray-800/20 hover:bg-white/30 rounded-full text-white"
+            aria-label="Cerrar foto"
+            className="absolute top-4 right-4 p-2 bg-white/20 hover:bg-white/30 rounded-full text-white"
           >
             <X className="w-6 h-6" />
           </button>
@@ -771,13 +772,13 @@ export default function UnidadDetalle() {
                       <div>
                         <p className="font-medium text-gray-900 dark:text-white">{costo.descripcion}</p>
                         <p className="text-sm text-gray-500 dark:text-gray-400">
-                          {costo.categoria.replace('_', ' ')} • {costo.proveedor || 'Sin proveedor'}
+                          {costo.categoria.replaceAll('_', ' ')} • {costo.proveedor || 'Sin proveedor'}
                         </p>
                       </div>
                       <div className="text-right">
                         <p className="font-semibold">{formatCurrency(costo.monto)}</p>
                         <p className="text-xs text-gray-400">
-                          {format(new Date(costo.fecha), 'dd/MM/yyyy')}
+                          {costo.fecha ? format(new Date(costo.fecha), 'dd/MM/yyyy') : '-'}
                         </p>
                       </div>
                     </div>
@@ -814,8 +815,8 @@ export default function UnidadDetalle() {
           </div>
 
           {documentacion?.items_pendientes?.length > 0 && (
-            <div className="bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 rounded-lg p-4 mb-4">
-              <p className="font-medium text-yellow-800 mb-2">Items pendientes:</p>
+            <div className="bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-4">
+              <p className="font-medium text-yellow-800 dark:text-yellow-300 mb-2">Items pendientes:</p>
               <ul className="list-disc list-inside text-yellow-700 dark:text-yellow-400 text-sm space-y-1">
                 {documentacion.items_pendientes.map((item, i) => (
                   <li key={i}>{item}</li>
@@ -875,12 +876,12 @@ export default function UnidadDetalle() {
           </div>
 
           {archivosUnidad?.documentos_faltantes?.length > 0 && (
-            <div className="bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 rounded-lg p-4 mb-4">
-              <p className="font-medium text-yellow-800 mb-2">Documentos faltantes:</p>
+            <div className="bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-4">
+              <p className="font-medium text-yellow-800 dark:text-yellow-300 mb-2">Documentos faltantes:</p>
               <div className="flex flex-wrap gap-2">
                 {archivosUnidad.documentos_faltantes.map((doc) => (
-                  <span key={doc} className="bg-yellow-200 text-yellow-800 text-xs px-2 py-1 rounded">
-                    {doc.replace('_', ' ')}
+                  <span key={doc} className="bg-yellow-200 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-300 text-xs px-2 py-1 rounded">
+                    {doc.replaceAll('_', ' ')}
                   </span>
                 ))}
               </div>
@@ -890,8 +891,8 @@ export default function UnidadDetalle() {
           {archivosUnidad?.por_tipo && Object.keys(archivosUnidad.por_tipo).length > 0 ? (
             <div className="space-y-4">
               {Object.entries(archivosUnidad.por_tipo).map(([tipo, archivos]) => (
-                <div key={tipo} className="border rounded-lg p-3">
-                  <p className="font-medium text-gray-700 dark:text-gray-300 mb-2 capitalize">{tipo.replace('_', ' ')}</p>
+                <div key={tipo} className="border border-gray-200 dark:border-gray-700 rounded-lg p-3">
+                  <p className="font-medium text-gray-700 dark:text-gray-300 mb-2 capitalize">{tipo.replaceAll('_', ' ')}</p>
                   <div className="flex flex-wrap gap-2">
                     {archivos.map((archivo) => (
                       <div
@@ -927,8 +928,8 @@ export default function UnidadDetalle() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="fixed inset-0 bg-black/50" onClick={() => setShareModalOpen(false)} />
           <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-4 border-b">
-              <h2 className="text-lg font-semibold flex items-center gap-2">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                 <Share2 className="w-5 h-5" />
                 Compartir Unidad
               </h2>
@@ -942,7 +943,7 @@ export default function UnidadDetalle() {
 
             <div className="p-4 space-y-4">
               {/* WhatsApp */}
-              <div className="border rounded-lg p-4">
+              <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="font-medium text-gray-900 dark:text-white">WhatsApp</h3>
                   <button
@@ -962,7 +963,7 @@ export default function UnidadDetalle() {
               </div>
 
               {/* Instagram */}
-              <div className="border rounded-lg p-4">
+              <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="font-medium text-gray-900 dark:text-white">Instagram</h3>
                   <button
@@ -982,7 +983,7 @@ export default function UnidadDetalle() {
               </div>
 
               {/* Ficha HTML */}
-              <div className="border rounded-lg p-4">
+              <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                 <h3 className="font-medium text-gray-900 dark:text-white mb-3">Ficha de Venta</h3>
                 <a
                   href={marketingAPI.fichaVentaHtml(id)}
@@ -1004,7 +1005,7 @@ export default function UnidadDetalle() {
         <MLPublishModal
           unidad={unidad}
           onClose={() => setMLPublishModalOpen(false)}
-          onSuccess={() => queryClient.invalidateQueries(['unidad', id])}
+          onSuccess={() => queryClient.invalidateQueries({ queryKey: ['unidad', id] })}
         />
       )}
     </div>

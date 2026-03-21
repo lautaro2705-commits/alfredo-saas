@@ -13,22 +13,22 @@ import {
 function UsageBar({ label, current, max, icon: Icon }) {
   const isUnlimited = max === 'unlimited'
   const numMax = parseInt(max)
-  const percentage = isUnlimited ? 0 : Math.min((current / numMax) * 100, 100)
+  const percentage = isUnlimited ? 0 : (numMax > 0 ? Math.min((current / numMax) * 100, 100) : 0)
   const isNearLimit = !isUnlimited && percentage >= 80
 
   return (
-    <div className="bg-white rounded-lg p-4 border">
+    <div className="bg-white dark:bg-gray-900 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
-          <Icon className="h-4 w-4 text-gray-500" />
-          <span className="text-sm font-medium text-gray-700">{label}</span>
+          <Icon className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{label}</span>
         </div>
-        <span className={`text-sm font-semibold ${isNearLimit ? 'text-amber-600' : 'text-gray-900'}`}>
+        <span className={`text-sm font-semibold ${isNearLimit ? 'text-amber-600 dark:text-amber-400' : 'text-gray-900 dark:text-white'}`}>
           {current} / {isUnlimited ? '∞' : max}
         </span>
       </div>
       {!isUnlimited && (
-        <div className="w-full bg-gray-200 rounded-full h-2">
+        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
           <div
             className={`h-2 rounded-full transition-all ${
               isNearLimit ? 'bg-amber-500' : 'bg-blue-600'
@@ -51,7 +51,7 @@ function PlanCard({ plan, currentPlan, onSubscribe, loading }) {
 
   return (
     <div className={`rounded-xl border-2 p-6 flex flex-col ${
-      isCurrent ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white'
+      isCurrent ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/30' : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900'
     }`}>
       {isCurrent && (
         <span className="text-xs font-bold text-blue-600 uppercase tracking-wide">
@@ -63,7 +63,7 @@ function PlanCard({ plan, currentPlan, onSubscribe, loading }) {
           🔥 Oferta de lanzamiento
         </span>
       )}
-      <h3 className="text-lg font-bold mt-1">{plan.display_name}</h3>
+      <h3 className="text-lg font-bold mt-1 text-gray-900 dark:text-white">{plan.display_name}</h3>
 
       {/* Pricing section */}
       <div className="mt-2">
@@ -84,10 +84,10 @@ function PlanCard({ plan, currentPlan, onSubscribe, loading }) {
           </>
         ) : (
           <>
-            <span className="text-3xl font-bold">
+            <span className="text-3xl font-bold text-gray-900 dark:text-white">
               {fmtPrice(plan.price_ars)}
             </span>
-            <span className="text-gray-500 text-sm">/mes</span>
+            <span className="text-gray-500 dark:text-gray-400 text-sm">/mes</span>
           </>
         )}
       </div>
@@ -112,20 +112,20 @@ function PlanCard({ plan, currentPlan, onSubscribe, loading }) {
       )}
 
       <ul className="mt-4 space-y-2 flex-1">
-        <li className="flex items-center gap-2 text-sm text-gray-700">
+        <li className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
           <Users className="h-4 w-4 text-gray-400 flex-shrink-0" />
           {plan.max_usuarios === 'unlimited'
             ? 'Usuarios ilimitados'
             : `Hasta ${plan.max_usuarios} usuarios`}
         </li>
-        <li className="flex items-center gap-2 text-sm text-gray-700">
+        <li className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
           <Package className="h-4 w-4 text-gray-400 flex-shrink-0" />
           {plan.max_items === 'unlimited'
             ? 'Items ilimitados'
             : `Hasta ${plan.max_items} items`}
         </li>
         {plan.features.map((f) => (
-          <li key={f} className="flex items-center gap-2 text-sm text-gray-700">
+          <li key={f} className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
             <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
             <span className="capitalize">{f.replace(/_/g, ' ')}</span>
           </li>
@@ -260,7 +260,7 @@ export default function Billing() {
   return (
     <div className="max-w-5xl mx-auto space-y-8">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Facturacion y Plan</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Facturacion y Plan</h1>
         <CreditCard className="h-6 w-6 text-gray-400" />
       </div>
 
@@ -291,11 +291,11 @@ export default function Billing() {
       )}
 
       {/* Current plan card */}
-      <div className="bg-white rounded-xl border p-6">
+      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm text-gray-500">Plan actual</p>
-            <h2 className="text-xl font-bold text-gray-900 mt-0.5">
+            <p className="text-sm text-gray-500 dark:text-gray-400">Plan actual</p>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mt-0.5">
               {overview?.plan_display_name || overview?.plan}
             </h2>
             <div className="mt-2">
@@ -317,7 +317,7 @@ export default function Billing() {
       {/* Usage meters */}
       {overview?.usage && (
         <div>
-          <h2 className="text-lg font-semibold text-gray-900 mb-3">Uso actual</h2>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Uso actual</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <UsageBar
               label="Usuarios activos"
@@ -342,7 +342,7 @@ export default function Billing() {
       {/* Available plans */}
       {plans?.plans && isAdmin && (
         <div>
-          <h2 className="text-lg font-semibold text-gray-900 mb-3">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
             Planes disponibles
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -362,12 +362,12 @@ export default function Billing() {
       {/* Payment history */}
       {payments?.payments?.length > 0 && (
         <div>
-          <h2 className="text-lg font-semibold text-gray-900 mb-3">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
             Historial de pagos
           </h2>
-          <div className="bg-white rounded-xl border overflow-hidden">
+          <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
             <table className="w-full">
-              <thead className="bg-gray-50">
+              <thead className="bg-gray-50 dark:bg-gray-800">
                 <tr>
                   <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">
                     Fecha
@@ -383,19 +383,19 @@ export default function Billing() {
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
                 {payments.payments.map((p) => (
-                  <tr key={p.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 text-sm text-gray-700">
+                  <tr key={p.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                    <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
                       {new Date(p.paid_at || p.created_at).toLocaleDateString('es-AR')}
                     </td>
-                    <td className="px-4 py-3 text-sm font-medium text-gray-900">
+                    <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-white">
                       ${p.amount.toLocaleString('es-AR')} {p.currency}
                     </td>
                     <td className="px-4 py-3">
                       <StatusBadge status={p.status} />
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-500">
+                    <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
                       {p.description || '-'}
                     </td>
                   </tr>
@@ -408,20 +408,20 @@ export default function Billing() {
 
       {/* Empty payments state */}
       {payments && payments.payments?.length === 0 && (
-        <div className="bg-white rounded-xl border p-8 text-center">
-          <CreditCard className="h-10 w-10 text-gray-300 mx-auto mb-3" />
-          <p className="text-gray-500">No hay pagos registrados aun.</p>
+        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-8 text-center">
+          <CreditCard className="h-10 w-10 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+          <p className="text-gray-500 dark:text-gray-400">No hay pagos registrados aun.</p>
         </div>
       )}
 
       {/* Payer email modal */}
       {showEmailModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-xl">
-            <h3 className="text-lg font-bold text-gray-900 mb-2">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" role="dialog" aria-modal="true" aria-label="Confirmar suscripcion">
+          <div className="bg-white dark:bg-gray-900 rounded-xl p-6 w-full max-w-md shadow-xl">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
               Confirmar suscripcion
             </h3>
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
               Ingresa tu email para procesar el pago con MercadoPago:
             </p>
             <input
@@ -431,14 +431,15 @@ export default function Billing() {
               onKeyDown={(e) => e.key === 'Enter' && confirmSubscribe()}
               placeholder="tu@email.com"
               autoFocus
-              className="w-full px-3 py-2.5 border rounded-lg mb-4
+              className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg mb-4
+                         bg-white dark:bg-gray-800 text-gray-900 dark:text-white
                          focus:ring-2 focus:ring-blue-500 focus:border-blue-500
                          outline-none"
             />
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => setShowEmailModal(false)}
-                className="px-4 py-2 text-gray-600 hover:bg-gray-100
+                className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800
                            rounded-lg transition-colors"
               >
                 Cancelar

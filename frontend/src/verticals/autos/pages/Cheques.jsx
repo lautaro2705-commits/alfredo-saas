@@ -761,8 +761,23 @@ export default function Cheques() {
                 <button type="button" onClick={closeModal} className="btn btn-secondary flex-1">
                   Cancelar
                 </button>
-                <button type="submit" className="btn btn-primary flex-1">
-                  {accionModal ? 'Confirmar' : 'Guardar'}
+                <button
+                  type="submit"
+                  disabled={
+                    createRecibidoMutation.isPending ||
+                    createEmitidoMutation.isPending ||
+                    cobrarMutation.isPending ||
+                    depositarMutation.isPending ||
+                    endosarMutation.isPending ||
+                    pagarMutation.isPending
+                  }
+                  className="btn btn-primary flex-1"
+                >
+                  {(createRecibidoMutation.isPending || createEmitidoMutation.isPending ||
+                    cobrarMutation.isPending || depositarMutation.isPending ||
+                    endosarMutation.isPending || pagarMutation.isPending)
+                    ? 'Procesando...'
+                    : accionModal ? 'Confirmar' : 'Guardar'}
                 </button>
               </div>
             </form>

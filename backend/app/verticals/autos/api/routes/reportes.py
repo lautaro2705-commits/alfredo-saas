@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, selectinload
 from sqlalchemy import func, select
 from typing import Optional
 from datetime import date, datetime
@@ -37,7 +37,11 @@ async def reporte_utilidad(
 
     # Operaciones completadas en el período
     result = await db.execute(
-        select(Operacion).where(
+        select(Operacion)
+        .options(
+            selectinload(Operacion.unidad_vendida).selectinload(Unidad.costos_directos),
+        )
+        .where(
             Operacion.active(),
             Operacion.fecha_operacion >= fecha_desde,
             Operacion.fecha_operacion <= fecha_hasta,
@@ -132,7 +136,12 @@ async def reporte_stock(
     es_admin = token.rol == RolUsuario.ADMIN
 
     result = await db.execute(
-        select(Unidad).where(
+        select(Unidad)
+        .options(
+            selectinload(Unidad.costos_directos),
+            selectinload(Unidad.checklist_documentacion),
+        )
+        .where(
             Unidad.active(),
             Unidad.estado != EstadoUnidad.VENDIDO
         )
@@ -146,12 +155,7 @@ async def reporte_stock(
     inmovilizadas = 0
 
     for unidad in unidades:
-        result = await db.execute(
-            select(ChecklistDocumentacion).where(
-                ChecklistDocumentacion.unidad_id == unidad.id
-            )
-        )
-        checklist = result.scalar_one_or_none()
+        checklist = unidad.checklist_documentacion
 
         doc_completa = checklist.documentacion_completa if checklist else False
         items_pend = checklist.items_pendientes if checklist else ["Sin checklist"]
@@ -267,7 +271,7 @@ async def reporte_costos_por_unidad(
     if token.rol != RolUsuario.ADMIN:
         raise HTTPException(status_code=403, detail="Acceso denegado")
 
-    stmt = select(Unidad).where(Unidad.active())
+    stmt = select(Unidad).options(selectinload(Unidad.costos_directos)).where(Unidad.active())
     if unidad_id:
         stmt = stmt.where(Unidad.id == unidad_id)
 
@@ -318,9 +322,11 @@ async def reporte_rentabilidad_vendedores(
             detail="No tiene permisos para ver este reporte"
         )
 
-    # Operaciones completadas en el período
+    # Operaciones completadas en el período (eager-load unidad_vendida)
     result = await db.execute(
-        select(Operacion).where(
+        select(Operacion)
+        .options(selectinload(Operacion.unidad_vendida))
+        .where(
             Operacion.active(),
             Operacion.fecha_operacion >= fecha_desde,
             Operacion.fecha_operacion <= fecha_hasta,
@@ -329,14 +335,23 @@ async def reporte_rentabilidad_vendedores(
     )
     operaciones = result.scalars().all()
 
-    # Obtener todos los vendedores activos
+    # Obtener todos los vendedores activos (include admins that can sell)
     result = await db.execute(
         select(Usuario).where(
-            Usuario.rol == RolUsuario.VENDEDOR,
             Usuario.activo == True
         )
     )
     vendedores = result.scalars().all()
+
+    # Pre-build lookup for all users (to avoid N+1 for inactive vendedores)
+    all_vendedor_ids = set(op.vendedor_id for op in operaciones if op.vendedor_id)
+    missing_ids = all_vendedor_ids - set(v.id for v in vendedores)
+    if missing_ids:
+        result = await db.execute(
+            select(Usuario).where(Usuario.id.in_(missing_ids))
+        )
+        vendedores.extend(result.scalars().all())
+    vendedores_lookup = {v.id: v for v in vendedores}
 
     # Inicializar datos por vendedor
     por_vendedor = {}
@@ -357,12 +372,9 @@ async def reporte_rentabilidad_vendedores(
         if not vendedor_id:
             continue
 
-        # Si el vendedor no está en la lista (inactivo o eliminado), agregarlo
+        # Si el vendedor no está en la lista, agregarlo desde lookup
         if vendedor_id not in por_vendedor:
-            result = await db.execute(
-                select(Usuario).where(Usuario.id == vendedor_id)
-            )
-            vendedor = result.scalar_one_or_none()
+            vendedor = vendedores_lookup.get(vendedor_id)
             if vendedor:
                 por_vendedor[vendedor_id] = {
                     "vendedor_id": vendedor_id,

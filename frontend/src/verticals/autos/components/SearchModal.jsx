@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from 'react'
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { busquedaAPI } from '../services/api'
@@ -153,7 +153,7 @@ export default function SearchModal({ isOpen, onClose }) {
 
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [isOpen, onClose, allResults, selectedIdx])
+  }, [isOpen, onClose, allResults, selectedIdx, handleSelectItem])
 
   // Scroll selected into view
   useEffect(() => {
@@ -163,15 +163,15 @@ export default function SearchModal({ isOpen, onClose }) {
     }
   }, [selectedIdx])
 
-  const handleSelectItem = (item) => {
+  const handleSelectItem = useCallback((item) => {
     if (item.type === 'action') {
       navigate(item.path)
     } else if (item.type === 'search') {
-      navigate(item.link)
+      if (item.link) navigate(item.link)
     }
     onClose()
     setQuery('')
-  }
+  }, [navigate, onClose])
 
   if (!isOpen) return null
 
@@ -179,11 +179,12 @@ export default function SearchModal({ isOpen, onClose }) {
   let globalIdx = -1
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
+    <div className="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true" aria-label="Buscar">
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onClose}
+        aria-hidden="true"
       />
 
       {/* Modal */}

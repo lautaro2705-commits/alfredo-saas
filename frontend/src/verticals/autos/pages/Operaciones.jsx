@@ -111,6 +111,9 @@ export default function Operaciones() {
     onSuccess: () => {
       queryClient.invalidateQueries(['operaciones'])
     },
+    onError: (error) => {
+      toast.error(error.response?.data?.detail || 'Error al marcar boleto como impreso')
+    },
   })
 
   const recuperarMutation = useMutation({
@@ -143,6 +146,9 @@ export default function Operaciones() {
       queryClient.invalidateQueries(['operaciones'])
       toast.success('Operación cancelada')
     },
+    onError: (error) => {
+      toast.error(error.response?.data?.detail || 'Error al cancelar operación')
+    },
   })
 
   const eliminarMutation = useMutation({
@@ -171,7 +177,7 @@ export default function Operaciones() {
       style: 'currency',
       currency: 'ARS',
       minimumFractionDigits: 0,
-    }).format(value)
+    }).format(value || 0)
   }
 
   // Funcion para imprimir usando react-to-print v2
@@ -562,7 +568,7 @@ export default function Operaciones() {
 
             <div className="p-4 space-y-4">
               <div className={modoCargarDatos ? 'bg-yellow-50 dark:bg-yellow-950 rounded-lg p-3' : 'bg-blue-50 dark:bg-blue-950 rounded-lg p-3'}>
-                <p className={modoCargarDatos ? 'text-sm text-yellow-800' : 'text-sm text-blue-800'}>
+                <p className={modoCargarDatos ? 'text-sm text-yellow-800 dark:text-yellow-200' : 'text-sm text-blue-800 dark:text-blue-200'}>
                   <strong>{operacionCompletar.unidad_vendida?.marca} {operacionCompletar.unidad_vendida?.modelo}</strong>
                   <br />
                   Cliente: {operacionCompletar.cliente?.nombre_completo}
@@ -577,7 +583,7 @@ export default function Operaciones() {
 
               {modoCargarDatos && (
                 <div className="bg-blue-50 dark:bg-blue-950 rounded-lg p-3">
-                  <p className="text-xs text-blue-800">
+                  <p className="text-xs text-blue-800 dark:text-blue-200">
                     Esta venta fue completada sin datos del boleto. Ingrese el kilometraje de entrega
                     para poder generar e imprimir el boleto de compra-venta.
                   </p>
@@ -620,7 +626,7 @@ export default function Operaciones() {
               </div>
 
               <div className="bg-yellow-50 dark:bg-yellow-950 rounded-lg p-3">
-                <p className="text-xs text-yellow-800">
+                <p className="text-xs text-yellow-800 dark:text-yellow-200">
                   <strong>Garantia:</strong> 3 meses o 2.000 km (lo que ocurra primero), exclusivamente sobre motor y caja.
                   <br />
                   <strong>Otros desperfectos:</strong> 72 horas para reclamo.
@@ -722,7 +728,7 @@ export default function Operaciones() {
               ) : diagnostico ? (
                 <>
                   <div className="bg-yellow-50 dark:bg-yellow-950 rounded-lg p-4">
-                    <h4 className="font-medium text-yellow-800 mb-2">Diagnostico</h4>
+                    <h4 className="font-medium text-yellow-800 dark:text-yellow-200 mb-2">Diagnostico</h4>
                     <div className="text-sm text-yellow-700 dark:text-yellow-400 space-y-1">
                       <p>Unidades vendidas: <strong>{diagnostico.total_unidades_vendidas}</strong></p>
                       <p>Operaciones registradas: <strong>{diagnostico.total_operaciones_completadas}</strong></p>

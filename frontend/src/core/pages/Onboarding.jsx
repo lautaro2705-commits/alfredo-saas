@@ -43,19 +43,24 @@ export default function Onboarding() {
     setError('')
     setLoading(true)
 
-    const result = await onboarding(data)
+    try {
+      const result = await onboarding(data)
 
-    if (result.success) {
-      window.dataLayer?.push({
-        event: 'sign_up',
-        method: 'email',
-        agency_name: data.nombre_agencia,
-      })
-      navigate('/')
-    } else {
-      setError(result.error)
+      if (result.success) {
+        window.dataLayer?.push({
+          event: 'sign_up',
+          method: 'email',
+          agency_name: data.nombre_agencia,
+        })
+        navigate('/')
+      } else {
+        setError(result.error || 'Error al registrar. Intenta de nuevo.')
+      }
+    } catch (err) {
+      setError('Error de conexion. Verifica tu internet e intenta de nuevo.')
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   return (

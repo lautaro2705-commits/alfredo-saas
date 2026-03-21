@@ -75,7 +75,7 @@ async def listar_costo_oportunidad(
     Listar costo de oportunidad de todas las unidades en stock.
     Muestra cuanto dinero 'pierde' cada unidad por estar inmovilizada.
     """
-    stmt = select(Unidad)
+    stmt = select(Unidad).where(Unidad.active())
     if solo_disponibles:
         stmt = stmt.where(Unidad.estado.in_([EstadoUnidad.DISPONIBLE, EstadoUnidad.RESERVADO]))
 
@@ -136,6 +136,7 @@ async def roi_por_marca(
     # Obtener operaciones completadas con sus unidades
     result = await db.execute(
         select(Operacion).where(
+            Operacion.active(),
             Operacion.estado == EstadoOperacion.COMPLETADA,
             Operacion.fecha_operacion >= fecha_desde,
             Operacion.fecha_operacion <= fecha_hasta
@@ -220,6 +221,7 @@ async def roi_por_modelo(
 
     result = await db.execute(
         select(Operacion).where(
+            Operacion.active(),
             Operacion.estado == EstadoOperacion.COMPLETADA,
             Operacion.fecha_operacion >= fecha_desde,
             Operacion.fecha_operacion <= fecha_hasta
@@ -302,31 +304,46 @@ async def alertas_repricing(
 
     result = await db.execute(
         select(Unidad).where(
+            Unidad.active(),
             Unidad.estado == EstadoUnidad.DISPONIBLE
         )
     )
     unidades = result.scalars().all()
+
+    # Pre-load all completed operations with their units to avoid N+1
+    from sqlalchemy.orm import selectinload
+    result = await db.execute(
+        select(Operacion)
+        .options(selectinload(Operacion.unidad_vendida))
+        .where(
+            Operacion.active(),
+            Operacion.estado == EstadoOperacion.COMPLETADA,
+        )
+    )
+    todas_operaciones = result.scalars().all()
+
+    # Build lookup: (marca, modelo) -> list of (anio, precio_venta)
+    ventas_por_marca_modelo = {}
+    for op in todas_operaciones:
+        if op.unidad_vendida:
+            key = (op.unidad_vendida.marca, op.unidad_vendida.modelo)
+            if key not in ventas_por_marca_modelo:
+                ventas_por_marca_modelo[key] = []
+            ventas_por_marca_modelo[key].append((op.unidad_vendida.anio, op.precio_venta))
 
     alertas = []
     for u in unidades:
         if u.dias_en_stock < dias_repricing:
             continue
 
-        # Buscar precio promedio de ventas similares
-        result = await db.execute(
-            select(Operacion).join(Unidad).where(
-                Operacion.estado == EstadoOperacion.COMPLETADA,
-                Unidad.marca == u.marca,
-                Unidad.modelo == u.modelo,
-                Unidad.anio.between(u.anio - 1, u.anio + 1)
-            )
-        )
-        ventas_similares = result.scalars().all()
+        # Buscar precio promedio de ventas similares (from pre-loaded data)
+        key = (u.marca, u.modelo)
+        similares = ventas_por_marca_modelo.get(key, [])
+        precios_similares = [precio for anio, precio in similares if u.anio - 1 <= anio <= u.anio + 1]
 
         precio_sugerido = None
-        if ventas_similares:
-            precios = [op.precio_venta for op in ventas_similares]
-            precio_sugerido = round(sum(precios) / len(precios), 2)
+        if precios_similares:
+            precio_sugerido = round(sum(precios_similares) / len(precios_similares), 2)
 
         alertas.append(AlertaRepricing(
             unidad_id=u.id,
@@ -363,6 +380,7 @@ async def resumen_inteligencia(
     # Unidades en stock
     result = await db.execute(
         select(Unidad).where(
+            Unidad.active(),
             Unidad.estado.in_([EstadoUnidad.DISPONIBLE, EstadoUnidad.RESERVADO])
         )
     )
@@ -378,6 +396,7 @@ async def resumen_inteligencia(
     fecha_mes = date.today() - timedelta(days=30)
     result = await db.execute(
         select(Operacion).where(
+            Operacion.active(),
             Operacion.estado == EstadoOperacion.COMPLETADA,
             Operacion.fecha_operacion >= fecha_mes
         )
@@ -400,6 +419,7 @@ async def resumen_inteligencia(
     fecha_trim = date.today() - timedelta(days=90)
     result = await db.execute(
         select(Operacion).where(
+            Operacion.active(),
             Operacion.estado == EstadoOperacion.COMPLETADA,
             Operacion.fecha_operacion >= fecha_trim
         )
@@ -452,7 +472,7 @@ async def analisis_unidad(
     Solo accesible por Admin.
     """
     result = await db.execute(
-        select(Unidad).where(Unidad.id == unidad_id)
+        select(Unidad).where(Unidad.active(), Unidad.id == unidad_id)
     )
     unidad = result.scalar_one_or_none()
     if not unidad:

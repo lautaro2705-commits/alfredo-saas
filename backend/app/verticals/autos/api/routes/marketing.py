@@ -43,7 +43,7 @@ async def generar_ficha_venta(
     Generar datos para ficha de venta compartible.
     Retorna JSON con toda la informacion formateada.
     """
-    result = await db.execute(select(Unidad).where(Unidad.id == unidad_id))
+    result = await db.execute(select(Unidad).where(Unidad.active(), Unidad.id == unidad_id))
     unidad = result.scalar_one_or_none()
     if not unidad:
         raise HTTPException(status_code=404, detail="Unidad no encontrada")
@@ -168,7 +168,7 @@ async def generar_ficha_venta_html(
     Generar ficha de venta como HTML para compartir o imprimir.
     Vista limpia y diseñada para compartir.
     """
-    result = await db.execute(select(Unidad).where(Unidad.id == unidad_id))
+    result = await db.execute(select(Unidad).where(Unidad.active(), Unidad.id == unidad_id))
     unidad = result.scalar_one_or_none()
     if not unidad:
         raise HTTPException(status_code=404, detail="Unidad no encontrada")
@@ -373,7 +373,7 @@ async def datos_compartir(
     """
     Obtener URLs y textos para compartir en diferentes plataformas.
     """
-    result = await db.execute(select(Unidad).where(Unidad.id == unidad_id))
+    result = await db.execute(select(Unidad).where(Unidad.active(), Unidad.id == unidad_id))
     unidad = result.scalar_one_or_none()
     if not unidad:
         raise HTTPException(status_code=404, detail="Unidad no encontrada")

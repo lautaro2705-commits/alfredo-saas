@@ -47,7 +47,7 @@ export default function UnidadForm() {
       ? unidadesAPI.update(id, data)
       : unidadesAPI.create(data),
     onSuccess: () => {
-      queryClient.invalidateQueries(['unidades'])
+      queryClient.invalidateQueries({ queryKey: ['unidades'] })
       toast.success(isEditing ? 'Unidad actualizada' : 'Unidad creada')
       navigate('/unidades')
     },

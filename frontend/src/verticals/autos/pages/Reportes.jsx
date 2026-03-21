@@ -43,7 +43,10 @@ function handleExportPDF() {
   `
   document.head.appendChild(printStyles)
   window.print()
-  setTimeout(() => document.head.removeChild(printStyles), 1000)
+  // Cleanup immediately after print dialog closes (print() is synchronous/blocking)
+  if (printStyles.parentNode) {
+    printStyles.parentNode.removeChild(printStyles)
+  }
 }
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899']
@@ -244,7 +247,7 @@ export default function Reportes() {
 
         <div className="card">
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-purple-100 rounded-lg">
+            <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
               <DollarSign className="w-5 h-5 text-purple-600 dark:text-purple-400" />
             </div>
             <span className="text-sm text-gray-500 dark:text-gray-400">Utilidad Neta</span>
@@ -276,7 +279,7 @@ export default function Reportes() {
                 <YAxis tickFormatter={(v) => `${(v / 1000000).toFixed(1)}M`} />
                 <Tooltip
                   formatter={(value) => formatCurrency(value)}
-                  labelFormatter={(v) => ventasMensuales.meses[v - 1]?.nombre_mes}
+                  labelFormatter={(v) => ventasMensuales.meses?.find(m => m.mes === v)?.nombre_mes || `Mes ${v}`}
                 />
                 <Bar dataKey="total_ventas" fill="#3b82f6" name="Ventas" />
                 <Bar dataKey="utilidad_bruta" fill="#10b981" name="Utilidad" />

@@ -57,9 +57,9 @@ function AlertCard({ unidad, suggestion }) {
   const [applying, setApplying] = useState(false)
   const queryClient = useQueryClient()
 
-  const newPrice = suggestion
+  const newPrice = suggestion && unidad.precio_publicado
     ? Math.round(unidad.precio_publicado * (1 + suggestion.percent / 100))
-    : unidad.precio_publicado
+    : unidad.precio_publicado || 0
 
   const handleApply = async () => {
     setApplying(true)

@@ -49,7 +49,7 @@ function PageLoader() {
     <div className="flex items-center justify-center py-32">
       <div className="flex flex-col items-center gap-3">
         <div className="w-8 h-8 border-2 border-primary-200 dark:border-primary-800 border-t-primary-600 dark:border-t-primary-400 rounded-full animate-spin" />
-        <span className="text-sm text-gray-400">Cargando...</span>
+        <span className="text-sm text-gray-400 dark:text-gray-500">Cargando...</span>
       </div>
     </div>
   )

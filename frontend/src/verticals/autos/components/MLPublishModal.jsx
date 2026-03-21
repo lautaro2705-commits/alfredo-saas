@@ -74,10 +74,10 @@ export default function MLPublishModal({ unidad, onClose, onSuccess }) {
   const effectivePrice = priceOverride ? parseFloat(priceOverride) : unidad.precio_publicado
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" role="dialog" aria-modal="true" aria-label="Publicar en MercadoLibre">
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-3">
             <span className="text-2xl">🛒</span>
             <div>
@@ -87,6 +87,7 @@ export default function MLPublishModal({ unidad, onClose, onSuccess }) {
           </div>
           <button
             onClick={onClose}
+            aria-label="Cerrar"
             className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
           >
             <X className="w-5 h-5" />
@@ -128,8 +129,8 @@ export default function MLPublishModal({ unidad, onClose, onSuccess }) {
                 <div className="flex gap-4">
                   {unidad.fotos && (
                     <img
-                      src={unidad.fotos.split(',')[0]}
-                      alt={unidad.marca}
+                      src={Array.isArray(unidad.fotos) ? unidad.fotos[0] : unidad.fotos.split(',')[0]}
+                      alt={`${unidad.marca} ${unidad.modelo}`}
                       className="w-24 h-24 rounded-lg object-cover"
                     />
                   )}
@@ -208,8 +209,8 @@ export default function MLPublishModal({ unidad, onClose, onSuccess }) {
               </div>
 
               {/* Advertencia */}
-              <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 rounded-lg p-3">
-                <p className="text-sm text-blue-800">
+              <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+                <p className="text-sm text-blue-800 dark:text-blue-200">
                   💡 La publicación se creará con las fotos y datos actuales del vehículo.
                   Asegurate de tener todo actualizado antes de publicar.
                 </p>
@@ -220,7 +221,7 @@ export default function MLPublishModal({ unidad, onClose, onSuccess }) {
 
         {/* Footer */}
         {!published && (
-          <div className="p-4 border-t bg-gray-50 dark:bg-gray-800 flex gap-3">
+          <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 flex gap-3">
             <button
               onClick={onClose}
               className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
@@ -243,7 +244,7 @@ export default function MLPublishModal({ unidad, onClose, onSuccess }) {
         )}
 
         {published && (
-          <div className="p-4 border-t bg-gray-50 dark:bg-gray-800">
+          <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
             <button
               onClick={() => {
                 onSuccess?.()

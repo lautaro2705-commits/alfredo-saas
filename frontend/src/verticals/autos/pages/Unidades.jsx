@@ -24,7 +24,6 @@ import {
   X,
   Tag,
   Percent,
-  ArrowDownToLine,
 } from 'lucide-react'
 import clsx from 'clsx'
 import BadgeCompetitividad from '../components/BadgeCompetitividad'
@@ -95,8 +94,8 @@ export default function Unidades() {
     onSuccess: (results) => {
       const ok = results.filter(r => r.status === 'fulfilled').length
       const fail = results.filter(r => r.status === 'rejected').length
-      queryClient.invalidateQueries(['unidades'])
-      queryClient.invalidateQueries(['valorizacion-stock'])
+      queryClient.invalidateQueries({ queryKey: ['unidades'] })
+      queryClient.invalidateQueries({ queryKey: ['valorizacion-stock'] })
       if (fail === 0) toast.success(`${ok} unidades actualizadas`)
       else toast.success(`${ok} actualizadas, ${fail} con error`)
       exitSelectionMode()
@@ -111,8 +110,8 @@ export default function Unidades() {
     },
     onSuccess: (results) => {
       const ok = results.filter(r => r.status === 'fulfilled').length
-      queryClient.invalidateQueries(['unidades'])
-      queryClient.invalidateQueries(['valorizacion-stock'])
+      queryClient.invalidateQueries({ queryKey: ['unidades'] })
+      queryClient.invalidateQueries({ queryKey: ['valorizacion-stock'] })
       toast.success(`${ok} unidades eliminadas`)
       exitSelectionMode()
     },
@@ -137,7 +136,7 @@ export default function Unidades() {
       })
       Promise.allSettled(promises).then(results => {
         const ok = results.filter(r => r.status === 'fulfilled').length
-        queryClient.invalidateQueries(['unidades'])
+        queryClient.invalidateQueries({ queryKey: ['unidades'] })
         toast.success(`Precio ajustado en ${ok} unidades`)
         exitSelectionMode()
       })
@@ -172,8 +171,8 @@ export default function Unidades() {
   const deleteMutation = useMutation({
     mutationFn: ({ id, forzar }) => unidadesAPI.delete(id, forzar),
     onSuccess: () => {
-      queryClient.invalidateQueries(['unidades'])
-      queryClient.invalidateQueries(['valorizacion-stock'])
+      queryClient.invalidateQueries({ queryKey: ['unidades'] })
+      queryClient.invalidateQueries({ queryKey: ['valorizacion-stock'] })
       toast.success('Unidad eliminada')
     },
     onError: (error) => {
@@ -196,7 +195,7 @@ export default function Unidades() {
   }
 
   const formatCurrency = (value) => {
-    if (!value) return '-'
+    if (value === null || value === undefined) return '-'
     return new Intl.NumberFormat('es-AR', {
       style: 'currency',
       currency: 'ARS',
@@ -240,7 +239,7 @@ export default function Unidades() {
           {selectionMode && (
             <button
               onClick={exitSelectionMode}
-              className="btn btn-secondary flex items-center gap-2 text-red-600 border-red-200 hover:bg-red-50"
+              className="btn btn-secondary flex items-center gap-2 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800 hover:bg-red-50 dark:hover:bg-red-950"
             >
               <X className="w-5 h-5" />
               Cancelar
@@ -269,7 +268,7 @@ export default function Unidades() {
 
       {/* Panel de Valorizacion */}
       {isAdmin && showValorizacion && (
-        <div className="card bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+        <div className="card bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border-blue-200 dark:border-blue-800">
           {loadingValorizacion ? (
             <div className="flex justify-center py-4">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600" />
@@ -283,10 +282,10 @@ export default function Unidades() {
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Stock Propio */}
-                <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-green-200">
+                <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-green-200 dark:border-green-800">
                   <div className="flex items-center gap-2 mb-2">
                     <Car className="w-5 h-5 text-green-600 dark:text-green-400" />
-                    <h4 className="font-medium text-green-700">Stock Propio</h4>
+                    <h4 className="font-medium text-green-700 dark:text-green-400">Stock Propio</h4>
                   </div>
                   <p className="text-3xl font-bold text-green-600 dark:text-green-400">
                     {formatCurrency(valorizacion.stock_propio.inversion_total)}
@@ -307,10 +306,10 @@ export default function Unidades() {
                 </div>
 
                 {/* Consignacion */}
-                <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-purple-200">
+                <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-purple-200 dark:border-purple-800">
                   <div className="flex items-center gap-2 mb-2">
                     <Users className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-                    <h4 className="font-medium text-purple-700">Consignacion</h4>
+                    <h4 className="font-medium text-purple-700 dark:text-purple-400">Consignacion</h4>
                   </div>
                   <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">
                     {formatCurrency(valorizacion.stock_consignacion.valor_acordado)}
@@ -331,10 +330,10 @@ export default function Unidades() {
                 </div>
 
                 {/* Resumen Total */}
-                <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-blue-200">
+                <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
                   <div className="flex items-center gap-2 mb-2">
                     <DollarSign className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                    <h4 className="font-medium text-blue-700">Resumen</h4>
+                    <h4 className="font-medium text-blue-700 dark:text-blue-400">Resumen</h4>
                   </div>
                   <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">
                     {valorizacion.resumen_total.unidades_totales}
@@ -490,12 +489,12 @@ export default function Unidades() {
                     {estadoLabels[unidad.estado]}
                   </span>
                   {unidad.origen === 'consignacion' && (
-                    <span className="badge bg-purple-100 text-purple-800 text-xs">
+                    <span className="badge bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300 text-xs">
                       Consignacion
                     </span>
                   )}
                   {unidad.origen === 'retoma' && (
-                    <span className="badge bg-orange-100 text-orange-800 text-xs">
+                    <span className="badge bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300 text-xs">
                       Retoma
                     </span>
                   )}
@@ -565,21 +564,21 @@ export default function Unidades() {
             <div className="flex gap-2">
               <button
                 onClick={() => setBulkAction('estado')}
-                className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl text-sm font-medium transition-colors"
+                className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/40 dark:hover:bg-blue-900/50 text-blue-700 dark:text-blue-300 rounded-xl text-sm font-medium transition-colors"
               >
                 <Tag className="w-4 h-4" />
                 Cambiar estado
               </button>
               <button
                 onClick={() => setBulkAction('precio')}
-                className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 bg-green-50 hover:bg-green-100 text-green-700 rounded-xl text-sm font-medium transition-colors"
+                className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 bg-green-50 hover:bg-green-100 dark:bg-green-950/40 dark:hover:bg-green-900/50 text-green-700 dark:text-green-300 rounded-xl text-sm font-medium transition-colors"
               >
                 <Percent className="w-4 h-4" />
                 Ajustar precio
               </button>
               <button
                 onClick={() => setBulkAction('delete')}
-                className="flex items-center justify-center gap-2 px-3 py-2.5 bg-red-50 hover:bg-red-100 text-red-700 rounded-xl text-sm font-medium transition-colors"
+                className="flex items-center justify-center gap-2 px-3 py-2.5 bg-red-50 hover:bg-red-100 dark:bg-red-950/40 dark:hover:bg-red-900/50 text-red-700 dark:text-red-300 rounded-xl text-sm font-medium transition-colors"
               >
                 <Trash2 className="w-4 h-4" />
               </button>

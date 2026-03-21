@@ -26,8 +26,8 @@ async def listar_cheques_recibidos(
     estado: Optional[EstadoChequeRecibido] = None,
     fecha_desde: Optional[date] = None,
     fecha_hasta: Optional[date] = None,
-    skip: int = 0,
-    limit: int = 100,
+    skip: int = Query(0, ge=0),
+    limit: int = Query(100, ge=1, le=500),
     db: AsyncSession = Depends(get_db),
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
@@ -296,8 +296,8 @@ async def listar_cheques_emitidos(
     estado: Optional[EstadoChequeEmitido] = None,
     fecha_desde: Optional[date] = None,
     fecha_hasta: Optional[date] = None,
-    skip: int = 0,
-    limit: int = 100,
+    skip: int = Query(0, ge=0),
+    limit: int = Query(100, ge=1, le=500),
     db: AsyncSession = Depends(get_db),
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):

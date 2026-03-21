@@ -50,7 +50,7 @@ export default function ActivityFeed({ isOpen, onClose }) {
       return res.data
     },
     enabled: isOpen,
-    refetchInterval: 30000, // Refresh every 30s when open
+    refetchInterval: isOpen ? 30000 : false, // Only refresh when panel is open
   })
 
   if (!isOpen) return null
@@ -75,6 +75,7 @@ export default function ActivityFeed({ isOpen, onClose }) {
           </div>
           <button
             onClick={onClose}
+            aria-label="Cerrar actividad"
             className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
           >
             <X className="w-4 h-4" />
@@ -129,7 +130,7 @@ export default function ActivityFeed({ isOpen, onClose }) {
                       )}
                       <p className="text-xs text-gray-400 mt-1 flex items-center gap-1">
                         <Clock className="w-3 h-3" />
-                        {item.fecha
+                        {item.fecha && !isNaN(new Date(item.fecha).getTime())
                           ? formatDistanceToNow(new Date(item.fecha), { addSuffix: true, locale: es })
                           : 'hace un momento'}
                       </p>

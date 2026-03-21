@@ -151,7 +151,7 @@ function AlertItem({ alerta }) {
 }
 
 function VariacionBadge({ valor, tipo = 'cantidad' }) {
-  if (valor === 0 || valor === undefined) return null
+  if (valor === 0 || valor === undefined || valor === null) return null
 
   const isPositive = valor > 0
   const Icon = isPositive ? ArrowUpRight : ArrowDownRight
@@ -460,7 +460,7 @@ export default function Dashboard() {
           ) : (
             <div className="space-y-3 max-h-80 overflow-y-auto">
               {resumen?.alertas?.slice(0, 8).map((alerta, i) => (
-                <AlertItem key={i} alerta={alerta} />
+                <AlertItem key={alerta.id || `${alerta.tipo}-${alerta.unidad_id}-${i}`} alerta={alerta} />
               ))}
             </div>
           )}
@@ -493,7 +493,7 @@ export default function Dashboard() {
                     <div className="text-right">
                       <p className="font-semibold text-green-600 dark:text-green-400">{formatCurrency(venta.monto)}</p>
                       <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {format(new Date(venta.fecha), 'dd/MM/yyyy')}
+                        {venta.fecha ? format(new Date(venta.fecha), 'dd/MM/yyyy') : '-'}
                       </p>
                     </div>
                   </div>

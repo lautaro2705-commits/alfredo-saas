@@ -9,6 +9,7 @@ export default function ExportButton({ onClick, loading = false, label = 'Export
     <button
       onClick={onClick}
       disabled={loading}
+      aria-label={loading ? 'Exportando' : label}
       className={clsx(
         'flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg border transition-all',
         'border-green-300 text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-950 hover:bg-green-100',

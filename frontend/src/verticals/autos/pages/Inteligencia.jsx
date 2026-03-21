@@ -95,6 +95,7 @@ export default function Inteligencia() {
   })
 
   const handleSaveConfig = async () => {
+    if (!config) return
     try {
       // Guardar cada valor que cambio
       if (configValues.tasa_costo_oportunidad_anual !== config.tasa_costo_oportunidad_anual) {
@@ -123,11 +124,13 @@ export default function Inteligencia() {
   }
 
   const handleCancelEdit = () => {
-    setConfigValues({
-      tasa_costo_oportunidad_anual: config.tasa_costo_oportunidad_anual,
-      dias_alerta_repricing: config.dias_alerta_repricing,
-      dias_stock_inmovilizado: config.dias_stock_inmovilizado
-    })
+    if (config) {
+      setConfigValues({
+        tasa_costo_oportunidad_anual: config.tasa_costo_oportunidad_anual,
+        dias_alerta_repricing: config.dias_alerta_repricing,
+        dias_stock_inmovilizado: config.dias_stock_inmovilizado
+      })
+    }
     setEditingConfig(false)
   }
 
@@ -170,7 +173,7 @@ export default function Inteligencia() {
       {showConfig && config && (
         <div className="card bg-blue-50 dark:bg-blue-950 border-blue-200">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-blue-900">Configuracion de Parametros</h3>
+            <h3 className="font-semibold text-blue-900 dark:text-blue-100">Configuracion de Parametros</h3>
             {!editingConfig ? (
               <button
                 onClick={() => setEditingConfig(true)}
@@ -264,15 +267,15 @@ export default function Inteligencia() {
             <div className="grid grid-cols-3 gap-4 text-sm">
               <div>
                 <p className="text-blue-600 dark:text-blue-400">Tasa Costo Oportunidad</p>
-                <p className="font-bold text-blue-900">{config.tasa_costo_oportunidad_anual}% anual</p>
+                <p className="font-bold text-blue-900 dark:text-blue-100">{config.tasa_costo_oportunidad_anual}% anual</p>
               </div>
               <div>
                 <p className="text-blue-600 dark:text-blue-400">Alerta Re-precio</p>
-                <p className="font-bold text-blue-900">{config.dias_alerta_repricing} dias</p>
+                <p className="font-bold text-blue-900 dark:text-blue-100">{config.dias_alerta_repricing} dias</p>
               </div>
               <div>
                 <p className="text-blue-600 dark:text-blue-400">Stock Inmovilizado</p>
-                <p className="font-bold text-blue-900">{config.dias_stock_inmovilizado} dias</p>
+                <p className="font-bold text-blue-900 dark:text-blue-100">{config.dias_stock_inmovilizado} dias</p>
               </div>
             </div>
           )}
@@ -317,16 +320,16 @@ export default function Inteligencia() {
         <div className="card bg-yellow-50 dark:bg-yellow-950 border-yellow-200">
           <div className="flex items-center gap-2 mb-3">
             <AlertTriangle className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
-            <h3 className="font-semibold text-yellow-900">Alertas</h3>
+            <h3 className="font-semibold text-yellow-900 dark:text-yellow-100">Alertas</h3>
           </div>
           <div className="flex gap-6 text-sm">
             {resumen.unidades_requieren_repricing > 0 && (
-              <p className="text-yellow-800">
+              <p className="text-yellow-800 dark:text-yellow-200">
                 <span className="font-bold">{resumen.unidades_requieren_repricing}</span> unidades requieren revision de precio
               </p>
             )}
             {resumen.unidades_stock_inmovilizado > 0 && (
-              <p className="text-yellow-800">
+              <p className="text-yellow-800 dark:text-yellow-200">
                 <span className="font-bold">{resumen.unidades_stock_inmovilizado}</span> unidades con stock inmovilizado
               </p>
             )}
@@ -489,18 +492,18 @@ export default function Inteligencia() {
       {/* Top Performers */}
       {resumen && (resumen.marca_mas_rentable || resumen.modelo_mas_rentable) && (
         <div className="card bg-green-50 dark:bg-green-950 border-green-200">
-          <h3 className="font-semibold text-green-900 mb-3">Top Performers (Ultimo Trimestre)</h3>
+          <h3 className="font-semibold text-green-900 dark:text-green-100 mb-3">Top Performers (Ultimo Trimestre)</h3>
           <div className="grid grid-cols-2 gap-4">
             {resumen.marca_mas_rentable && (
               <div>
                 <p className="text-sm text-green-600 dark:text-green-400">Marca mas Rentable</p>
-                <p className="font-bold text-green-900 text-lg">{resumen.marca_mas_rentable}</p>
+                <p className="font-bold text-green-900 dark:text-green-100 text-lg">{resumen.marca_mas_rentable}</p>
               </div>
             )}
             {resumen.modelo_mas_rentable && (
               <div>
                 <p className="text-sm text-green-600 dark:text-green-400">Modelo mas Rentable</p>
-                <p className="font-bold text-green-900 text-lg">{resumen.modelo_mas_rentable}</p>
+                <p className="font-bold text-green-900 dark:text-green-100 text-lg">{resumen.modelo_mas_rentable}</p>
               </div>
             )}
           </div>

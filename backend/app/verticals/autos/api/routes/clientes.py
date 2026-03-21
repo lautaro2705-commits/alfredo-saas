@@ -15,8 +15,8 @@ router = APIRouter(prefix="/autos/clientes", tags=["autos-clientes"])
 @router.get("/", response_model=List[ClienteResponse])
 async def listar_clientes(
     buscar: Optional[str] = None,
-    skip: int = 0,
-    limit: int = 100,
+    skip: int = Query(0, ge=0),
+    limit: int = Query(100, ge=1, le=500),
     db: AsyncSession = Depends(get_db),
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
@@ -121,8 +121,11 @@ async def operaciones_cliente(
     token: TokenContext = Depends(get_current_user_with_tenant)
 ):
     """Obtener historial de operaciones de un cliente"""
+    from app.verticals.autos.models.operacion import Operacion
     result = await db.execute(
-        select(Cliente).options(selectinload(Cliente.operaciones)).where(Cliente.active(), Cliente.id == cliente_id)
+        select(Cliente)
+        .options(selectinload(Cliente.operaciones).selectinload(Operacion.unidad_vendida))
+        .where(Cliente.active(), Cliente.id == cliente_id)
     )
     cliente = result.scalar_one_or_none()
     if not cliente:
