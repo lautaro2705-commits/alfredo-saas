@@ -12,6 +12,15 @@ import OfflineIndicator from '@/core/components/OfflineIndicator'
 import App from './App'
 import './index.css'
 
+// ── Force HTTPS in production ──
+if (
+  import.meta.env.PROD &&
+  window.location.protocol === 'http:' &&
+  !window.location.hostname.includes('localhost')
+) {
+  window.location.href = window.location.href.replace('http:', 'https:')
+}
+
 // ── Sentry (frontend error tracking) ──
 if (import.meta.env.VITE_SENTRY_DSN) {
   Sentry.init({

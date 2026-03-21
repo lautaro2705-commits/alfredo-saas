@@ -57,7 +57,15 @@ export default function Onboarding() {
         setError(result.error || 'Error al registrar. Intenta de nuevo.')
       }
     } catch (err) {
-      setError('Error de conexion. Verifica tu internet e intenta de nuevo.')
+      if (err?.message?.includes('Network Error') || err?.code === 'ERR_NETWORK') {
+        setError('Error de conexion. Verifica tu internet e intenta de nuevo.')
+      } else if (err?.message?.includes('Mixed Content') || window.location.protocol === 'http:') {
+        // Redirect to HTTPS
+        window.location.href = window.location.href.replace('http:', 'https:')
+        return
+      } else {
+        setError(err?.message || 'Error inesperado. Intenta de nuevo.')
+      }
     } finally {
       setLoading(false)
     }
