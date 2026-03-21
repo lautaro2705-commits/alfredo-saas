@@ -130,6 +130,17 @@ export default function SearchModal({ isOpen, onClose }) {
     setSelectedIdx(0)
   }, [allResults.length, query])
 
+  // Select handler — declared before useEffect that references it
+  const handleSelectItem = useCallback((item) => {
+    if (item.type === 'action') {
+      navigate(item.path)
+    } else if (item.type === 'search') {
+      if (item.link) navigate(item.link)
+    }
+    onClose()
+    setQuery('')
+  }, [navigate, onClose])
+
   // Keyboard navigation
   useEffect(() => {
     if (!isOpen) return
@@ -162,16 +173,6 @@ export default function SearchModal({ isOpen, onClose }) {
       if (el) el.scrollIntoView({ block: 'nearest' })
     }
   }, [selectedIdx])
-
-  const handleSelectItem = useCallback((item) => {
-    if (item.type === 'action') {
-      navigate(item.path)
-    } else if (item.type === 'search') {
-      if (item.link) navigate(item.link)
-    }
-    onClose()
-    setQuery('')
-  }, [navigate, onClose])
 
   if (!isOpen) return null
 
