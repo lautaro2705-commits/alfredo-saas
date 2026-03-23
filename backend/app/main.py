@@ -77,6 +77,14 @@ async def lifespan(app: FastAPI):
 
         logger.info("All production startup checks passed ✓")
 
+    # ── Configure Cloudinary (photo uploads) ──
+    from app.verticals.autos.services.cloudinary_service import configure_cloudinary, is_cloudinary_configured
+    if is_cloudinary_configured():
+        configure_cloudinary()
+        logger.info("Cloudinary configured ✓")
+    else:
+        logger.warning("Cloudinary NOT configured — photo uploads will fail. Set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET.")
+
     # ── Start scheduler (alertas automáticas) ──
     from app.core.scheduler import start_scheduler, shutdown_scheduler
     await start_scheduler()
